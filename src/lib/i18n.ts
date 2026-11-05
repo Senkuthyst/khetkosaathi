@@ -140,7 +140,7 @@ export const translate = (lang: Lang, k: TKey) => dict[k][lang];
 const neDigits = "०१२३४५६७८९";
 export function num(lang: Lang, v: number | string) {
   const s = String(v);
-  return lang === "ne" ? s.replace(/\d/g, (d) => neDigits[+d]) : s;
+  return lang === "ne" ? s.replace(/\d/g, (d) => neDigits[+d]!) : s;
 }
 export function fmtDate(lang: Lang, isoStr: string) {
   const d = new Date(isoStr);
