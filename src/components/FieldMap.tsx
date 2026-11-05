@@ -21,7 +21,7 @@ export default function FieldMap({ center, zoom = 16, polygons = [], drawing, on
       ))}
       {drawing && drawing.length > 0 && (
         <>
-          <Polyline positions={drawing.length > 2 ? [...drawing, drawing[0]] : drawing} pathOptions={{ color: "#2f6b3a", dashArray: "6 6", weight: 3 }} />
+          <Polyline positions={drawing.length > 2 ? [...drawing, drawing[0]!] : drawing} pathOptions={{ color: "#2f6b3a", dashArray: "6 6", weight: 3 }} />
           {drawing.map((p, i) => <CircleMarker key={i} center={p} radius={7} pathOptions={{ color: "#2f6b3a", fillOpacity: 1 }} />)}
         </>
       )}
