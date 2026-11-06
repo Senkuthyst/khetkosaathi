@@ -1,6 +1,36 @@
 export type Lang = "ne" | "en";
 
 const dict = {
+  demo: { ne: "चितवन नमुना · ५ नोभेम्बर २०२६", en: "Chitwan demo · 5 November 2026" },
+  demoNote: { ne: "सबै मौसम र भू-उपग्रह डाटा चितवनको नमुना खेतका हुन्; दर्ता गरिएको खेतको प्रत्यक्ष नाप होइन।", en: "All weather and satellite data represent the Chitwan pilot, not live readings from your registered field." },
+  pointScale: { ne: "खेतमा एक बिन्दु", en: "Point at farm" },
+  calendarScale: { ne: "बाली / क्षेत्रीय", en: "Crop / regional" },
+  gridded: { ne: "क्षेत्रीय ग्रिड सन्दर्भ", en: "Regional gridded context" },
+  incompleteRain: { ne: "उपलब्ध दिनको जम्मा; एक दिनको नाप छैन।", en: "Total of available days; one day has no reading." },
+  missingNote: { ne: "खाली ठाउँले नाप नभएको दिन देखाउँछ।", en: "Gaps indicate days without measurements." },
+  allData: { ne: "सबै नाप", en: "All readings" },
+  saving: { ne: "सुरक्षित हुँदै छ…", en: "Saving…" },
+  saved: { ne: "सुरक्षित भयो", en: "Saved" },
+  saveError: { ne: "सुरक्षित भएन। इन्टरनेट जाँचेर फेरि प्रयास गर्नुहोस्।", en: "Could not save. Check your connection and try again." },
+  loadError: { ne: "अभिलेख लोड भएन। फेरि प्रयास गर्नुहोस्।", en: "Records could not load. Please retry." },
+  retry: { ne: "फेरि प्रयास", en: "Retry" },
+  reportDetails: { ne: "कुन जानकारी गलत छ?", en: "What information is incorrect?" },
+  cancel: { ne: "रद्द", en: "Cancel" },
+  sendReport: { ne: "रिपोर्ट पठाउनुहोस्", en: "Send report" },
+  reviewDemo: { ne: "स्रोतमा आधारित नमुना सामग्री; औपचारिक विशेषज्ञ समीक्षा पुष्टि भएको छैन।", en: "Source-based demo content; formal expert review has not been verified." },
+  referenceInstitution: { ne: "सन्दर्भ संस्था", en: "Reference institution" },
+  reviewPending: { ne: "समीक्षा गर्ने: पुष्टि हुन बाँकी", en: "Reviewed by: verification pending" },
+  photoLimit: { ne: "JPEG, PNG वा WebP फोटो (१० MB सम्म)", en: "JPEG, PNG or WebP photo (up to 10 MB)" },
+  photoError: { ne: "फोटो पढ्न सकिएन। JPEG, PNG वा WebP (१० MB सम्म) छान्नुहोस्।", en: "Could not read photo. Choose JPEG, PNG or WebP (up to 10 MB)." },
+  removePhoto: { ne: "फोटो हटाउनुहोस्", en: "Remove photo" },
+  fieldScope: { ne: "यो खेतका अभिलेख", en: "Records for this field" },
+  stationGap: { ne: "अघिल्लो नाप छुट्यो; अहिले केन्द्र जोडिएको छ।", en: "Historical measurement gap; station is currently connected." },
+  soilDepth: { ne: "१५ से.मि. गहिराइमा", en: "At 15 cm depth" },
+  recentGap: { ne: "अन्तिम ७ दिनमा", en: "In the last 7 days" },
+  lowerBound: { ne: "न्यूनतम दायरा", en: "Lower baseline" },
+  upperBound: { ne: "अधिकतम दायरा", en: "Upper baseline" },
+  thresholdsNote: { ne: "सूचना सीमा तपाईंले छानेको मान हो; बालीको उपचार सल्लाह होइन।", en: "Alert thresholds are your selected values, not crop treatment advice." },
+  thresholdError: { ne: "मान जाँच्नुहोस्: वर्षा ०–५००, चिस्यान र ब्याट्री ०–१००, तापक्रम −२०–६०।", en: "Check values: rain 0–500, moisture and battery 0–100, temperature −20–60." },
   appName: { ne: "नेपाल कृषि सूचना मञ्च", en: "Nepal Agricultural Intelligence Platform" },
   langToggle: { ne: "English", en: "नेपाली" },
   home: { ne: "गृह", en: "Home" },
@@ -128,7 +158,7 @@ const dict = {
   reviewedBy: { ne: "समीक्षा गर्ने", en: "Reviewed by" },
   sourceLink: { ne: "स्रोत", en: "Source" },
   report: { ne: "गलत जानकारी रिपोर्ट गर्नुहोस्", en: "Report incorrect information" },
-  reported: { ne: "धन्यवाद! रिपोर्ट पठाइयो।", en: "Thanks! Report sent." },
+  reported: { ne: "धन्यवाद! रिपोर्ट प्राप्त भयो।", en: "Thanks! Report received." },
   allCrops: { ne: "सबै", en: "All" },
   noChem: { ne: "यस मञ्चले कुनै विषादी वा मलको मात्रा सिफारिस गर्दैन। त्यसका लागि स्थानीय कृषि प्राविधिकसँग सम्पर्क गर्नुहोस्।", en: "This platform never recommends pesticides or fertiliser doses. Contact your local agriculture technician for that." },
   noYield: { ne: "यो उत्पादन अनुमान होइन।", en: "This is not a yield prediction." },
@@ -140,7 +170,7 @@ export const translate = (lang: Lang, k: TKey) => dict[k][lang];
 const neDigits = "०१२३४५६७८९";
 export function num(lang: Lang, v: number | string) {
   const s = String(v);
-  return lang === "ne" ? s.replace(/\d/g, (d) => neDigits[+d]!) : s;
+  return lang === "ne" ? s.replace(/\d/g, (d) => neDigits[+d] ?? d) : s;
 }
 export function fmtDate(lang: Lang, isoStr: string) {
   const d = new Date(isoStr);

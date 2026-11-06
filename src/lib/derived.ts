@@ -7,8 +7,8 @@ export function summary() {
   const last7 = daily.slice(-7);
   const rain7 = last7.reduce((s, d) => s + (d.rain ?? 0), 0);
   const veg = getVegSeries();
-  const lastVeg = [...veg].reverse().find((v) => v.ndvi !== null)!;
-  const vegBelow = lastVeg.ndvi! < lastVeg.baseLow;
+  const lastVeg = [...veg].reverse().find((v) => v.ndvi !== null) ?? null;
+  const vegBelow = lastVeg?.ndvi != null && lastVeg.ndvi < lastVeg.baseLow;
   const tMaxRecent = Math.max(...last7.map((d) => d.tMax ?? -99));
   return { daily, last7, rain7: Math.round(rain7 * 10) / 10, veg, lastVeg, vegBelow, tMaxRecent };
 }
@@ -24,7 +24,7 @@ export function currentAlerts(th: Thresholds) {
       vegBelowBaseline: s.vegBelow,
       gapHours: sensorHealth.gaps[0]?.hours ?? 0,
       now: stationCurrent.observedAt,
-      satDate: s.lastVeg.date,
+      satDate: s.lastVeg?.date ?? "",
     },
     th,
   );
