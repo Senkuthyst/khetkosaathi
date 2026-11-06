@@ -46,7 +46,7 @@
 }
 
 :root {
-  --radius: 0.875rem;
+  --radius: 0rem;
   --background: oklch(0.975 0.012 95);
   --foreground: oklch(0.24 0.04 140);
   --card: oklch(0.995 0.006 95);
@@ -94,4 +94,8 @@
 
 @utility tap {
   min-height: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }

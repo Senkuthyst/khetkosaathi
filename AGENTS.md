@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep mock agricultural observations behind src/lib/data; registration does not imply live data for that field.
+- Store inspections in Cloud through device-capability RPCs; hashed random tokens scope private demo records without introducing account signup.
+- Store incorrect-information reports as insert-only Cloud records; do not expose submitted reports publicly.
+- Use shared DataCard metadata, report controls, charts, and threshold validation across feature routes to keep safety and measurement semantics consistent.

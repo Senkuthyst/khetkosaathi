@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
-import { Satellite, Radio, Globe2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Satellite, Radio, Globe2, Flag, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import { useApp } from "@/lib/store";
 import { fmtDate } from "@/lib/i18n";
 import type { Freshness, Source } from "@/lib/data";
@@ -36,13 +38,14 @@ export function DataCard({
         <h2 className="flex items-center gap-2 text-base font-bold">{icon}{title}</h2>
         <FreshBadge f={freshness} />
       </div>
-      <p className="mb-2 text-xs font-medium text-muted-foreground">{sat ? t("estimate") : source === "station" ? t("measured") : "Gridded"}</p>
+      <p className="mb-2 text-xs font-medium text-muted-foreground">{sat ? t("estimate") : source === "station" ? t("measured") : t("gridded")}</p>
       {children}
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t pt-2 text-xs text-muted-foreground">
         <SourceTag source={source} />
         <span>{t("observed")}: {observedAt ? fmtDate(lang, observedAt) : "—"}</span>
         <span>{t("scale")}: {scale}</span>
       </div>
+      <ReportButton cardId={title} />
     </section>
   );
 }
@@ -69,3 +72,31 @@ export function Btn({ className, variant = "primary", ...p }: React.ButtonHTMLAt
 }
 
 export const inputCls = "tap w-full rounded-xl border-2 border-input bg-card px-3 text-base focus:border-primary focus:outline-none";
+
+export function ReportButton({ cardId }: { cardId: string }) {
+  const { t } = useApp();
+  const [open, setOpen] = useState(false);
+  const [details, setDetails] = useState("");
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!details.trim()) return;
+    setState("saving");
+    try {
+      const { error } = await supabase.from("information_reports").insert({ card_id: cardId.slice(0, 150), details: details.trim() });
+      if (error) throw error;
+      setState("saved");
+    } catch { setState("error"); }
+  }
+  return <>
+    <Btn variant="ghost" className="mt-2 min-h-10 px-0 text-xs" onClick={() => { setOpen(true); setState("idle"); setDetails(""); }}><Flag className="h-3.5 w-3.5" />{t("report")}</Btn>
+    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="w-[calc(100%-2rem)] rounded-lg">
+      <DialogTitle>{t("report")}</DialogTitle><DialogDescription>{cardId}</DialogDescription>
+      {state === "saved" ? <p role="status" className="flex items-center gap-2 text-primary"><Check className="h-5 w-5" />{t("reported")}</p> : <form onSubmit={submit} className="space-y-3">
+        <label className="block text-sm font-semibold">{t("reportDetails")}<textarea required maxLength={2000} value={details} onChange={e => setDetails(e.target.value)} className={`${inputCls} mt-2 min-h-28 py-3`} /></label>
+        {state === "error" && <p role="alert" className="text-sm text-destructive">{t("saveError")}</p>}
+        <Btn type="submit" className="w-full" disabled={state === "saving" || !details.trim()}>{t(state === "saving" ? "saving" : "sendReport")}</Btn>
+      </form>}
+    </DialogContent></Dialog>
+  </>;
+}
