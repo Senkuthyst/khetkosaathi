@@ -14,13 +14,82 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      field_inspections: {
+        Row: {
+          device_hash: string
+          field_id: string
+          id: string
+          note: string
+          observed_at: string
+          outcome: string
+          photo: string | null
+        }
+        Insert: {
+          device_hash: string
+          field_id: string
+          id?: string
+          note: string
+          observed_at?: string
+          outcome: string
+          photo?: string | null
+        }
+        Update: {
+          device_hash?: string
+          field_id?: string
+          id?: string
+          note?: string
+          observed_at?: string
+          outcome?: string
+          photo?: string | null
+        }
+        Relationships: []
+      }
+      information_reports: {
+        Row: {
+          card_id: string
+          created_at: string
+          details: string
+          id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          details: string
+          id?: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          details?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      list_inspections: {
+        Args: { device_token: string; target_field: string }
+        Returns: {
+          date: string
+          id: string
+          note: string
+          outcome: string
+          photo: string
+        }[]
+      }
+      save_inspection: {
+        Args: {
+          device_token: string
+          entry_note: string
+          entry_outcome: string
+          entry_photo: string
+          target_field: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
