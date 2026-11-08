@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
-import { Satellite, Radio, Globe2, Flag, Check } from "lucide-react";
+import { Satellite, Radio, Globe2, Flag, Check, Info } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useApp } from "@/lib/store";
-import { fmtDate } from "@/lib/i18n";
-import type { Freshness, Source } from "@/lib/data";
+import { fmtDate, num } from "@/lib/i18n";
+import type { Freshness, Source, Provenance } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 export function FreshBadge({ f }: { f: Freshness }) {
@@ -13,7 +14,25 @@ export function FreshBadge({ f }: { f: Freshness }) {
   return <span className={cn("rounded-full px-2 py-0.5 text-xs font-semibold", cls)}>{t(f)}</span>;
 }
 
-const isSat = (s: Source) => s === "landsat" || s === "modis";
+const isSat = (s: Source) => s === "landsat" || s === "modis" || s === "gpm" || s === "smap";
+
+export function DataProvenance({ data }: { data: Provenance }) {
+  const { t, lang } = useApp();
+  const timestamp = (date: string) => new Date(date).toLocaleString(lang === "ne" ? "ne-NP" : "en-GB", { timeZone: "Asia/Kathmandu", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return <Popover><PopoverTrigger asChild><Btn variant="ghost" className="mt-2 w-full justify-start px-0 text-xs" aria-label={`${t("provenance")}: ${data.dataset}`}><Info className="h-4 w-4 shrink-0" aria-hidden />{t("provenance")} · {t(data.mode)}</Btn></PopoverTrigger>
+    <PopoverContent align="start" className="max-w-[calc(100vw-2rem)] text-sm">
+      <h3 className="mb-3 font-bold">{t("provenance")}</h3>
+      <dl className="space-y-3 break-words">{[
+        [t("dataset"), data.dataset], [t("productId"), num(lang, data.productId)],
+        [t("resolution"), num(lang, data.resolution)],
+        [t("observationPeriod"), data.observedAt ? `${data.periodStart ? `${num(lang, data.periodStart)} → ` : ""}${num(lang, data.observedAt.slice(0, 10))}` : t("missing")],
+        [t("retrieved"), data.retrievedAt ? timestamp(data.retrievedAt) : t("notRetrieved")],
+        [t("quality"), t(data.quality)], [t("date"), t(data.mode)],
+      ].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-0.5 font-medium">{value}</dd></div>)}</dl>
+      <a href={data.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-12 items-center text-primary underline">{t("sourceLink")} ↗</a>
+    </PopoverContent>
+  </Popover>;
+}
 
 export function SourceTag({ source }: { source: Source }) {
   const { t } = useApp();
