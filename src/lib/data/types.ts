@@ -1,5 +1,5 @@
 // Shared types for the data layer. Real adapters (NASA POWER, AppEEARS, MQTT) must return these shapes.
-export type Source = "station" | "nasa_power" | "landsat" | "modis";
+export type Source = "station" | "nasa_power" | "landsat" | "modis" | "gpm" | "smap";
 export type Freshness = "fresh" | "stale" | "missing";
 export type CropId = "rice" | "maize" | "wheat" | "potato" | "tomato";
 export type LatLng = [number, number];
