@@ -5,16 +5,10 @@ import { municipalities, pilotField, type CropId, type LatLng } from "@/lib/data
 import { num } from "@/lib/i18n";
 import { Btn, Card, PageTitle, inputCls } from "@/components/kit";
 import { LazyMap } from "@/components/LazyMap";
+import { pageHead } from "@/lib/page-head";
 
 export const Route = createFileRoute("/onboarding")({
-  head: () => ({
-    meta: [
-      { title: "Register your field — Nepal Agri Intelligence" },
-      { name: "description", content: "Choose your municipality and register your field boundary." },
-      { property: "og:title", content: "Register your field — Nepal Agri Intelligence" },
-      { property: "og:description", content: "Choose your municipality and register your field boundary." },
-    ],
-  }),
+  head: () => pageHead("Register your field", "Choose your municipality and register your field boundary."),
   component: Onboarding,
 });
 
