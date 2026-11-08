@@ -4,7 +4,7 @@ import { fmtDate, num } from "@/lib/i18n";
 import type { VegPoint } from "@/lib/data";
 
 export interface ChartSeries { key: string; label: string; color?: string; bar?: boolean }
-export function TrendChart({ data, series, unit = "", height = 180 }: { data: Record<string, unknown>[]; series: ChartSeries[]; unit?: string; height?: number }) {
+export function TrendChart({ data, series, unit = "", height = 180 }: { data: object[]; series: ChartSeries[]; unit?: string; height?: number }) {
   const { lang } = useApp();
   return <div className="min-w-0" aria-label={series.map(s => s.label).join(", ")} role="img">
     <ResponsiveContainer width="100%" height={height}><ComposedChart data={data} margin={{ left: -18, right: 8, top: 8, bottom: 0 }}>

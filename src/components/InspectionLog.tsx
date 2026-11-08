@@ -29,7 +29,7 @@ export function InspectionLog() {
     e.preventDefault(); if (!fieldId || !note.trim()) return;
     setStatus("saving");
     try {
-      const entry: Inspection = { id: crypto.randomUUID(), date: new Date().toISOString(), note: note.trim(), photo, outcome };
+      const entry: Inspection = { id: crypto.randomUUID(), date: new Date().toISOString(), note: note.trim(), ...(photo ? { photo } : {}), outcome };
       const id = await saveInspection(fieldId, entry);
       setEntries(rows => [{ ...entry, id }, ...rows]); setNote(""); setPhoto(undefined); setStatus("saved");
     } catch { setStatus("error"); }

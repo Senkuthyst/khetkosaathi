@@ -14,6 +14,7 @@ export async function loadInspections(fieldId: string): Promise<Inspection[]> {
 export async function saveInspection(fieldId: string, entry: Inspection) {
   const { data, error } = await supabase.rpc("save_inspection", { device_token: deviceToken(), target_field: fieldId, entry_note: entry.note.trim(), entry_photo: entry.photo ?? null, entry_outcome: entry.outcome });
   if (error) throw error;
+  if (!data) throw new Error("Inspection was not saved");
   return data;
 }
 export async function compressPhoto(file: File): Promise<string> {
