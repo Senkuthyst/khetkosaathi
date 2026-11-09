@@ -7,6 +7,6 @@
 - [x] End-to-end mobile and desktop checks
 
 # Earth Intelligence
-- [ ] Add NASA POWER client, cache, offline fallback, and structured pilot datasets
-- [ ] Add provenance, bilingual overview cards, and header entry point
-- [ ] Test data handling and verify navigation on mobile and desktop
+- [x] Add NASA POWER client, cache, offline fallback, and structured pilot datasets
+- [x] Add provenance, bilingual overview cards, and header entry point
+- [x] Test data handling and verify navigation on mobile and desktop
