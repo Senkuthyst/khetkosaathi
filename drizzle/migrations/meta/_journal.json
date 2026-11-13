@@ -15,6 +15,13 @@
       "when": 1794151468849,
       "tag": "0001_store_missing_inspection_photo_as_null",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794578902484,
+      "tag": "0002_farm_plots",
+      "breakpoints": true
     }
   ]
 }

@@ -10,3 +10,6 @@
 - [x] Add NASA POWER client, cache, offline fallback, and structured pilot datasets
 - [x] Add provenance, bilingual overview cards, and header entry point
 - [x] Test data handling and verify navigation on mobile and desktop
+
+# My Farm location
+- [x] Map page with search, locate, draw/edit boundary, area, GeoJSON save

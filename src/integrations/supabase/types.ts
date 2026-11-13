@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      farm_plots: {
+        Row: {
+          area_m2: number
+          boundary: Json
+          created_at: string
+          device_hash: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          area_m2: number
+          boundary: Json
+          created_at?: string
+          device_hash: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          area_m2?: number
+          boundary?: Json
+          created_at?: string
+          device_hash?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       field_inspections: {
         Row: {
           device_hash: string
@@ -70,6 +100,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_farm_plot: {
+        Args: { device_token: string }
+        Returns: {
+          area_m2: number
+          boundary: Json
+          created_at: string
+          id: string
+          name: string
+        }[]
+      }
       list_inspections: {
         Args: { device_token: string; target_field: string }
         Returns: {
@@ -79,6 +119,15 @@ export type Database = {
           outcome: string
           photo: string
         }[]
+      }
+      save_farm_plot: {
+        Args: {
+          device_token: string
+          plot_area: number
+          plot_boundary: Json
+          plot_name: string
+        }
+        Returns: string
       }
       save_inspection: {
         Args: {

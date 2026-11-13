@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Leaf, CloudSun, Bell, BookOpen, WifiOff, Sprout, ShieldAlert, Globe2 } from "lucide-react";
+import { Home, Leaf, CloudSun, Bell, BookOpen, WifiOff, Sprout, ShieldAlert, Globe2, MapPin } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { currentAlerts } from "@/lib/derived";
 import { num } from "@/lib/i18n";
@@ -42,6 +42,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <Sprout className="h-6 w-6 shrink-0" aria-hidden />
             <span className="truncate text-sm font-bold leading-tight">{t("appName")}</span>
           </div>
+          <Link to="/my-farm" title={t("myFarm")} aria-label={t("myFarm")} aria-current={loc.pathname === "/my-farm" ? "page" : undefined} className="tap flex w-12 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground"><MapPin className="h-5 w-5" aria-hidden /></Link>
           <Link to="/earth-intelligence" title={t("earthIntelligence")} aria-label={t("earthIntelligence")} aria-current={loc.pathname === "/earth-intelligence" ? "page" : undefined} className="tap flex w-12 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground"><Globe2 className="h-5 w-5" aria-hidden /></Link>
           <button onClick={() => setLang(lang === "ne" ? "en" : "ne")} className="tap shrink-0 rounded-xl border-2 border-primary-foreground/60 px-3 text-sm font-semibold" aria-label="Switch language">
             {t("langToggle")}
