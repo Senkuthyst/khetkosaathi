@@ -82,7 +82,11 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
         setSuccessMsg("Password reset email sent. Please check your inbox.");
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "An unexpected error occurred.");
+      let msg = err.message || "An unexpected error occurred.";
+      if (msg.toLowerCase().includes("email signups are disabled") || msg.toLowerCase().includes("signup is disabled")) {
+        msg = "Email signups are currently disabled in the Supabase project. In your Supabase Dashboard, go to Authentication -> Providers -> Email, and enable 'Allow new users to sign up'.";
+      }
+      setErrorMsg(msg);
     } finally {
       setBusy(false);
     }
