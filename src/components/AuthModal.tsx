@@ -33,8 +33,8 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
 
     try {
       if (mode === "signup") {
-        if (password.length < 6) {
-          throw new Error("Password must be at least 6 characters long.");
+        if (password.length < 8) {
+          throw new Error("Password must be at least 8 characters long.");
         }
         if (password !== confirmPassword) {
           throw new Error("Passwords do not match.");
@@ -52,6 +52,12 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
         });
 
         if (error) throw error;
+
+        // Check if user already exists (Supabase sometimes returns an empty identities array for existing users instead of error)
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          setErrorMsg("An account with this email address already exists. Please sign in or reset your password.");
+          return;
+        }
 
         setSuccessMsg(
           data.session
@@ -83,9 +89,18 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
       }
     } catch (err: any) {
       let msg = err.message || "An unexpected error occurred.";
-      if (msg.toLowerCase().includes("email signups are disabled") || msg.toLowerCase().includes("signup is disabled")) {
-        msg = "Email signups are currently disabled in the Supabase project. In your Supabase Dashboard, go to Authentication -> Providers -> Email, and enable 'Allow new users to sign up'.";
+      const lower = msg.toLowerCase();
+
+      if (lower.includes("weak_password") || lower.includes("easy to guess") || lower.includes("pwned")) {
+        msg = "Password is too weak or commonly used. Please choose a stronger password with at least 8 characters including letters, numbers, and symbols.";
+      } else if (lower.includes("already registered") || lower.includes("user_already_exists")) {
+        msg = "An account with this email is already registered. Please sign in or use 'Forgot password'.";
+      } else if (lower.includes("invalid format") || lower.includes("validate email")) {
+        msg = "Please enter a valid email address (e.g. name@example.com).";
+      } else if (lower.includes("email signups are disabled") || lower.includes("signup is disabled")) {
+        msg = "Email signups are currently disabled in the backend authentication settings.";
       }
+
       setErrorMsg(msg);
     } finally {
       setBusy(false);
@@ -178,9 +193,14 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
 
           {mode !== "reset" && (
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">
-                Password / पासवर्ड
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-foreground">
+                  Password / पासवर्ड
+                </label>
+                {mode === "signup" && (
+                  <span className="text-[10px] text-muted-foreground">Min. 8 chars, strong</span>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <input
