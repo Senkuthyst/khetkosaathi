@@ -94,7 +94,11 @@ export function buildNasaPowerUrl(options: {
     "time-standard": "UTC",
   });
 
-  return `https://power.larc.nasa.gov/api/temporal/daily/point?${searchParams.toString()}`;
+  const baseUrl =
+    (typeof process !== "undefined" && process.env?.NASA_POWER_BASE_URL) ||
+    "https://power.larc.nasa.gov/api/temporal/daily/point";
+
+  return `${baseUrl}?${searchParams.toString()}`;
 }
 
 /**
