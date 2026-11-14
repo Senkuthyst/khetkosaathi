@@ -69,7 +69,6 @@ function GeomanDraw({ onCreated, onCancel }: { onCreated: (pts: LatLng[]) => voi
     let settled = false;
 
     const onDrawEnd = () => {
-      console.log("[MyFarm] drawend settled=", settled);
       if (settled) return;
       settled = true;
       cancelRef.current();
@@ -88,8 +87,6 @@ function GeomanDraw({ onCreated, onCancel }: { onCreated: (pts: LatLng[]) => voi
 
     map.on("pm:create", onCreate);
     map.on("pm:drawend", onDrawEnd);
-    map.on("pm:drawstart", () => console.log("[MyFarm] drawstart"));
-    map.on("pm:vertexadded", (event) => console.log("[MyFarm] vertexadded", (event as { latlng?: L.LatLng }).latlng));
     map.pm.enableDraw("Polygon", {
       allowSelfIntersection: false,
       finishOnEnter: true,
@@ -126,11 +123,10 @@ function EditableBoundary({ pts, onChange }: { pts: LatLng[]; onChange: (pts: La
       const rings = layer.getLatLngs();
       const first = rings[0];
       const ring = Array.isArray(first) ? (first as L.LatLng[]) : [];
-      console.log("[MyFarm] sync edit", ring.length, ring.map((point) => [point.lat, point.lng]));
       onChangeRef.current(ring.map((point) => [point.lat, point.lng] as LatLng));
     };
 
-    const events = ["pm:edit", "pm:update", "pm:markerdragend", "pm:vertexadded", "pm:vertexremoved"] as const;
+    const events = ["pm:markerdrag", "pm:markerdragend", "pm:update", "pm:edit", "pm:vertexadded", "pm:vertexremoved"] as const;
     events.forEach((event) => layer.on(event, sync));
     layer.pm.enable({
       allowSelfIntersection: false,
