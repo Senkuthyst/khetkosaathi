@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ExternalLink, BookOpen, CalendarDays, RotateCcw, Sprout, ShieldAlert } from "lucide-react";
+import { ExternalLink, BookOpen, CalendarDays, RotateCcw, Sprout, ShieldAlert, Sparkles } from "lucide-react";
 import { PageTitle, Card, ReportButton, Btn } from "@/components/kit";
 import { CropRotationPlanner } from "@/components/CropRotationPlanner";
+import { SmartCropRotationAdvisor } from "@/components/SmartCropRotationAdvisor";
 import { useApp } from "@/lib/store";
 import { guidance, calendar, type CropId } from "@/lib/data";
 import { num } from "@/lib/i18n";
@@ -12,15 +13,15 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/guidance")({
   head: () =>
     pageHead(
-      "KHETKOSAATHI — Crop Intelligence & Guidance",
-      "Source-linked crop guidance, 5-step regenerative crop rotation planner, and seasonal reminders for Nepal."
+      "KHETKOSAATHI — Smart Crop Rotation & Planting Advisor",
+      "Farm-specific crop harvest advisor, next crop suitability engine, and source-linked rotation planning for Nepal."
     ),
   component: Guidance,
 });
 
 function Guidance() {
   const { t, lang, field } = useApp();
-  const [activeTab, setActiveTab] = useState<"planner" | "guidance" | "calendar">("planner");
+  const [activeTab, setActiveTab] = useState<"smart_advisor" | "planner" | "guidance" | "calendar">("smart_advisor");
   const [crop, setCrop] = useState<CropId | "all">(field?.crop ?? "all");
 
   return (
@@ -31,20 +32,32 @@ function Guidance() {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
               <Sprout className="h-3.5 w-3.5" />
-              <span>NARC & CIMMYT Agronomy Guidelines</span>
+              <span>NARC, FAO & NASA Earth Science Integration</span>
             </div>
             <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              {lang === "ne" ? "बाली सल्लाह तथा चक्र योजनाकार" : "Crop Guidance & Rotation Planner"}
+              {lang === "ne" ? "स्मार्ट बाली चक्र तथा कटानी सल्लाहकार" : "Smart Crop Rotation & Planting Advisor"}
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
               {lang === "ne"
-                ? "नेपालका विभिन्न भौगोलिक क्षेत्रका लागि प्रमाणित बाली चक्र, माटो संरक्षण र मौसमी कार्यतालिका।"
-                : "Regenerative crop rotations, field management practices, and scheduled seasonal reminders."}
+                ? "तपाईंको खेतको हालको बाली कटानी समय, र अर्को सिजनका लागि वैज्ञानिक आधारसहितको उपयुक्त बाली सिफारिस।"
+                : "Real-time harvest window estimation for existing crops and evidence-backed next crop suitability analysis."}
             </p>
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl self-start sm:self-auto">
+          <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl self-start sm:self-auto flex-wrap">
+            <button
+              onClick={() => setActiveTab("smart_advisor")}
+              className={cn(
+                "px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+                activeTab === "smart_advisor"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>{lang === "ne" ? "स्मार्ट सल्लाहकार" : "Smart Advisor"}</span>
+            </button>
             <button
               onClick={() => setActiveTab("planner")}
               className={cn(
@@ -55,7 +68,7 @@ function Guidance() {
               )}
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>{lang === "ne" ? "बाली चक्र योजना" : "Rotation Planner"}</span>
+              <span>{lang === "ne" ? "बाली चक्र योजना" : "Rotation Scenarios"}</span>
             </button>
             <button
               onClick={() => setActiveTab("guidance")}
@@ -90,6 +103,13 @@ function Guidance() {
           <span>{t("noChem")}</span>
         </div>
       </div>
+
+      {/* TAB 0: SMART CROP ROTATION & HARVEST ADVISOR */}
+      {activeTab === "smart_advisor" && (
+        <div className="animate-in fade-in duration-200">
+          <SmartCropRotationAdvisor />
+        </div>
+      )}
 
       {/* TAB 1: 5-STEP ROTATION PLANNER */}
       {activeTab === "planner" && (
