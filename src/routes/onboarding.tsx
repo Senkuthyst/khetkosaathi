@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/store";
 import { type CropId, type LatLng } from "@/lib/data";
 import { num } from "@/lib/i18n";
 import { Btn, Card, inputCls } from "@/components/kit";
-import { LazyMap } from "@/components/LazyMap";
+import { LazyPlotDrawerMap } from "@/components/LazyPlotDrawerMap";
 import { pageHead } from "@/lib/page-head";
-import { Sprout, MapPin, CheckCircle2, Navigation, Layers, Info } from "lucide-react";
+import { Sprout, MapPin, CheckCircle2, Navigation, Layers, Info, Pencil, Check } from "lucide-react";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
 import { createFarmField } from "@/lib/farm-fields-service";
 import { AuthModal } from "@/components/AuthModal";
@@ -53,39 +53,49 @@ function Onboarding() {
   const [soilType, setSoilType] = useState("Silty Clay Loam");
 
   // STEP 3 & 4: Location & Boundary
-  const [coords, setCoords] = useState<[number, number]>([26.666, 87.279]); // Default Itahari centroid if GPS denied
-  const [boundary, setBoundary] = useState<LatLng[]>([
-    [26.6675, 87.278],
-    [26.6678, 87.2805],
-    [26.6658, 87.281],
-    [26.6655, 87.2785],
-  ]);
+  // GPS is strictly for centering the map view — no default parcel is preselected!
+  const [mapCenter, setMapCenter] = useState<[number, number]>([27.7172, 85.324]); // Default Nepal overview center if GPS not acquired
+  const [confirmedBoundary, setConfirmedBoundary] = useState<LatLng[] | null>(null);
+  const [confirmedAreaHa, setConfirmedAreaHa] = useState<number>(0);
   const [locatingGps, setLocatingGps] = useState(false);
+  const [gpsAcquired, setGpsAcquired] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const handleAcquireGps = async () => {
+  // Attempt acquiring browser GPS on entry to center map, but fail silently/gracefully if denied
+  useEffect(() => {
+    if (step === 3 && !gpsAcquired) {
+      handleAcquireGps(false);
+    }
+  }, [step]);
+
+  const handleAcquireGps = async (showAlert = true) => {
     setLocatingGps(true);
     try {
       const gps = await getCurrentBrowserCoordinates();
-      setCoords([gps.latitude, gps.longitude]);
-      // Create initial parcel around GPS point
-      const delta = 0.001;
-      setBoundary([
-        [gps.latitude + delta, gps.longitude - delta],
-        [gps.latitude + delta, gps.longitude + delta],
-        [gps.latitude - delta, gps.longitude + delta],
-        [gps.latitude - delta, gps.longitude - delta],
-      ]);
+      setMapCenter([gps.latitude, gps.longitude]);
+      setGpsAcquired(true);
 
       const geocoded = await reverseGeocodeCoordinates(gps.latitude, gps.longitude);
       if (geocoded.cityOrTown) setMunicipality(geocoded.cityOrTown);
       if (geocoded.district) setDistrict(geocoded.district);
       if (geocoded.stateOrProvince) setProvince(geocoded.stateOrProvince);
     } catch (err: any) {
-      alert(err.message || "Could not retrieve GPS coordinates.");
+      if (showAlert) {
+        alert(err.message || "Could not retrieve GPS coordinates. You can pan and zoom the map manually.");
+      }
     } finally {
       setLocatingGps(false);
     }
+  };
+
+  const handleConfirmPlot = (points: LatLng[], areaHa: number) => {
+    setConfirmedBoundary(points);
+    setConfirmedAreaHa(areaHa);
+  };
+
+  const handleClearPlot = () => {
+    setConfirmedBoundary(null);
+    setConfirmedAreaHa(0);
   };
 
   const handleFinish = async () => {
@@ -93,12 +103,17 @@ function Onboarding() {
       setAuthModalOpen(true);
       return;
     }
+    if (!confirmedBoundary || confirmedBoundary.length < 3) {
+      alert("Please draw and confirm your agricultural plot on the map before proceeding.");
+      setStep(3);
+      return;
+    }
 
     setSaving(true);
     try {
       const newField = await createFarmField({
         fieldName: fieldName.trim() || "My Farm Plot",
-        boundary,
+        boundary: confirmedBoundary,
         cropType: crop,
         cropVariety,
         plantingDate,
@@ -303,53 +318,84 @@ function Onboarding() {
             <Btn variant="outline" onClick={() => setStep(1)}>
               ← Back
             </Btn>
-            <Btn onClick={() => setStep(3)}>Next: Field Boundary →</Btn>
+            <Btn onClick={() => setStep(3)}>Next: Select Agricultural Plot →</Btn>
           </div>
         </Card>
       )}
 
-      {/* STEP 3: Boundary & Location */}
+      {/* STEP 3: Interactive Plot Selection & Boundary Drawing */}
       {step === 3 && (
         <Card className="p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
-            <h2 className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
-              <Layers className="h-4 w-4 text-primary" />
-              3. Field Boundary & Cadastral Mapping
-            </h2>
+            <div>
+              <h2 className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-primary" />
+                3. Select Your Agricultural Plot
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Locate your land on the map, draw its boundary, and adjust vertices. Zero default preselection.
+              </p>
+            </div>
 
             <button
               type="button"
-              onClick={handleAcquireGps}
+              onClick={() => handleAcquireGps(true)}
               disabled={locatingGps}
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1 self-start sm:self-auto shrink-0"
             >
               <Navigation className={cn("h-3.5 w-3.5", locatingGps && "animate-spin")} />
               {locatingGps ? "Acquiring GPS..." : "Center on My GPS Location"}
             </button>
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-border">
-            <LazyMap
-              center={coords}
-              zoom={15}
-              height={300}
-              polygons={[{ positions: boundary, color: "var(--primary)", label: fieldName }]}
-            />
-          </div>
+          {/* Interactive Plot Drawing Canvas */}
+          <LazyPlotDrawerMap
+            initialCenter={mapCenter}
+            confirmedPlot={confirmedBoundary}
+            onConfirmPlot={handleConfirmPlot}
+            onClearPlot={handleClearPlot}
+            height={400}
+          />
 
-          <div className="p-3 rounded-xl bg-secondary/50 border border-primary/20 text-xs text-foreground flex items-start gap-2">
-            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-            <span>
-              Your plot coordinates: {coords[0].toFixed(4)}° N, {coords[1].toFixed(4)}° E. You can fine-tune
-              vertices anytime in the Farm Profiles tab.
-            </span>
-          </div>
+          {/* Confirmation Status Pill */}
+          {confirmedBoundary && confirmedBoundary.length >= 3 ? (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>Plot Confirmed:</strong> {confirmedBoundary.length} boundary vertices · Area:{" "}
+                  <strong>{confirmedAreaHa} ha</strong>
+                </span>
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                Ready to Proceed
+              </span>
+            </div>
+          ) : (
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
+              <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>Action Required:</strong> Click <strong>"Draw Plot Boundary"</strong> above to outline your parcel, adjust vertices, and click <strong>"Confirm Plot"</strong> before proceeding to review.
+              </span>
+            </div>
+          )}
 
           <div className="pt-3 border-t flex justify-between">
             <Btn variant="outline" onClick={() => setStep(2)}>
               ← Back
             </Btn>
-            <Btn onClick={() => setStep(4)}>Review & Confirm →</Btn>
+            <Btn
+              onClick={() => {
+                if (!confirmedBoundary || confirmedBoundary.length < 3) {
+                  alert("Please draw your farm boundary and click 'Confirm Plot' before moving to the next step.");
+                  return;
+                }
+                setStep(4);
+              }}
+              disabled={!confirmedBoundary || confirmedBoundary.length < 3}
+            >
+              Review & Confirm →
+            </Btn>
           </div>
         </Card>
       )}
@@ -382,16 +428,20 @@ function Onboarding() {
               <strong className="text-foreground">{plantingDate}</strong>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Coordinates:</span>
+              <span className="text-muted-foreground">Calculated Land Area:</span>
+              <strong className="text-foreground font-mono">{confirmedAreaHa} hectares</strong>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Boundary Vertices:</span>
               <strong className="text-foreground font-mono">
-                {coords[0].toFixed(4)}° N, {coords[1].toFixed(4)}° E
+                {confirmedBoundary ? `${confirmedBoundary.length} polygon points` : "None"}
               </strong>
             </div>
           </div>
 
           <div className="pt-3 border-t flex justify-between">
             <Btn variant="outline" onClick={() => setStep(3)}>
-              ← Back
+              ← Back to Plot Map
             </Btn>
             <Btn onClick={handleFinish} disabled={saving} className="font-bold">
               {saving ? "Registering Farm..." : "Complete & Open My Dashboard"}
