@@ -42,3 +42,34 @@ export function fromFeature(f: FarmFeature): LatLng[] {
   const ring = f.geometry.coordinates[0] ?? [];
   return ring.slice(0, -1).map(([lng, lat]) => [lat, lng] as LatLng);
 }
+
+/**
+ * Validates a GeoJSON value received from storage before it is used by the map.
+ * Only a closed, valid Polygon with the farm properties this app writes is accepted.
+ */
+export function isFarmFeature(value: unknown): value is FarmFeature {
+  if (!value || typeof value !== "object") return false;
+  const feature = value as {
+    type?: unknown;
+    properties?: { name?: unknown; area_hectares?: unknown; area_m2?: unknown };
+    geometry?: { type?: unknown; coordinates?: unknown };
+  };
+  if (feature.type !== "Feature" || feature.geometry?.type !== "Polygon") return false;
+  const { name, area_hectares, area_m2 } = feature.properties ?? {};
+  if (typeof name !== "string" || !name.trim() || name.length > 100) return false;
+  if (typeof area_hectares !== "number" || !Number.isFinite(area_hectares) || area_hectares < 0) return false;
+  if (typeof area_m2 !== "number" || !Number.isFinite(area_m2) || area_m2 <= 0) return false;
+
+  const coordinates = feature.geometry.coordinates;
+  if (!Array.isArray(coordinates) || coordinates.length === 0) return false;
+  const ring = coordinates[0];
+  if (!Array.isArray(ring) || ring.length < 4) return false;
+  if (ring.some((point) => !Array.isArray(point) || point.length !== 2 || !Number.isFinite(point[0]) || !Number.isFinite(point[1]))) return false;
+
+  const first = ring[0] as [number, number];
+  const last = ring[ring.length - 1] as [number, number];
+  if (first[0] !== last[0] || first[1] !== last[1]) return false;
+
+  const pts = ring.slice(0, -1).map(([lng, lat]) => [lat, lng] as LatLng);
+  return isValidPolygon(pts);
+}
