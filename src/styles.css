@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Noto Sans Devanagari", "Noto Sans", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Manrope", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,42 +45,50 @@
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-location: var(--location);
+
+  /* Specific KHETKOSAATHI brand tokens */
+  --color-forest: #123B2A;
+  --color-emerald-custom: #237A50;
+  --color-leaf: #69A96B;
+  --color-lime-soft: #B8D987;
+  --color-navy-satellite: #0C1821;
+  --color-navy-surface: #152432;
 }
 
 :root {
-  --radius: 0rem;
-  --background: oklch(0.975 0.012 95);
-  --foreground: oklch(0.24 0.04 140);
-  --card: oklch(0.995 0.006 95);
-  --card-foreground: oklch(0.24 0.04 140);
-  --popover: oklch(0.995 0.006 95);
-  --popover-foreground: oklch(0.24 0.04 140);
-  --primary: oklch(0.45 0.11 145);
-  --primary-foreground: oklch(0.98 0.01 95);
-  --secondary: oklch(0.93 0.035 110);
-  --secondary-foreground: oklch(0.3 0.06 140);
-  --muted: oklch(0.94 0.015 95);
-  --muted-foreground: oklch(0.47 0.03 130);
-  --accent: oklch(0.72 0.12 75);
-  --accent-foreground: oklch(0.25 0.05 60);
-  --destructive: oklch(0.55 0.19 30);
-  --destructive-foreground: oklch(0.98 0.01 95);
-  --border: oklch(0.88 0.025 105);
-  --input: oklch(0.86 0.025 105);
-  --ring: oklch(0.55 0.11 145);
-  --fresh: oklch(0.55 0.13 150);
-  --stale: oklch(0.68 0.14 75);
-  --missing: oklch(0.55 0.02 100);
-  --satellite: oklch(0.48 0.1 240);
-  --satellite-soft: oklch(0.94 0.03 240);
-  --station: oklch(0.5 0.1 60);
-  --station-soft: oklch(0.94 0.04 75);
-  --veg-good: oklch(0.58 0.15 145);
-  --veg-watch: oklch(0.75 0.15 90);
-  --veg-low: oklch(0.6 0.17 40);
-  --chart-1: oklch(0.5 0.12 145);
-  --chart-2: oklch(0.55 0.12 240);
-  --location: #2563eb;
+  --radius: 0.875rem; /* 14px */
+  --background: #F7F8F2;
+  --foreground: #18251E;
+  --card: #FFFFFF;
+  --card-foreground: #18251E;
+  --popover: #FFFFFF;
+  --popover-foreground: #18251E;
+  --primary: #123B2A;
+  --primary-foreground: #F7F8F2;
+  --secondary: #EBF4EC;
+  --secondary-foreground: #123B2A;
+  --muted: #EFF3ED;
+  --muted-foreground: #758078;
+  --accent: #B8D987;
+  --accent-foreground: #123B2A;
+  --destructive: #C84630;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5EAE2;
+  --input: #E5EAE2;
+  --ring: #237A50;
+  --fresh: #237A50;
+  --stale: #D9822B;
+  --missing: #8C9990;
+  --satellite: #1D5C8A;
+  --satellite-soft: #EBF3F8;
+  --station: #237A50;
+  --station-soft: #EBF4EC;
+  --veg-good: #237A50;
+  --veg-watch: #D9822B;
+  --veg-low: #C84630;
+  --chart-1: #237A50;
+  --chart-2: #1D5C8A;
+  --location: #2563EB;
 }
 
 @layer base {
@@ -92,13 +100,33 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
   }
 }
 
 @utility tap {
-  min-height: 48px;
+  min-height: 44px;
+}
+
+/* Custom scrollbar for data tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4DDD0;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B3C0AE;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

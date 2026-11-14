@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { translate, type Lang, type TKey } from "./i18n";
-import type { Field } from "./data";
+import { pilotField, type Field } from "./data";
 
 export interface Thresholds {
   minRain7: number;
@@ -27,7 +27,18 @@ interface State {
   inspections: Inspection[];
   addInspection: (i: Inspection) => void;
   ready: boolean;
+  activeView: "dashboard" | "landing";
+  setActiveView: (v: "dashboard" | "landing") => void;
 }
+
+export const defaultPilotFarm: Field = {
+  id: "pilot_chitwan_1",
+  name: "Chitwan Research Plot A (चितवन नमुना खेत)",
+  crop: "rice",
+  plantingDate: "2026-07-10",
+  municipality: "bharatpur",
+  boundary: pilotField.boundary,
+};
 
 const defaults: Thresholds = { minRain7: 15, minSoil: 25, maxTemp: 32, minBattery: 30 };
 const Ctx = createContext<State | null>(null);
@@ -42,17 +53,19 @@ function load<T>(k: string, fb: T): T {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangS] = useState<Lang>("ne");
-  const [field, setFieldS] = useState<Field | null>(null);
+  const [lang, setLangS] = useState<Lang>("en");
+  const [field, setFieldS] = useState<Field | null>(defaultPilotFarm);
   const [thresholds, setThS] = useState<Thresholds>(defaults);
   const [inspections, setInsp] = useState<Inspection[]>([]);
   const [ready, setReady] = useState(false);
+  const [activeView, setActiveViewS] = useState<"dashboard" | "landing">("dashboard");
 
   useEffect(() => {
-    setLangS(load("naip.lang", "ne"));
-    setFieldS(load("naip.field", null));
+    setLangS(load("naip.lang", "en"));
+    setFieldS(load("naip.field", defaultPilotFarm));
     setThS(load("naip.th", defaults));
     setInsp(load("naip.insp", []));
+    setActiveViewS(load("naip.view", "dashboard"));
     setReady(true);
   }, []);
   useEffect(() => {
@@ -82,6 +95,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       save("naip.insp", next);
     },
     ready,
+    activeView,
+    setActiveView: (v) => (setActiveViewS(v), save("naip.view", v)),
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,104 +1,440 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { RefreshCw, ShieldAlert } from "lucide-react";
+import {
+  RefreshCw,
+  ShieldAlert,
+  Satellite,
+  Globe2,
+  Droplets,
+  CloudSun,
+  Layers,
+  Search,
+  Calendar,
+  ExternalLink,
+  Info,
+  CheckCircle2,
+  SlidersHorizontal,
+} from "lucide-react";
 import { Btn, Card, DataProvenance, FreshBadge, PageTitle, Skeleton, SourceTag } from "@/components/kit";
 import { TrendChart } from "@/components/Charts";
+import { LazyMap } from "@/components/LazyMap";
 import { useApp } from "@/lib/store";
 import { num } from "@/lib/i18n";
 import { pageHead } from "@/lib/page-head";
-import { fetchNasaPowerDaily, imergPilot, modisPilot, pilotRisk, pilotSeasonalMaxTemp, powerPilot, rainfallAnomaly, smapPilot, type PowerData, type Provenance, type RiskLevel } from "@/lib/data";
+import {
+  fetchNasaPowerDaily,
+  imergPilot,
+  modisPilot,
+  pilotRisk,
+  pilotSeasonalMaxTemp,
+  powerPilot,
+  rainfallAnomaly,
+  smapPilot,
+  pilotField,
+  neighbourFields,
+  type PowerData,
+  type Provenance,
+  type RiskLevel,
+} from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/earth-intelligence")({
-  head: () => pageHead("Earth Intelligence", "NASA Earth observation provenance and regional agricultural context for Chitwan, Nepal."),
+  head: () =>
+    pageHead(
+      "KHETKOSAATHI — Earth Intelligence Module",
+      "NASA Earth observation provenance and regional agricultural intelligence for Nepal (POWER, SMAP, GPM IMERG, MODIS)."
+    ),
   component: EarthIntelligence,
 });
 
 const fmt = (v: number | null, d = 1) => (v === null ? null : Number(v.toFixed(d)));
 
-function Metric({ title, data, children }: { title: string; data: Provenance; children: ReactNode }) {
+function ScientificTag({ type }: { type: "direct" | "satellite" | "calculated" | "model" }) {
+  const configs = {
+    direct: { label: "Direct In-Situ Observation", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+    satellite: { label: "Satellite-Derived Estimate", cls: "bg-blue-100 text-blue-800 border-blue-300" },
+    calculated: { label: "Calculated Anomaly Indicator", cls: "bg-amber-100 text-amber-800 border-amber-300" },
+    model: { label: "Model Reanalysis Grid", cls: "bg-purple-100 text-purple-800 border-purple-300" },
+  }[type];
+
+  return (
+    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border", configs.cls)}>
+      {configs.label}
+    </span>
+  );
+}
+
+function Metric({
+  title,
+  data,
+  type = "satellite",
+  children,
+}: {
+  title: string;
+  data: Provenance;
+  type?: "direct" | "satellite" | "calculated" | "model";
+  children: ReactNode;
+}) {
   const sat = data.source !== "nasa_power";
-  return <section className={cn("rounded-2xl border bg-card p-4 shadow-sm border-l-4", sat ? "border-l-satellite border-dashed" : "border-l-station")}>
-    <div className="mb-2 flex items-start justify-between gap-2">
-      <h2 className="text-base font-bold">{title}</h2>
-      <FreshBadge f={data.mode === "pilot" ? "stale" : data.observedAt ? "fresh" : "missing"} />
-    </div>
-    {children}
-    <div className="mt-3 border-t pt-2"><SourceTag source={data.source} /></div>
-    <DataProvenance data={data} />
-  </section>;
+  return (
+    <section
+      className={cn(
+        "rounded-2xl border bg-card p-5 shadow-sm transition-all",
+        sat ? "border-l-4 border-l-satellite border-dashed" : "border-l-4 border-l-primary"
+      )}
+    >
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <div>
+          <h2 className="text-base font-extrabold text-foreground">{title}</h2>
+          <div className="mt-1">
+            <ScientificTag type={type} />
+          </div>
+        </div>
+        <FreshBadge f={data.mode === "pilot" ? "stale" : data.observedAt ? "fresh" : "missing"} />
+      </div>
+
+      <div className="mt-3">{children}</div>
+
+      <div className="mt-4 border-t pt-3 flex items-center justify-between">
+        <SourceTag source={data.source} />
+        <span className="text-[11px] text-muted-foreground">{data.resolution}</span>
+      </div>
+      <DataProvenance data={data} />
+    </section>
+  );
 }
 
 function EarthIntelligence() {
   const { t, lang } = useApp();
   const [power, setPower] = useState<PowerData | null>(null);
   const [busy, setBusy] = useState(false);
-  const load = (force = false) => { setBusy(true); fetchNasaPowerDaily(force).then(setPower).finally(() => setBusy(false)); };
-  useEffect(() => { load(); }, []);
+  const [activeLayer, setActiveLayer] = useState<"ndvi" | "precipitation" | "moisture">("ndvi");
+  const [selectedRegion, setSelectedRegion] = useState("chitwan");
+
+  const load = (force = false) => {
+    setBusy(true);
+    fetchNasaPowerDaily(force)
+      .then(setPower)
+      .finally(() => setBusy(false));
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
 
   const latest = modisPilot.composites.at(-1)!;
   const rainTotal = imergPilot.daily.reduce((a, b) => a + b, 0);
   const rainAnom = rainfallAnomaly(rainTotal, imergPilot.seasonalBaselineMm);
   const p = power ?? powerPilot;
-  const maxes = p.days.map(d => d.tMax).filter((v): v is number => v !== null);
+  const maxes = p.days.map((d) => d.tMax).filter((v): v is number => v !== null);
   const meanMax = maxes.length ? maxes.reduce((a, b) => a + b, 0) / maxes.length : null;
   const tempAnom = meanMax === null ? null : meanMax - pilotSeasonalMaxTemp;
   const risk: RiskLevel = pilotRisk(latest.ndvi < latest.baselineLow, rainAnom, tempAnom);
-  const riskCls = { low: "bg-fresh text-primary-foreground", moderate: "bg-stale text-accent-foreground", high: "bg-destructive text-destructive-foreground", critical: "bg-destructive text-destructive-foreground ring-4 ring-destructive/30", missing: "bg-missing text-primary-foreground" }[risk];
-  const signed = (v: number | null, unit: string) => v === null ? t("missing") : `${v > 0 ? "+" : ""}${num(lang, fmt(v)!)}${unit}`;
 
-  return <div className="space-y-4">
-    <PageTitle>{t("earthIntelligence")}</PageTitle>
-    <p className="text-sm font-semibold">{t("chitwanRegion")} · {num(lang, "27.6775")}° N, {num(lang, "84.4333")}° E</p>
-    <p className="rounded-xl bg-secondary p-3 text-xs">{t("earthScope")}</p>
+  const riskCls = {
+    low: "bg-fresh text-primary-foreground",
+    moderate: "bg-stale text-accent-foreground",
+    high: "bg-destructive text-destructive-foreground",
+    critical: "bg-destructive text-destructive-foreground ring-4 ring-destructive/30",
+    missing: "bg-missing text-primary-foreground",
+  }[risk];
 
-    <Metric title={t("integratedRisk")} data={{ ...modisPilot.provenance, dataset: "MODIS + GPM + POWER", productId: "Pilot rule" }}>
-      <p className={cn("inline-block rounded-full px-4 py-1.5 text-lg font-bold", riskCls)}>{t(risk)}</p>
-      <p className="mt-2 flex gap-2 text-sm"><ShieldAlert className="h-5 w-5 shrink-0 text-accent-foreground" aria-hidden />{t("pilotRiskNote")}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{t("riskRule")}</p>
-    </Metric>
+  const signed = (v: number | null, unit: string) =>
+    v === null ? t("missing") : `${v > 0 ? "+" : ""}${num(lang, fmt(v)!)}${unit}`;
 
-    <Card>
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-base font-bold">{t("powerOverview")}</h2>
-        <Btn variant="outline" className="min-h-10 px-3 text-xs" onClick={() => load(true)} disabled={busy} aria-label={t("refreshData")}><RefreshCw className={cn("h-4 w-4", busy && "animate-spin")} />{t("refreshData")}</Btn>
+  return (
+    <div className="space-y-6">
+      {/* Module Title Banner */}
+      <div className="rounded-3xl border border-border bg-gradient-to-r from-card to-secondary/30 p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-md bg-satellite/10 px-2.5 py-0.5 text-xs font-bold text-satellite">
+              <Satellite className="h-3.5 w-3.5" />
+              <span>NASA Earth Observation System</span>
+            </div>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+              {t("earthIntelligence")}
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+              {t("chitwanRegion")} · {num(lang, "27.6775")}° N, {num(lang, "84.4333")}° E · Multispectral & Microwave Earth Data
+            </p>
+          </div>
+
+          <Btn
+            variant="outline"
+            className="self-start md:self-auto min-h-10 px-4 text-xs font-bold"
+            onClick={() => load(true)}
+            disabled={busy}
+            aria-label={t("refreshData")}
+          >
+            <RefreshCw className={cn("h-4 w-4", busy && "animate-spin")} />
+            {t("refreshData")}
+          </Btn>
+        </div>
+
+        {/* Scientific Distinctions Guide */}
+        <div className="mt-5 pt-4 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+          <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-200">
+            <strong className="text-emerald-900 block">1. Direct In-Situ</strong>
+            <span className="text-emerald-700">Farm soil probe & weather station</span>
+          </div>
+          <div className="p-2 rounded-lg bg-blue-50/70 border border-blue-200">
+            <strong className="text-blue-900 block">2. Satellite-Derived</strong>
+            <span className="text-blue-700">MODIS 250m & Landsat 30m NDVI</span>
+          </div>
+          <div className="p-2 rounded-lg bg-amber-50/70 border border-amber-200">
+            <strong className="text-amber-900 block">3. Anomaly Indicator</strong>
+            <span className="text-amber-700">GPM IMERG deviation vs baseline</span>
+          </div>
+          <div className="p-2 rounded-lg bg-purple-50/70 border border-purple-200">
+            <strong className="text-purple-900 block">4. Model Reanalysis</strong>
+            <span className="text-purple-700">NASA POWER Daily Climatology</span>
+          </div>
+        </div>
       </div>
-      {!power ? <><p className="text-sm text-muted-foreground" role="status">{t("powerLoading")}</p><Skeleton className="mt-2 h-44" /></> : <>
-        {power.provenance.mode === "pilot" && <p role="alert" className="mb-2 rounded-lg bg-stale/20 p-2 text-xs">{t("powerFallback")}</p>}
-        <TrendChart data={power.days} unit="°C" series={[{ key: "tMax", label: t("maxTemperature") }, { key: "tMin", label: t("minTemperature") }]} />
-        <TrendChart data={power.days} unit="mm" height={120} series={[{ key: "rain", label: t("rainfall"), bar: true }]} />
-        <p className="mt-2 text-xs text-muted-foreground">{t("powerContext")}</p>
-        <div className="mt-2"><SourceTag source="nasa_power" /></div>
-        <DataProvenance data={power.provenance} />
-      </>}
-    </Card>
 
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Metric title={t("earthVegetation")} data={modisPilot.provenance}>
-        <p className="text-3xl font-bold">{num(lang, latest.ndvi)}</p>
-        <p className="text-xs">{t("seasonalPilot")}: {num(lang, latest.baselineLow)} – {num(lang, latest.baselineHigh)}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{t("composite16")}</p>
-      </Metric>
-      <Metric title={t("earthEvi")} data={modisPilot.provenance}>
-        <p className="text-3xl font-bold">{num(lang, latest.evi)}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{t("eviContext")}</p>
-      </Metric>
-      <Metric title={t("rainfallAnomaly")} data={imergPilot.provenance}>
-        <p className="text-3xl font-bold">{signed(rainAnom, "%")}</p>
-        <p className="text-xs">{t("sevenDayTotal")}: {num(lang, fmt(rainTotal)!)} mm · {t("seasonalPilot")}: {num(lang, imergPilot.seasonalBaselineMm)} mm</p>
-      </Metric>
-      <Metric title={t("temperatureAnomaly")} data={p.provenance}>
-        <p className="text-3xl font-bold">{signed(tempAnom, "°C")}</p>
-        <p className="text-xs">{t("weeklyMaxMean")}: {meanMax === null ? t("missing") : `${num(lang, fmt(meanMax)!)}°C`} · {t("seasonalPilot")}: {num(lang, pilotSeasonalMaxTemp)}°C</p>
+      {/* Interactive Map Layout with Control Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Map View (Col 8) */}
+        <div className="lg:col-span-8 rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+            <div>
+              <h3 className="font-extrabold text-base text-foreground flex items-center gap-2">
+                <Globe2 className="h-4 w-4 text-primary" />
+                Regional Earth Observation Map
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                Layer: <strong>{activeLayer.toUpperCase()}</strong> · Chitwan River Basin
+              </span>
+            </div>
+
+            {/* Layer Controls */}
+            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl">
+              {[
+                { id: "ndvi", label: "MODIS NDVI" },
+                { id: "precipitation", label: "GPM Rainfall" },
+                { id: "moisture", label: "SMAP Soil" },
+              ].map((layer) => (
+                <button
+                  key={layer.id}
+                  onClick={() => setActiveLayer(layer.id as any)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                    activeLayer === layer.id
+                      ? "bg-card text-primary shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {layer.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl overflow-hidden border border-border">
+            <LazyMap
+              center={pilotField.boundary[0] ?? [27.6775, 84.4333]}
+              zoom={15}
+              height={360}
+              polygons={[
+                {
+                  positions: pilotField.boundary,
+                  color: activeLayer === "ndvi" ? "var(--veg-good)" : "var(--satellite)",
+                  label: "Chitwan Pilot Field",
+                },
+                ...neighbourFields.map((f) => ({
+                  positions: f.boundary,
+                  color: f.status === "good" ? "var(--veg-good)" : "var(--veg-watch)",
+                  label: f.name,
+                })),
+              ]}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground pt-1">
+            <span>● Green: Normal Phenology (NDVI &gt; 0.60) · ● Amber: Watch</span>
+            <span>NASA MOD13Q1 V061 (LP DAAC)</span>
+          </div>
+        </div>
+
+        {/* Integrated Risk Deck (Col 4) */}
+        <div className="lg:col-span-4 space-y-4">
+          <Metric
+            title={t("integratedRisk")}
+            data={{ ...modisPilot.provenance, dataset: "MODIS + GPM + POWER", productId: "Pilot multi-sensor rule" }}
+            type="calculated"
+          >
+            <div className="flex items-center gap-3">
+              <span className={cn("rounded-full px-4 py-1.5 text-base font-extrabold shadow-xs", riskCls)}>
+                {t(risk)}
+              </span>
+              <span className="text-xs text-muted-foreground">3 Pilot Signals</span>
+            </div>
+            <p className="mt-3 flex gap-2 text-xs text-foreground/80 leading-relaxed bg-muted/40 p-2.5 rounded-xl">
+              <ShieldAlert className="h-4 w-4 shrink-0 text-accent-foreground mt-0.5" aria-hidden />
+              <span>{t("pilotRiskNote")}</span>
+            </p>
+            <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">{t("riskRule")}</p>
+          </Metric>
+
+          {/* Location Selector */}
+          <div className="rounded-2xl border border-border bg-card p-4 text-xs space-y-2">
+            <span className="font-bold text-foreground block">Active Investigation Zone</span>
+            <div className="space-y-1.5">
+              {[
+                { id: "chitwan", name: "Chitwan Valley (27.67° N, 84.43° E)", active: true },
+                { id: "jhapa", name: "Jhapa Terai (26.65° N, 87.98° E)", active: false },
+                { id: "pokhara", name: "Pokhara Valley (28.20° N, 83.98° E)", active: false },
+              ].map((loc) => (
+                <button
+                  key={loc.id}
+                  onClick={() => setSelectedRegion(loc.id)}
+                  className={cn(
+                    "w-full text-left p-2 rounded-lg font-medium transition-colors flex items-center justify-between",
+                    loc.id === selectedRegion
+                      ? "bg-secondary text-primary font-bold"
+                      : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
+                  <span>{loc.name}</span>
+                  {loc.id === selectedRegion && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* NASA POWER Climatology Card */}
+      <Card className="p-6">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-extrabold text-foreground">{t("powerOverview")}</h2>
+              <ScientificTag type="model" />
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              NASA Langley Atmospheric Science Data Center · 0.5° × 0.625° Agroclimatology Grid
+            </p>
+          </div>
+          <a
+            href="https://power.larc.nasa.gov/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
+          >
+            NASA POWER API Docs ↗
+          </a>
+        </div>
+
+        {!power ? (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground" role="status">
+              {t("powerLoading")}
+            </p>
+            <Skeleton className="h-44 w-full" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {power.provenance.mode === "pilot" && (
+              <p role="alert" className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-900">
+                {t("powerFallback")}
+              </p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <span className="text-xs font-bold text-muted-foreground block mb-1">
+                  Air Temperature Envelope (Daily Max / Min °C)
+                </span>
+                <TrendChart
+                  data={power.days}
+                  unit="°C"
+                  height={150}
+                  series={[
+                    { key: "tMax", label: t("maxTemperature") },
+                    { key: "tMin", label: t("minTemperature") },
+                  ]}
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-bold text-muted-foreground block mb-1">
+                  Daily Model Precipitation (mm)
+                </span>
+                <TrendChart
+                  data={power.days}
+                  unit="mm"
+                  height={150}
+                  series={[{ key: "rain", label: t("rainfall"), bar: true }]}
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t">
+              {t("powerContext")}
+            </p>
+            <div className="flex items-center justify-between">
+              <SourceTag source="nasa_power" />
+              <DataProvenance data={power.provenance} />
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Multi-Sensor Grid: MODIS, GPM, SMAP */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Metric title={t("earthVegetation")} data={modisPilot.provenance} type="satellite">
+          <p className="text-3xl font-extrabold text-foreground">{num(lang, latest.ndvi)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("seasonalPilot")}: <strong>{num(lang, latest.baselineLow)} – {num(lang, latest.baselineHigh)}</strong>
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{t("composite16")}</p>
+        </Metric>
+
+        <Metric title={t("earthEvi")} data={modisPilot.provenance} type="satellite">
+          <p className="text-3xl font-extrabold text-foreground">{num(lang, latest.evi)}</p>
+          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{t("eviContext")}</p>
+        </Metric>
+
+        <Metric title={t("rainfallAnomaly")} data={imergPilot.provenance} type="calculated">
+          <p className="text-3xl font-extrabold text-amber-700">{signed(rainAnom, "%")}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("sevenDayTotal")}: <strong>{num(lang, fmt(rainTotal)!)} mm</strong> · Baseline:{" "}
+            <strong>{num(lang, imergPilot.seasonalBaselineMm)} mm</strong>
+          </p>
+        </Metric>
+
+        <Metric title={t("temperatureAnomaly")} data={p.provenance} type="calculated">
+          <p className="text-3xl font-extrabold text-primary">{signed(tempAnom, "°C")}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("weeklyMaxMean")}:{" "}
+            <strong>{meanMax === null ? t("missing") : `${num(lang, fmt(meanMax)!)}°C`}</strong> · Baseline:{" "}
+            <strong>{num(lang, pilotSeasonalMaxTemp)}°C</strong>
+          </p>
+        </Metric>
+      </div>
+
+      {/* SMAP Soil Moisture Comparison */}
+      <Metric title={t("soilComparison")} data={smapPilot.provenance} type="satellite">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-xl border border-dashed border-satellite bg-satellite-soft/40 p-4">
+            <p className="text-xs font-bold text-satellite">{t("surfaceRegional")}</p>
+            <p className="text-3xl font-black text-foreground mt-1">{num(lang, smapPilot.surfaceVolumetric)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              m³/m³ volumetric · {num(lang, smapPilot.depthCm)} {t("depthCm")} (Topsoil horizon)
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-primary bg-secondary/40 p-4">
+            <p className="text-xs font-bold text-primary">{t("pilotProbe")}</p>
+            <p className="text-3xl font-black text-foreground mt-1">{num(lang, smapPilot.farmVolumetric)}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              m³/m³ volumetric · {num(lang, smapPilot.farmDepthCm)} {t("depthCm")} (Active root zone)
+            </p>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t("soilMismatch")}</p>
       </Metric>
     </div>
-
-    <Metric title={t("soilComparison")} data={smapPilot.provenance}>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-dashed border-satellite p-3"><p className="text-xs">{t("surfaceRegional")}</p><p className="text-2xl font-bold">{num(lang, smapPilot.surfaceVolumetric)}</p><p className="text-xs text-muted-foreground">m³/m³ · {num(lang, smapPilot.depthCm)} {t("depthCm")}</p></div>
-        <div className="rounded-xl border border-station p-3"><p className="text-xs">{t("pilotProbe")}</p><p className="text-2xl font-bold">{num(lang, smapPilot.farmVolumetric)}</p><p className="text-xs text-muted-foreground">m³/m³ · {num(lang, smapPilot.farmDepthCm)} {t("depthCm")}</p></div>
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground">{t("soilMismatch")}</p>
-    </Metric>
-  </div>;
+  );
 }
