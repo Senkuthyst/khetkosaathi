@@ -1,0 +1,14 @@
+CREATE TABLE public.field_inspections (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), device_hash text NOT NULL, field_id text NOT NULL CHECK (length(field_id) BETWEEN 1 AND 100), observed_at timestamptz NOT NULL DEFAULT now(), note text NOT NULL CHECK (length(note) BETWEEN 1 AND 2000), photo text CHECK (photo IS NULL OR (length(photo) <= 700000 AND photo ~ '^data:image/(jpeg|png|webp);base64,')), outcome text NOT NULL CHECK (outcome IN ('noIssue','problem','unsure')));
+GRANT ALL ON public.field_inspections TO service_role;
+ALTER TABLE public.field_inspections ENABLE ROW LEVEL SECURITY;
+CREATE INDEX inspection_device_field ON public.field_inspections(device_hash, field_id);
+CREATE FUNCTION public.list_inspections(device_token uuid, target_field text) RETURNS TABLE(id uuid, date timestamptz, note text, photo text, outcome text) LANGUAGE sql SECURITY DEFINER SET search_path = public, extensions AS $$ SELECT id, observed_at, note, photo, outcome FROM public.field_inspections WHERE device_hash = encode(sha256(device_token::text::bytea), 'hex') AND field_id = target_field ORDER BY observed_at DESC LIMIT 100 $$;
+CREATE FUNCTION public.save_inspection(device_token uuid, target_field text, entry_note text, entry_photo text, entry_outcome text) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$ DECLARE result uuid; BEGIN IF device_token IS NULL THEN RAISE EXCEPTION 'Device token required'; END IF; INSERT INTO public.field_inspections(device_hash, field_id, note, photo, outcome) VALUES (encode(sha256(device_token::text::bytea), 'hex'),target_field,entry_note,entry_photo,entry_outcome) RETURNING id INTO result; RETURN result; END $$;
+REVOKE ALL ON FUNCTION public.list_inspections(uuid,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.save_inspection(uuid,text,text,text,text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.list_inspections(uuid,text), public.save_inspection(uuid,text,text,text,text) TO anon, authenticated;
+CREATE TABLE public.information_reports (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), card_id text NOT NULL CHECK (length(card_id) BETWEEN 1 AND 150), details text NOT NULL CHECK (length(details) BETWEEN 1 AND 2000), created_at timestamptz NOT NULL DEFAULT now());
+GRANT INSERT ON public.information_reports TO anon, authenticated;
+GRANT ALL ON public.information_reports TO service_role;
+ALTER TABLE public.information_reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY submit_report ON public.information_reports FOR INSERT TO anon, authenticated WITH CHECK (length(details) BETWEEN 1 AND 2000);
