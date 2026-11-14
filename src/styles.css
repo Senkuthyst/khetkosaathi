@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "leaflet/dist/leaflet.css";
+@import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -43,6 +44,7 @@
   --color-veg-low: var(--veg-low);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
+  --color-location: var(--location);
 }
 
 :root {
@@ -78,6 +80,7 @@
   --veg-low: oklch(0.6 0.17 40);
   --chart-1: oklch(0.5 0.12 145);
   --chart-2: oklch(0.55 0.12 240);
+  --location: #2563eb;
 }
 
 @layer base {

@@ -13,3 +13,4 @@
 - Store inspections in Cloud through device-capability RPCs; hashed random tokens scope private demo records without introducing account signup.
 - Store incorrect-information reports as insert-only Cloud records; do not expose submitted reports publicly.
 - Use shared DataCard metadata, report controls, charts, and threshold validation across feature routes to keep safety and measurement semantics consistent.
+- Keep farm-map libraries in the lazy browser-only map module; use Geoman for vertex editing and Turf for area/intersection checks to avoid SSR failures and invalid GeoJSON.

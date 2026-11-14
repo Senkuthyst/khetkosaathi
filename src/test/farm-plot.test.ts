@@ -19,9 +19,19 @@ describe("farm plot geometry", () => {
   it("writes GeoJSON as closed [lng, lat] ring and preserves coordinates", () => {
     const pts: LatLng[] = [[27.6775, 84.4333], [27.678, 84.434], [27.677, 84.435]];
     const f = toFeature("My Farm", pts);
-    const ring = f.geometry.coordinates[0]!;
+    const ring = f.geometry.coordinates[0] ?? [];
     expect(ring[0]).toEqual([84.4333, 27.6775]);
     expect(ring[ring.length - 1]).toEqual(ring[0]);
     expect(fromFeature(f)).toEqual(pts);
+  });
+  it("rejects repeated corners, invalid coordinates and touching nonadjacent edges", () => {
+    expect(isValidPolygon([[0, 0], [0, 2], [2, 2], [0, 1], [2, 0]])).toBe(false);
+    expect(isValidPolygon([[91, 0], [0, 1], [0, 0]])).toBe(false);
+    expect(isValidPolygon([[0, 0], [0, 1], [NaN, 1]])).toBe(false);
+    expect(isValidPolygon([...square, square[0] ?? [0, 0]])).toBe(false);
+    expect(() => toFeature("Incomplete", [[0, 0], [0, 1]])).toThrow();
+  });
+  it("accepts a valid farm far away from the farmer's current location", () => {
+    expect(isValidPolygon([[51, -1], [51, -0.999], [51.001, -0.999], [51.001, -1]])).toBe(true);
   });
 });

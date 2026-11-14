@@ -13,3 +13,5 @@
 
 # My Farm location
 - [x] Map page with search, locate, draw/edit boundary, area, GeoJSON save
+- [x] Finish drawing-library editing, polygon validation and save/load safeguards
+- [x] Verify location, boundary editing, Cloud persistence and mobile layout

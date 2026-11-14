@@ -14,7 +14,7 @@ export const Route = createFileRoute("/my-farm")({
 
 function MyFarm() {
   const { t } = useApp();
-  const fb = <Skeleton className="h-[calc(100dvh-14rem)] min-h-[420px] w-full" />;
+  const fb = <Skeleton className="h-[calc(100dvh-22rem)] min-h-[360px] w-full" />;
   return (
     <div>
       <PageTitle>{t("myFarm")}</PageTitle>

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { MapContainer, TileLayer, Polygon, Polyline, Marker, Circle, CircleMarker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, Polyline, Circle, CircleMarker, useMapEvents } from "react-leaflet";
 import L, { type Map as LMap } from "leaflet";
 import { useBlocker } from "@tanstack/react-router";
+import "@geoman-io/leaflet-geoman-free";
+import { Btn } from "./kit";
 import { LocateFixed, Plus, Minus, Search, Pencil, Undo2, Trash2, Check, X, AlertTriangle } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { num } from "@/lib/i18n";
@@ -10,7 +12,6 @@ import { fromFeature, isValidPolygon, polygonAreaM2, toFeature } from "@/lib/far
 import { loadFarmPlot, saveFarmPlot } from "@/lib/farm-plot-storage";
 
 const CHITWAN: LatLng = [27.6775, 84.4333];
-const vertexIcon = L.divIcon({ className: "", html: '<div style="width:22px;height:22px;border-radius:9999px;background:#fff;border:3px solid var(--primary);box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
 
 type Mode = "view" | "draw" | "edit" | "confirm";
 type Loc = { lat: number; lng: number; acc: number };
@@ -20,7 +21,23 @@ function Clicks({ on }: { on: (p: LatLng) => void }) {
   return null;
 }
 
-const fab = "flex h-12 w-12 items-center justify-center rounded-full bg-card text-foreground shadow-lg border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
+function EditableBoundary({ pts, onChange }: { pts: LatLng[]; onChange: (pts: LatLng[]) => void }) {
+  const ref = useRef<L.Polygon | null>(null);
+  useEffect(() => {
+    const layer = ref.current;
+    if (!layer) return;
+    const sync = () => {
+      const rings = layer.getLatLngs() as L.LatLng[][];
+      onChange((rings[0] ?? []).map(p => [p.lat, p.lng]));
+    };
+    layer.pm.enable({ allowSelfIntersection: false, removeVertexOn: "click", hideMiddleMarkers: false });
+    layer.on("pm:edit", sync);
+    return () => { layer.off("pm:edit", sync); layer.pm.disable(); };
+  }, [onChange]);
+  return <Polygon ref={ref} positions={pts} pathOptions={{ color: "var(--primary)", fillOpacity: 0.2, weight: 3 }} />;
+}
+
+const fab = "flex h-12 w-12 items-center justify-center rounded-full bg-card p-0 text-foreground shadow-lg border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
 export default function MyFarmMap() {
   const { t, lang, field } = useApp();
@@ -36,13 +53,29 @@ export default function MyFarmMap() {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<{ name: string; lat: number; lng: number }[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [tileErr, setTileErr] = useState(false);
   const lastSearch = useRef(0);
 
-  useEffect(() => {
-    loadFarmPlot().then((f) => { if (f) { const p = fromFeature(f); setSaved(p); setPts(p); setName(f.properties.name); } }).catch(() => {});
-  }, []);
+  const load = () => {
+    setLoading(true); setLoadError(false);
+    loadFarmPlot().then((f) => {
+      if (f) {
+        const p = fromFeature(f);
+        if (!isValidPolygon(p)) throw new Error("Invalid saved farm");
+        setSaved(p); setPts(p); setName(f.properties.name);
+      }
+    }).catch(() => setLoadError(true)).finally(() => setLoading(false));
+  };
+  useEffect(() => { load(); }, []);
   useEffect(() => { if (map && saved?.length) map.fitBounds(L.latLngBounds(saved), { padding: [40, 40] }); }, [map, saved]);
+  useEffect(() => {
+    if (!map) return;
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  }, [map]);
 
   const dirty = useMemo(() => JSON.stringify(pts) !== JSON.stringify(saved ?? []), [pts, saved]);
   useEffect(() => {
@@ -85,11 +118,12 @@ export default function MyFarmMap() {
   };
 
   const start = () => { setBackup(pts); setPts([]); setMode("draw"); setMsg({ text: t("drawHelp"), kind: "info" }); };
-  const edit = () => { setBackup(pts); setMode("edit"); setMsg({ text: t("drawHelp"), kind: "info" }); };
+  const edit = () => { setBackup(pts); setMode("edit"); setMsg({ text: t("editHelp"), kind: "info" }); };
   const cancel = () => { setPts(backup ?? saved ?? []); setMode("view"); setMsg(null); };
   const clear = () => { setBackup(pts); setPts([]); setMode("draw"); setMsg({ text: t("cleared"), kind: "info" }); };
   const confirm = () => { if (!valid) return setMsg({ text: t("invalidPoly"), kind: "error" }); setMode("confirm"); setMsg(null); };
   const save = async () => {
+    if (!valid) return setMsg({ text: t("invalidPoly"), kind: "error" });
     setBusy(true);
     try { await saveFarmPlot(toFeature(name.trim() || "My Farm", pts)); setSaved(pts); setMode("view"); setMsg({ text: t("plotSaved"), kind: "ok" }); }
     catch { setMsg({ text: t("plotSaveFail"), kind: "error" }); }
@@ -97,23 +131,18 @@ export default function MyFarmMap() {
   };
 
   const editing = mode === "draw" || mode === "edit";
-  const ring = editing && pts.length > 2 ? [...pts, pts[0]!] : pts;
+  const first = pts[0];
+  const ring = editing && pts.length > 2 && first ? [...pts, first] : pts;
 
   return (
-    <div className="relative h-[calc(100dvh-14rem)] min-h-[420px] overflow-hidden rounded-2xl border">
+    <div className="relative h-[calc(100dvh-22rem)] min-h-[360px] overflow-hidden rounded-lg border">
       <MapContainer ref={setMap} center={CHITWAN} zoom={13} zoomControl={false} className="z-0 h-full w-full" style={{ cursor: editing ? "crosshair" : undefined }}>
         <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap contributors" maxZoom={19} eventHandlers={{ tileerror: () => setTileErr(true), tileload: () => setTileErr(false) }} />
-        {loc && <><Circle center={[loc.lat, loc.lng]} radius={loc.acc} pathOptions={{ color: "#2563eb", fillColor: "#2563eb", fillOpacity: 0.12, weight: 1 }} /><CircleMarker center={[loc.lat, loc.lng]} radius={8} pathOptions={{ color: "#fff", weight: 3, fillColor: "#2563eb", fillOpacity: 1 }} /></>}
+        {loc && <><Circle center={[loc.lat, loc.lng]} radius={loc.acc} pathOptions={{ color: "var(--location)", fillColor: "var(--location)", fillOpacity: 0.12, weight: 1 }} /><CircleMarker center={[loc.lat, loc.lng]} radius={8} pathOptions={{ color: "var(--card)", weight: 3, fillColor: "var(--location)", fillOpacity: 1 }} /></>}
         {pts.length > 2 && !editing && <Polygon positions={pts} pathOptions={{ color: "var(--primary)", fillColor: "var(--primary)", fillOpacity: 0.3, weight: 3 }} />}
-        {editing && pts.length > 2 && <Polygon positions={pts} pathOptions={{ color: valid ? "var(--primary)" : "var(--destructive)", fillOpacity: 0.2, weight: 0 }} />}
-        {editing && pts.length > 1 && <Polyline positions={ring} pathOptions={{ color: valid || pts.length < 3 ? "var(--primary)" : "var(--destructive)", weight: 3, dashArray: mode === "draw" ? "6 6" : undefined }} />}
-        {editing && pts.map((p, i) => (
-          <Marker key={i} position={p} icon={vertexIcon} draggable
-            eventHandlers={{
-              dragend: (e) => { const ll = (e.target as L.Marker).getLatLng(); setPts((x) => x.map((v, j) => (j === i ? [ll.lat, ll.lng] : v))); },
-              click: () => setPts((x) => x.filter((_, j) => j !== i)),
-            }} />
-        ))}
+        {mode === "draw" && pts.length > 2 && <Polygon positions={pts} pathOptions={{ color: valid ? "var(--primary)" : "var(--destructive)", fillOpacity: 0.2, weight: 0 }} />}
+        {mode === "draw" && pts.length > 1 && <Polyline positions={ring} pathOptions={{ color: valid || pts.length < 3 ? "var(--primary)" : "var(--destructive)", weight: 3, dashArray: mode === "draw" ? "6 6" : undefined }} />}
+        {mode === "edit" && pts.length > 2 && <EditableBoundary pts={pts} onChange={setPts} />}
         {mode === "draw" && <Clicks on={(p) => setPts((x) => [...x, p])} />}
       </MapContainer>
 
@@ -122,13 +151,13 @@ export default function MyFarmMap() {
         <form onSubmit={search} className="flex items-center gap-2 rounded-full border bg-card px-4 shadow-lg">
           <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("searchPlace")} aria-label={t("searchPlace")} className="h-12 min-w-0 flex-1 bg-transparent text-base outline-none" />
-          <button type="submit" className="text-sm font-semibold text-primary">{t("search")}</button>
+          <Btn type="submit" variant="ghost" className="px-1 text-sm">{t("search")}</Btn>
         </form>
         {results && (
           <ul className="mt-2 max-h-56 overflow-auto rounded-2xl border bg-card shadow-lg">
             {results.length === 0 && <li className="px-4 py-3 text-sm text-muted-foreground">{t("searchNone")}</li>}
             {results.map((r, i) => (
-              <li key={i}><button className="w-full px-4 py-3 text-left text-sm hover:bg-secondary" onClick={() => { map?.flyTo([r.lat, r.lng], 16); setResults(null); }}>{r.name}</button></li>
+              <li key={i}><Btn variant="ghost" className="h-auto w-full justify-start px-4 py-3 text-left text-sm" onClick={() => { map?.flyTo([r.lat, r.lng], 16); setResults(null); }}>{r.name}</Btn></li>
             ))}
           </ul>
         )}
@@ -136,35 +165,37 @@ export default function MyFarmMap() {
 
       {/* Zoom + locate */}
       <div className="absolute right-3 top-20 z-[500] flex flex-col gap-2">
-        <button className={fab} onClick={() => map?.zoomIn()} aria-label="Zoom in"><Plus className="h-5 w-5" /></button>
-        <button className={fab} onClick={() => map?.zoomOut()} aria-label="Zoom out"><Minus className="h-5 w-5" /></button>
+        <Btn variant="outline" className={fab} onClick={() => map?.zoomIn()} aria-label={t("zoomIn")} title={t("zoomIn")}><Plus className="h-5 w-5" /></Btn>
+        <Btn variant="outline" className={fab} onClick={() => map?.zoomOut()} aria-label={t("zoomOut")} title={t("zoomOut")}><Minus className="h-5 w-5" /></Btn>
       </div>
-      <button className={`${fab} absolute bottom-40 right-3 z-[500] text-[#2563eb]`} onClick={locate} disabled={locating} aria-label={t("myLocation")} title={t("myLocation")}>
+      <Btn variant="outline" className={`${fab} absolute left-3 top-20 z-[500] text-location`} onClick={locate} disabled={locating} aria-label={t("myLocation")} title={t("myLocation")}>
         <LocateFixed className={`h-6 w-6 ${locating ? "animate-pulse" : ""}`} />
-      </button>
+      </Btn>
 
       {/* Bottom panel */}
-      <div className="absolute inset-x-3 bottom-3 z-[500] space-y-2 rounded-2xl border bg-card p-3 shadow-lg">
+      <div className="absolute inset-x-3 bottom-6 z-[500] max-h-[60%] space-y-2 overflow-auto rounded-lg border bg-card p-3 shadow-lg">
+        {loading && <p role="status" className="text-sm text-muted-foreground">{t("plotLoading")}</p>}
+        {loadError && <div role="alert" className="flex items-center justify-between gap-2 text-sm text-destructive">{t("plotLoadFail")}<Btn variant="ghost" onClick={load}>{t("retry")}</Btn></div>}
         {tileErr && <p className="flex items-center gap-1 text-xs font-semibold text-destructive"><AlertTriangle className="h-3.5 w-3.5" />{t("tileFail")}</p>}
         {msg && <p role="status" className={`text-sm ${msg.kind === "error" ? "font-semibold text-destructive" : msg.kind === "ok" ? "font-semibold text-primary" : "text-muted-foreground"}`}>{msg.text}</p>}
         {(editing || mode === "confirm" || (pts.length > 2 && valid)) && (
           <p className="text-sm font-semibold">{t("area")}: {valid ? `${num(lang, Math.round(area))} ${t("sqm")} · ${num(lang, +(area / 10000).toFixed(3))} ${t("hectares")}` : "—"} <span className="font-normal text-muted-foreground">({num(lang, pts.length)} {t("points")})</span></p>
         )}
-        {mode === "view" && (
+        {mode === "view" && !loading && !loadError && (
           pts.length > 2
-            ? <div className="flex gap-2"><button className="tap flex-1 rounded-xl border-2 font-semibold" onClick={edit}><Pencil className="mr-1 inline h-4 w-4" />{t("editBoundary")}</button><button className="tap flex-1 rounded-xl bg-primary font-semibold text-primary-foreground" onClick={start}>{t("drawBoundary")}</button></div>
-            : <button className="tap w-full rounded-xl bg-primary font-bold text-primary-foreground" onClick={start}><Pencil className="mr-2 inline h-5 w-5" />{t("drawBoundary")}</button>
+            ? <div className="flex gap-2"><Btn variant="outline" className="min-w-0 flex-1 px-2 text-sm" onClick={edit}><Pencil className="h-4 w-4 shrink-0" />{t("editBoundary")}</Btn><Btn className="min-w-0 flex-1 px-2 text-sm" onClick={start}>{t("drawBoundary")}</Btn></div>
+            : <Btn className="tap w-full rounded-xl bg-primary font-bold text-primary-foreground" onClick={start}><Pencil className="mr-2 inline h-5 w-5" />{t("drawBoundary")}</Btn>
         )}
         {editing && (
           <div className="grid grid-cols-4 gap-2">
-            <button className="tap rounded-xl border-2 text-sm font-semibold" onClick={cancel}><X className="mx-auto h-4 w-4" />{t("cancel")}</button>
-            <button className="tap rounded-xl border-2 text-sm font-semibold disabled:opacity-40" disabled={!pts.length} onClick={() => setPts((x) => x.slice(0, -1))}><Undo2 className="mx-auto h-4 w-4" />{t("undo")}</button>
-            <button className="tap rounded-xl border-2 text-sm font-semibold disabled:opacity-40" disabled={!pts.length} onClick={clear}><Trash2 className="mx-auto h-4 w-4" />{t("clear")}</button>
-            <button className="tap rounded-xl bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-40" disabled={pts.length < 3} onClick={confirm}><Check className="mx-auto h-4 w-4" />{t("confirm")}</button>
+            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" onClick={cancel}><X className="h-4 w-4" />{t("cancel")}</Btn>
+            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" disabled={!pts.length} onClick={() => setPts((x) => x.slice(0, -1))}><Undo2 className="h-4 w-4" />{t("undo")}</Btn>
+            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" disabled={!pts.length} onClick={clear}><Trash2 className="h-4 w-4" />{t("clear")}</Btn>
+            <Btn className="flex-col gap-1 px-1 py-1 text-xs" disabled={!valid} onClick={confirm}><Check className="h-4 w-4" />{t("confirm")}</Btn>
           </div>
         )}
         {editing && backup && backup.length > 2 && pts.length === 0 && (
-          <button className="text-sm font-semibold text-primary underline" onClick={() => setPts(backup)}>{t("restore")}</button>
+          <Btn className="text-sm font-semibold text-primary underline" onClick={() => setPts(backup)}>{t("restore")}</Btn>
         )}
         {mode === "confirm" && (
           <div className="space-y-2">
@@ -172,8 +203,8 @@ export default function MyFarmMap() {
               <input className="tap mt-1 w-full rounded-xl border-2 border-input bg-card px-3 text-base" value={name} maxLength={100} onChange={(e) => setName(e.target.value)} /></label>
             <p className="text-xs text-muted-foreground">{t("resolutionNote")}</p>
             <div className="flex gap-2">
-              <button className="tap flex-1 rounded-xl border-2 font-semibold" onClick={() => setMode("edit")}>{t("back")}</button>
-              <button className="tap flex-1 rounded-xl bg-primary font-bold text-primary-foreground disabled:opacity-50" disabled={busy} onClick={save}>{busy ? t("saving") : t("savePlot")}</button>
+              <Btn className="tap flex-1 rounded-xl border-2 font-semibold" onClick={() => setMode("edit")}>{t("back")}</Btn>
+              <Btn className="tap flex-1 rounded-xl bg-primary font-bold text-primary-foreground disabled:opacity-50" disabled={busy} onClick={save}>{busy ? t("saving") : t("savePlot")}</Btn>
             </div>
           </div>
         )}
