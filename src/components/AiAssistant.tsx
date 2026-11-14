@@ -30,10 +30,14 @@ interface AiAssistantProps {
 }
 
 export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
-  const { lang, field } = useApp();
+  const { lang, field, selectedField } = useApp();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const activeFarmLabel = selectedField
+    ? `${selectedField.fieldName}${selectedField.municipality ? ` (${selectedField.municipality})` : ""}`
+    : (field?.name ?? "No farm plot registered");
 
   const s = summary();
 
@@ -245,8 +249,8 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
               </div>
               <p className="text-[11px] text-primary-foreground/75 leading-tight">
                 {lang === "ne"
-                  ? "चितवन नमुना खेत र NASA भू-उपग्रह डाटामा आधारित"
-                  : "Contextual AgriTech intelligence for Nepal's farmers"}
+                  ? "तपाईंको खेत र NASA भू-उपग्रह डाटामा आधारित"
+                  : "Contextual AgriTech intelligence for your farm"}
               </p>
             </div>
           </div>
@@ -265,7 +269,7 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
           <div className="flex items-center gap-3 overflow-x-auto py-0.5">
             <span className="flex items-center gap-1 font-semibold text-primary shrink-0">
               <ShieldCheck className="h-3.5 w-3.5" />
-              {field?.name ?? "Chitwan Pilot Plot"}
+              {activeFarmLabel}
             </span>
             <span className="text-muted-foreground shrink-0">|</span>
             <span className="shrink-0 text-muted-foreground">

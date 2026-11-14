@@ -14,6 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
+      user_profiles: {
+        Row: {
+          country: string
+          created_at: string
+          current_latitude: number | null
+          current_location_name: string | null
+          current_longitude: number | null
+          district: string | null
+          email: string | null
+          full_name: string
+          id: string
+          municipality: string | null
+          phone_number: string | null
+          preferred_language: string
+          profile_photo: string | null
+          province: string | null
+          updated_at: string
+          ward_number: string | null
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          current_latitude?: number | null
+          current_location_name?: string | null
+          current_longitude?: number | null
+          district?: string | null
+          email?: string | null
+          full_name: string
+          id: string
+          municipality?: string | null
+          phone_number?: string | null
+          preferred_language?: string
+          profile_photo?: string | null
+          province?: string | null
+          updated_at?: string
+          ward_number?: string | null
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          current_latitude?: number | null
+          current_location_name?: string | null
+          current_longitude?: number | null
+          district?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          municipality?: string | null
+          phone_number?: string | null
+          preferred_language?: string
+          profile_photo?: string | null
+          province?: string | null
+          updated_at?: string
+          ward_number?: string | null
+        }
+        Relationships: []
+      }
+      farm_fields: {
+        Row: {
+          area_m2: number
+          area_unit: string
+          boundary: Json
+          created_at: string
+          crop_type: string
+          crop_variety: string | null
+          district: string | null
+          elevation: number | null
+          field_name: string
+          id: string
+          irrigation_type: string
+          is_primary: boolean
+          latitude: number
+          longitude: number
+          municipality: string | null
+          planting_date: string
+          province: string | null
+          soil_type: string | null
+          updated_at: string
+          user_id: string
+          ward_number: string | null
+        }
+        Insert: {
+          area_m2: number
+          area_unit?: string
+          boundary: Json
+          created_at?: string
+          crop_type: string
+          crop_variety?: string | null
+          district?: string | null
+          elevation?: number | null
+          field_name: string
+          id?: string
+          irrigation_type?: string
+          is_primary?: boolean
+          latitude: number
+          longitude: number
+          municipality?: string | null
+          planting_date: string
+          province?: string | null
+          soil_type?: string | null
+          updated_at?: string
+          user_id: string
+          ward_number?: string | null
+        }
+        Update: {
+          area_m2?: number
+          area_unit?: string
+          boundary?: Json
+          created_at?: string
+          crop_type?: string
+          crop_variety?: string | null
+          district?: string | null
+          elevation?: number | null
+          field_name?: string
+          id?: string
+          irrigation_type?: string
+          is_primary?: boolean
+          latitude?: number
+          longitude?: number
+          municipality?: string | null
+          planting_date?: string
+          province?: string | null
+          soil_type?: string | null
+          updated_at?: string
+          user_id?: string
+          ward_number?: string | null
+        }
+        Relationships: []
+      }
       farm_plots: {
         Row: {
           area_m2: number

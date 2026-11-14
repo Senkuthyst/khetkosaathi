@@ -55,7 +55,7 @@ function Weather() {
           {t("station")}
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          {stationMeta.id} · Chitwan Sub-tropical Valley · Live Readings & Climatology
+          {stationMeta.id} · Local Weather Telemetry & Climatology
         </p>
       </div>
 

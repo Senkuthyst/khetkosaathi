@@ -113,11 +113,24 @@ function Metric({
 }
 
 function EarthIntelligence() {
-  const { t, lang } = useApp();
+  const { t, lang, selectedField } = useApp();
   const [power, setPower] = useState<PowerData | null>(null);
   const [busy, setBusy] = useState(false);
   const [activeLayer, setActiveLayer] = useState<"ndvi" | "precipitation" | "moisture" | "firms">("ndvi");
-  const [currentLocation, setCurrentLocation] = useState<GeoLocation>(PRESET_GLOBAL_LOCATIONS[0]!);
+  const [currentLocation, setCurrentLocation] = useState<GeoLocation>(() => {
+    if (selectedField) {
+      return {
+        id: selectedField.id,
+        name: `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})`,
+        country: "Nepal",
+        latitude: selectedField.latitude,
+        longitude: selectedField.longitude,
+        type: "field",
+        description: `Registered farm plot in ${selectedField.municipality || "Nepal"}, ${selectedField.district || ""}`,
+      };
+    }
+    return PRESET_GLOBAL_LOCATIONS[0]!;
+  });
   const [firmsMarkers, setFirmsMarkers] = useState<Array<{ latitude: number; longitude: number; label: string }>>([
     // Authentic nearby verified thermal anomaly reference points around Chitwan valley
     { latitude: 27.695, longitude: 84.452, label: "Hotspot: 328K (VIIRS 375m)" },
@@ -279,9 +292,9 @@ function EarthIntelligence() {
               height={360}
               polygons={[
                 {
-                  positions: pilotField.boundary,
+                  positions: selectedField?.boundary && selectedField.boundary.length > 0 ? selectedField.boundary : pilotField.boundary,
                   color: activeLayer === "ndvi" ? "var(--veg-good)" : activeLayer === "firms" ? "#ef4444" : "var(--satellite)",
-                  label: currentLocation.name,
+                  label: selectedField?.fieldName ?? currentLocation.name,
                 },
                 ...neighbourFields.map((f) => ({
                   positions: f.boundary,

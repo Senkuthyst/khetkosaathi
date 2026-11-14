@@ -20,12 +20,20 @@ export const Route = createFileRoute("/crop-health")({
 });
 
 function CropHealth() {
-  const { t, lang, field } = useApp();
+  const { t, lang, field, selectedField } = useApp();
   const { veg, lastVeg, vegBelow } = summary();
   const source = lastVeg?.sensor ?? "landsat";
   const date = lastVeg?.date ?? null;
   const scale = source === "landsat" ? "30 m" : "~250 m";
   const meta = { source, observedAt: date, scale, freshness: freshness(date, 72) };
+
+  const fieldLocationLabel = selectedField
+    ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})`
+    : t("demoNote");
+
+  const centerCoords: [number, number] = selectedField
+    ? [selectedField.latitude, selectedField.longitude]
+    : [27.6775, 84.4333];
 
   return (
     <div className="space-y-6">
@@ -40,7 +48,7 @@ function CropHealth() {
           {t("cropHealth")}
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          {t("demoNote")} · Chitwan Pilot Parcels (Bharatpur-14)
+          {fieldLocationLabel}
         </p>
       </div>
 
@@ -48,14 +56,14 @@ function CropHealth() {
       <DataCard title={t("map")} {...meta} icon={<Leaf className="h-5 w-5 text-satellite" />}>
         <div className="rounded-xl overflow-hidden border border-border my-2">
           <LazyMap
-            center={pilotField.boundary[0] ?? [27.6775, 84.4333]}
+            center={centerCoords}
             zoom={16}
             height={320}
             polygons={[
               {
-                positions: field?.boundary ?? pilotField.boundary,
+                positions: selectedField?.boundary && selectedField.boundary.length > 0 ? selectedField.boundary : (field?.boundary ?? pilotField.boundary),
                 color: "var(--veg-low)",
-                label: t("vegLow"),
+                label: selectedField?.fieldName ?? t("vegLow"),
               },
               ...neighbourFields.map((f) => ({
                 positions: f.boundary,

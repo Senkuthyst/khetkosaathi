@@ -54,7 +54,7 @@ export const Route = createFileRoute("/")({
 });
 
 function DashboardOverview() {
-  const { t, lang, field, activeView, setActiveView } = useApp();
+  const { t, lang, field, selectedField, farmFields, activeView, setActiveView } = useApp();
   const [trendTab, setTrendTab] = useState<"rainfall" | "temperature" | "soil">("rainfall");
   const [showRotationPlanner, setShowRotationPlanner] = useState(false);
 
@@ -64,19 +64,38 @@ function DashboardOverview() {
   }
 
   const s = summary();
-  const currentField = field ?? {
-    id: "f1",
-    name: "Chitwan Research Plot (चितवन नमुना खेत)",
-    crop: "rice",
-    plantingDate: "2026-07-10",
-    municipality: "bharatpur",
-    boundary: pilotField.boundary,
-  };
-
-  const muni = municipalities.find((m) => m.id === currentField.municipality);
   const f = freshness(stationCurrent.observedAt, 2);
   const latestModis = modisPilot.composites.at(-1)!;
   const rainTotal = imergPilot.daily.reduce((a, b) => a + b, 0);
+
+  // Honest empty state when user hasn't registered a farm yet
+  if (!selectedField && farmFields.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-border bg-card p-8 text-center space-y-4 shadow-sm max-w-xl mx-auto my-8">
+          <div className="h-16 w-16 rounded-3xl bg-primary/10 text-primary mx-auto flex items-center justify-center">
+            <Sprout className="h-8 w-8" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-foreground">Welcome to Khetkosaathi</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            No agricultural plot registered yet. Register your farmland anywhere in Nepal to monitor real satellite indicators, weather forecasts, and crop health.
+          </p>
+          <div className="pt-2 flex justify-center gap-3">
+            <Link
+              to="/onboarding"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-xs"
+            >
+              <span>Register Your First Farm Plot</span>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentField = selectedField!;
+  const muni = currentField.municipality || "Nepal";
 
   return (
     <div className="space-y-6">
@@ -98,19 +117,19 @@ function DashboardOverview() {
             </div>
 
             <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              {currentField.name}
+              {currentField.fieldName}
             </h1>
 
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm text-muted-foreground">
               <span className="flex items-center gap-1 font-medium text-foreground">
                 <MapPin className="h-4 w-4 text-primary" />
-                {muni?.[lang] ?? "Bharatpur, Chitwan"} (27.6775° N, 84.4333° E)
+                {currentField.municipality || "Nepal"}{currentField.district ? `, ${currentField.district}` : ""} ({currentField.latitude.toFixed(4)}° N, {currentField.longitude.toFixed(4)}° E)
               </span>
               <span>•</span>
               <span className="flex items-center gap-1 font-medium text-foreground">
                 <Sprout className="h-4 w-4 text-primary" />
-                {t(currentField.crop)} · {num(lang, cropAgeDays(currentField.plantingDate))} {t("days")}
-                <span className="text-muted-foreground">({lang === "ne" ? "गाँज हाल्ने अवस्था" : "Tillering Phase"})</span>
+                {currentField.cropType} · {num(lang, cropAgeDays(currentField.plantingDate))} {t("days")}
+                <span className="text-muted-foreground">({lang === "ne" ? "सक्रिय चरण" : "Active Growth Stage"})</span>
               </span>
             </div>
           </div>
@@ -301,7 +320,7 @@ function DashboardOverview() {
               {
                 positions: currentField.boundary,
                 color: "var(--veg-good)",
-                label: currentField.name,
+                label: currentField.fieldName,
               },
               ...neighbourFields.map((f) => ({
                 positions: f.boundary,
@@ -315,7 +334,7 @@ function DashboardOverview() {
         {/* Map Footer Metadata */}
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground pt-1">
           <span>Satellite Reference: MODIS MOD13Q1 (250m) & Landsat 30m Grid</span>
-          <span>Coordinates: {num(lang, "27.6775")}° N, {num(lang, "84.4333")}° E</span>
+          <span>Coordinates: {currentField.latitude.toFixed(4)}° N, {currentField.longitude.toFixed(4)}° E</span>
         </div>
       </div>
 
