@@ -149,7 +149,14 @@ export async function createFarmField(params: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === "PGRST205" || error.message?.includes("schema cache")) {
+      throw new Error(
+        "The 'farm_fields' table is not yet created in your Lovable Cloud database. Please run the SQL migration (0004_auth_and_farm_fields.sql) in your Lovable Cloud SQL Editor."
+      );
+    }
+    throw error;
+  }
   return rowToFarmField(data);
 }
 
