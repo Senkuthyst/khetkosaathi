@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidPolygon, polygonAreaM2, toFeature, fromFeature } from "@/lib/farm-plot";
+import { isValidPolygon, polygonAreaM2, toFeature, fromFeature, isFarmFeature } from "@/lib/farm-plot";
 import type { LatLng } from "@/lib/data";
 
 // ~100 m x ~100 m square near the equator
@@ -33,5 +33,13 @@ describe("farm plot geometry", () => {
   });
   it("accepts a valid farm far away from the farmer's current location", () => {
     expect(isValidPolygon([[51, -1], [51, -0.999], [51.001, -0.999], [51.001, -1]])).toBe(true);
+  });
+  it("accepts only the closed, property-complete GeoJSON features this app writes", () => {
+    const feature = toFeature("My Farm", [[27.6775, 84.4333], [27.678, 84.434], [27.677, 84.435]]);
+    expect(isFarmFeature(feature)).toBe(true);
+    expect(isFarmFeature({ ...feature, geometry: { type: "Polygon", coordinates: [[[84.4333, 27.6775]]] } })).toBe(false);
+    expect(isFarmFeature({ ...feature, properties: { ...feature.properties, area_m2: 0 } })).toBe(false);
+    expect(isFarmFeature({ ...feature, properties: { ...feature.properties, name: "" } })).toBe(false);
+    expect(isFarmFeature(null)).toBe(false);
   });
 });
