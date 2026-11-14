@@ -4,3 +4,5 @@ export * from "./mock";
 export * from "./earth-types";
 export * from "./earth-pilot";
 export * from "./nasa-power";
+export * from "./earth-observation-contract";
+export * from "./nasa-power-service";

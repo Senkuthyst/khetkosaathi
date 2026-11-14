@@ -18,6 +18,7 @@ import {
 import { Btn, Card, DataProvenance, FreshBadge, PageTitle, Skeleton, SourceTag } from "@/components/kit";
 import { TrendChart } from "@/components/Charts";
 import { LazyMap } from "@/components/LazyMap";
+import { EarthDataStatusSection } from "@/components/EarthDataStatusSection";
 import { useApp } from "@/lib/store";
 import { num } from "@/lib/i18n";
 import { pageHead } from "@/lib/page-head";
@@ -304,6 +305,9 @@ function EarthIntelligence() {
           </div>
         </div>
       </div>
+
+      {/* Earth Intelligence Ingestion & Live Status Deck */}
+      {power && <EarthDataStatusSection powerData={power} fieldId={pilotField.id} />}
 
       {/* NASA POWER Climatology Card */}
       <Card className="p-6">
