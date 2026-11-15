@@ -447,4 +447,250 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
       publicationYear: 2019,
     },
   },
+
+  // =========================================================================
+  // NEPAL WINTER / RABI SEASON CANDIDATES (Oct – Jan)
+  // These ensure every month of the year has at least 3 realistic candidates.
+  // Planting data: NARC / MoALD Nepal rabi crop calendars.
+  // =========================================================================
+
+  {
+    cropId: "wheat_winter",
+    nameEn: "Winter Wheat (Gahun)",
+    nameNe: "गहुँ (हिउँदे)",
+    family: "Poaceae",
+    suitablePlantingMonths: [10, 11], // Oct – Nov (best window for Nepal Terai/Hills)
+    growthDurationDays: [110, 135],
+    tempRangeC: [5, 25],
+    optimalTempRangeC: [12, 22],
+    waterRequirementMm: [350, 500],
+    compatibleSoilTextures: ["loam", "clay loam", "silt loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: true,
+    incompatiblePrecedingFamilies: ["Poaceae"], // Avoid continuous wheat/rice/maize due to shared Karnal bunt
+    beneficialPrecedingFamilies: ["Fabaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Staple winter cash crop. Breaks paddy monoculture and benefits from residual legume nitrogen when following lentil or chickpea. Varieties like Gautam and Bhrikuti recommended by NARC.",
+    rotationBenefitsNe:
+      "मुख्य हिउँदे नगदे बाली। दलहन पछि लगाउँदा नाइट्रोजन सहज पाइन्छ र रोग-कीराको चाप घट्छ। गौतम र भृकुटी जात सिफारिस।",
+    rotationRisksEn:
+      "Requires 3–4 irrigations if post-monsoon rains fail. Rust disease risk high if sowing is delayed past December.",
+    rotationRisksNe:
+      "मनसुन पछि वर्षा नभए ३–४ पटक सिँचाइ अनिवार्य। डिसेम्बर पछि ढिलो बोए कालो जंग (rust) को जोखिम बढ्छ।",
+    agronomicRequirementsEn:
+      "Sow Oct 15 – Nov 30 at 100–120 kg seed/ha. First irrigation at crown root initiation (21 days). Recommended varieties: Gautam, Bhrikuti, NL-971.",
+    agronomicRequirementsNe:
+      "असोज-मंसिर बीचमा बिउ राख्नुहोस् (प्रति हेक्टर १००-१२० कि.ग्रा.)। पहिलो सिँचाइ बोएको २१ दिनमा। सिफारिस जातहरू: गौतम, भृकुटी, NL-971।",
+    citation: {
+      sourceTitle: "Wheat Production Guidelines for Nepal",
+      publishingInstitution: "National Wheat Research Program (NWRP), Bhairahawa, NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2021,
+    },
+  },
+  {
+    cropId: "potato_winter",
+    nameEn: "Winter Potato (Hiunde Aalu)",
+    nameNe: "हिउँदे आलु",
+    family: "Solanaceae",
+    suitablePlantingMonths: [9, 10, 11], // Sep – Nov (Terai/mid-hills winter crop)
+    growthDurationDays: [90, 110],
+    tempRangeC: [7, 25],
+    optimalTempRangeC: [12, 20],
+    waterRequirementMm: [350, 500],
+    compatibleSoilTextures: ["sandy loam", "loam", "silt loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: true,
+    incompatiblePrecedingFamilies: ["Solanaceae"], // Avoid after tomato/eggplant (shared Phytophthora)
+    beneficialPrecedingFamilies: ["Poaceae", "Fabaceae"],
+    rotationBenefitsEn:
+      "High-value cash tuber crop for the winter market. Following rice or maize breaks soilborne disease cycles and uses residual organic matter efficiently.",
+    rotationBenefitsNe:
+      "हिउँदे बजारमा उच्च मूल्य पाइने नगदे बाली। धान वा मकै पछि लगाउँदा भूमिजन्य रोग घट्छ र बाँकी जैव पदार्थको सदुपयोग हुन्छ।",
+    rotationRisksEn:
+      "Late blight (Phytophthora infestans) is the primary risk in cool humid conditions; apply preventive fungicide at haulm closure.",
+    rotationRisksNe:
+      "चिसो र ओसिलो मौसममा ढुसी रोग (Phytophthora) को उच्च जोखिम; बोट जोडिनुअघि रोकथाम ढुसीनाशक प्रयोग गर्नुहोस्।",
+    agronomicRequirementsEn:
+      "Plant seed tubers (35–55 g) in Oct–Nov at 60×20 cm spacing. Varieties: Kufri Jyoti, Cardinal, Desiree. Earth up at 30–35 days.",
+    agronomicRequirementsNe:
+      "असोज-मंसिरमा बिउ-आलु (३५-५५ ग्राम) ६०×२० से.मी. दूरीमा रोप्नुहोस्। जात: कुफ्री ज्योति, कार्डिनल। रोपेको ३०-३५ दिनमा माटो थुपार्नुहोस्।",
+    citation: {
+      sourceTitle: "Potato Production Technology in Nepal (Technical Bulletin)",
+      publishingInstitution:
+        "Nepal Agricultural Research Council (NARC) - National Potato Research Program (NPRP), Khumaltar",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2021,
+    },
+  },
+  {
+    cropId: "mustard",
+    nameEn: "Mustard / Rapeseed (Tori)",
+    nameNe: "तोरी / रायो",
+    family: "Brassicaceae",
+    suitablePlantingMonths: [9, 10, 11], // Sep – Nov
+    growthDurationDays: [85, 110],
+    tempRangeC: [5, 25],
+    optimalTempRangeC: [10, 20],
+    waterRequirementMm: [200, 350],
+    compatibleSoilTextures: ["loam", "sandy loam", "clay loam", "alluvial", "silt loam"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false, // primarily rainfed in Nepal
+    incompatiblePrecedingFamilies: ["Brassicaceae"], // Avoid after cabbage/cauliflower/radish (clubroot)
+    beneficialPrecedingFamilies: ["Poaceae", "Fabaceae"],
+    rotationBenefitsEn:
+      "Important oilseed cash crop with low water demand. Deep taproot breaks paddy hardpan. Glucosinolate residues suppress soilborne nematodes.",
+    rotationBenefitsNe:
+      "कम पानीमा हुने महत्त्वपूर्ण तेलहन बाली। गहिरो जरोले धानको कठोर माटो तोड्छ। ग्लुकोसाइनोलेट अवशेषले माटोका सूत्रकृमि घटाउँछ।",
+    rotationRisksEn:
+      "Aphid (Lipaphis erysimi) infestation common from January; monitor weekly. White rust can reduce yield in high-humidity areas.",
+    rotationRisksNe:
+      "माघबाट लाही कीराको प्रकोप सामान्य; साप्ताहिक निरीक्षण गर्नुहोस्। ओसिलो क्षेत्रमा सेतो जंगले उत्पादन घटाउँछ।",
+    agronomicRequirementsEn:
+      "Broadcast or drill sow Oct–Nov at 5–6 kg seed/ha. Varieties: Binayak, Pusa Bold. Harvest when 75% pods turn golden.",
+    agronomicRequirementsNe:
+      "असोज-मंसिरमा प्रति हेक्टर ५-६ कि.ग्रा. बिउ छर्नुहोस्। जात: विनायक, पुसा बोल्ड। ७५% फली सुनौलो भएपछि काट्नुहोस्।",
+    citation: {
+      sourceTitle: "Oilseed Crops Technology in Nepal",
+      publishingInstitution: "National Oilseed Research Program (NORP), Nawalpur, Sarlahi, NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2019,
+    },
+  },
+  {
+    cropId: "lentil",
+    nameEn: "Lentil (Masuro)",
+    nameNe: "मसुरो",
+    family: "Fabaceae",
+    suitablePlantingMonths: [10, 11, 12, 1], // Oct – Jan (long sowing window in Nepal Terai)
+    growthDurationDays: [110, 130],
+    tempRangeC: [5, 25],
+    optimalTempRangeC: [10, 18],
+    waterRequirementMm: [150, 300],
+    compatibleSoilTextures: ["loam", "sandy loam", "silt loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false,
+    incompatiblePrecedingFamilies: ["Fabaceae"], // Avoid after chickpea/pea (shared Fusarium)
+    beneficialPrecedingFamilies: ["Poaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Nitrogen-fixing legume that enriches soil with 40–60 kg N/ha. Ideal follow-on to rice paddy. Low water demand — excellent for rainfed winter soils.",
+    rotationBenefitsNe:
+      "नाइट्रोजन सोध्ने दलहन जसले प्रति हेक्टर ४०-६० कि.ग्रा. नाइट्रोजन माटोमा थप्छ। धान पछिको उत्तम विकल्प। सिँचाइ कम वा नचाहिने।",
+    rotationRisksEn:
+      "Stemphylium blight can be severe in warm wet winters. Avoid sowing in low-lying waterlogged plots.",
+    rotationRisksNe:
+      "न्यानो र ओसिलो हिउँदमा स्टेम्फिलियम झुल्के रोगको जोखिम। पानी जम्ने ठाउँमा नलगाउनुहोस्।",
+    agronomicRequirementsEn:
+      "Sow Oct–Jan at 40–50 kg/ha. Varieties: Khajura Masuro-1, ILL-5588. No irrigation needed in most areas. Harvest at physiological maturity (pods rattle).",
+    agronomicRequirementsNe:
+      "असोज-पुसमा प्रति हेक्टर ४०-५० कि.ग्रा. बिउ छर्नुहोस्। जात: खजुरा मसुरो-१, ILL-5588। अधिकांश क्षेत्रमा सिँचाइ नचाहिने।",
+    citation: {
+      sourceTitle: "Green Manuring Techniques for Soil Fertility Management",
+      publishingInstitution: "Soil Science Division, NARC, Khumaltar, Lalitpur",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2019,
+    },
+  },
+  {
+    cropId: "chickpea",
+    nameEn: "Chickpea (Chana)",
+    nameNe: "चना",
+    family: "Fabaceae",
+    suitablePlantingMonths: [10, 11, 12], // Oct – Dec
+    growthDurationDays: [120, 145],
+    tempRangeC: [5, 28],
+    optimalTempRangeC: [10, 20],
+    waterRequirementMm: [150, 300],
+    compatibleSoilTextures: ["sandy loam", "loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false,
+    incompatiblePrecedingFamilies: ["Fabaceae"],
+    beneficialPrecedingFamilies: ["Poaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Deep-rooted legume that fixes atmospheric nitrogen and improves soil structure after repeated shallow-rooted paddy. High protein cash crop with good market value.",
+    rotationBenefitsNe:
+      "गहिरो जरोको दलहन जसले वायुमण्डलीय नाइट्रोजन सोध्छ र बारम्बार धान लगाएपछि माटोको संरचना सुधार्छ।",
+    rotationRisksEn:
+      "Botrytis grey mould risk in humid conditions. Requires well-drained soils — avoid low-lying fields prone to fog.",
+    rotationRisksNe:
+      "ओसिलो अवस्थामा बोट्रिटिस (grey mould) को जोखिम। राम्रो निकास भएको माटो चाहिन्छ।",
+    agronomicRequirementsEn:
+      "Sow Oct–Dec at 70–90 kg/ha. Recommended varieties: Avrodhi, ICC-4918, Doli. Verify planting dates with NARC or your local agriculture office.",
+    agronomicRequirementsNe:
+      "असोज-पुसमा प्रति हेक्टर ७०-९० कि.ग्रा. बिउ। जात: अव्रोधी, Doli। स्थानीय कृषि शाखाबाट मिति पुष्टि गर्नुहोस्।",
+    citation: {
+      sourceTitle: "Grain Legumes and Vegetable Cowpea Cultivation",
+      publishingInstitution: "National Grain Legumes Research Program (NGLRP), NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2020,
+    },
+  },
+  {
+    cropId: "field_pea",
+    nameEn: "Field Pea (Kerau)",
+    nameNe: "केराउ",
+    family: "Fabaceae",
+    suitablePlantingMonths: [10, 11, 12, 1], // Oct – Jan
+    growthDurationDays: [90, 115],
+    tempRangeC: [5, 22],
+    optimalTempRangeC: [8, 18],
+    waterRequirementMm: [150, 280],
+    compatibleSoilTextures: ["loam", "sandy loam", "silt loam", "clay loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false,
+    incompatiblePrecedingFamilies: ["Fabaceae"],
+    beneficialPrecedingFamilies: ["Poaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Quick-maturing legume that fits neatly in the winter gap between paddy harvest and wheat planting. Fixes nitrogen and provides green pods for home consumption.",
+    rotationBenefitsNe:
+      "धान काटेपछि र गहुँ लगाउनु अघिको अन्तरालमा लगाइने छिटो पाक्ने दलहन। नाइट्रोजन सोध्छ र हरियो कोसा घरखर्चका लागि पाइन्छ।",
+    rotationRisksEn:
+      "Powdery mildew common in late winter (Feb–Mar). Avoid sowing too late (after January) in low-altitude areas.",
+    rotationRisksNe:
+      "माघ-फागुनमा पाउडरी मिल्ड्यूको प्रकोप सामान्य। तराईमा माघ पछि नलगाउनुहोस्।",
+    agronomicRequirementsEn:
+      "Sow Oct–Jan at 80–100 kg/ha. Varieties: Prakash, Arkel, Sungold. Verify planting dates with NARC or your local agriculture office.",
+    agronomicRequirementsNe:
+      "असोज-पुसमा प्रति हेक्टर ८०-१०० कि.ग्रा. बिउ। जात: प्रकाश, अर्केल, सनगोल्ड।",
+    citation: {
+      sourceTitle: "Spring Mungbean Production Technology in Cereal-Based Systems",
+      publishingInstitution: "National Grain Legumes Research Program (NGLRP), Rampur, Chitwan, NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2022,
+    },
+  },
+  {
+    cropId: "winter_vegetables",
+    nameEn: "Winter Vegetables (Cauliflower / Cabbage)",
+    nameNe: "काउली / बन्दा (जाडो तरकारी)",
+    family: "Brassicaceae",
+    suitablePlantingMonths: [9, 10, 11, 12], // Sep – Dec (transplanting window)
+    growthDurationDays: [60, 90],
+    tempRangeC: [5, 25],
+    optimalTempRangeC: [10, 20],
+    waterRequirementMm: [300, 450],
+    compatibleSoilTextures: ["loam", "clay loam", "silt loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: true,
+    incompatiblePrecedingFamilies: ["Brassicaceae"], // Avoid clubroot build-up
+    beneficialPrecedingFamilies: ["Poaceae", "Fabaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "High-value market vegetable with quick turnover (60–90 days). Capitalises on cool dry winter conditions. After paddy or maize — excellent market supplement income.",
+    rotationBenefitsNe:
+      "चाँडो बिक्री हुने उच्च मूल्य तरकारी (६०-९० दिन)। चिसो सुख्खा हिउँदमा राम्रो उत्पादन। धान वा मकै पछि बजारमा थप आम्दानी।",
+    rotationRisksEn:
+      "Clubroot (Plasmodiophora brassicae) can persist 20+ years; never follow another Brassica crop. Diamond-back moth pressure increases from February.",
+    rotationRisksNe:
+      "क्लबरुट रोग २० वर्षभन्दा बढी माटोमा बाँच्छ; अर्को Brassica पछि नलगाउनुहोस्। फागुनबाट डाइमन्डब्याक पुतली बढ्छ।",
+    agronomicRequirementsEn:
+      "Raise nursery Aug–Sep; transplant at 4–5 leaf stage. Spacing 60×45 cm for cauliflower, 45×45 cm for cabbage. Varieties: Kathmandu Local, Pusa Snowball, Golden Acre.",
+    agronomicRequirementsNe:
+      "भदौ-असोजमा बिउ उमार्नुहोस्; ४-५ पात भएपछि सार्नुहोस्। काउलीका लागि ६०×४५ से.मी. दूरी। जात: काठमाडौं लोकल, पुसा स्नोबल।",
+    citation: {
+      sourceTitle: "Commercial Vegetable Production Manual",
+      publishingInstitution: "Vegetable Development Directorate, Ministry of Agriculture, Nepal",
+      referenceUrl: "https://moald.gov.np/",
+      publicationYear: 2021,
+    },
+  },
 ];

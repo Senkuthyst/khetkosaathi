@@ -7,12 +7,14 @@ import { fetchGpmPrecipitationServerFn } from "@/lib/server-functions/gpm.server
 import { fetchModisVegetationServerFn } from "@/lib/server-functions/modis.server";
 import { fetchSmapSoilMoistureServerFn, type SmapObservationSummary } from "@/lib/server-functions/smap.server";
 import { fetchHlsVegetationServerFn } from "@/lib/server-functions/hls.server";
+import { fetchPowerRainfallYoYServerFn } from "@/lib/server-functions/power-yoy.server";
 import type { FirmsSummary } from "./firms-service";
 import type { GpmPrecipitationSummary } from "./gpm-service";
 import type { ModisFieldSummary } from "./modis-service";
 import type { HlsVegetationSummary } from "./hls-service";
+import type { YearOverYearRainfallResult } from "./nasa-power-yoy";
 
-export type { SmapObservationSummary, HlsVegetationSummary };
+export type { SmapObservationSummary, HlsVegetationSummary, YearOverYearRainfallResult };
 
 export async function fetchLiveFirmsHotspots(options: {
   latitude: number;
@@ -124,6 +126,28 @@ export async function fetchLiveSmapSoilMoisture(options: {
     return res;
   } catch (err) {
     console.warn("fetchLiveSmapSoilMoisture error:", (err as Error).message);
+    return null;
+  }
+}
+
+export async function fetchLivePowerRainfallYoY(options: {
+  latitude: number;
+  longitude: number;
+  fieldId?: string;
+  windowDays?: number;
+}): Promise<YearOverYearRainfallResult | null> {
+  try {
+    const res = await (fetchPowerRainfallYoYServerFn as any)({
+      data: {
+        latitude: options.latitude,
+        longitude: options.longitude,
+        fieldId: options.fieldId ?? "farm-check",
+        windowDays: options.windowDays ?? 14,
+      },
+    });
+    return res;
+  } catch (err) {
+    console.error("[nasa-client] fetchLivePowerRainfallYoY failed:", err);
     return null;
   }
 }

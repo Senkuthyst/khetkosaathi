@@ -22,12 +22,8 @@ import { useApp } from "@/lib/store";
 import { LazyMap } from "@/components/LazyMap";
 import { Btn } from "@/components/kit";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
-import { fetchLiveHlsVegetation, type HlsVegetationSummary } from "@/lib/data/nasa-client";
-import {
-  fetchPowerRainfallYearOverYear,
-  type YearOverYearRainfallResult,
-} from "@/lib/data/nasa-power-yoy";
-import { evaluateNextCrops, type NextCropSuitabilityScore } from "@/lib/crop-advisory-engine";
+import { fetchLiveHlsVegetation, type HlsVegetationSummary, fetchLivePowerRainfallYoY, type YearOverYearRainfallResult } from "@/lib/data/nasa-client";
+import { evaluateNextCrops, type NextCropSuitabilityScore, type NextCropEvaluation } from "@/lib/crop-advisory-engine";
 import type { FarmField } from "@/lib/farm-fields-service";
 import type { MapPointMarker } from "@/components/FieldMap";
 import { cn } from "@/lib/utils";
@@ -115,7 +111,7 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hlsSummary, setHlsSummary] = useState<HlsVegetationSummary | null>(null);
   const [rainfallYoY, setRainfallYoY] = useState<YearOverYearRainfallResult | null>(null);
-  const [topCrops, setTopCrops] = useState<NextCropSuitabilityScore[]>([]);
+  const [cropEval, setCropEval] = useState<NextCropEvaluation | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Audio / Speech Synthesis state
@@ -213,8 +209,8 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
         windowDays: 30,
       });
 
-      // 2. Fetch NASA POWER rainfall
-      const rainPromise = fetchPowerRainfallYearOverYear({
+      // 2. Fetch NASA POWER rainfall via server fn (avoids browser CORS)
+      const rainPromise = fetchLivePowerRainfallYoY({
         latitude: lat,
         longitude: lon,
         fieldId: "farm-check-flow",
@@ -225,6 +221,13 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
 
       const hlsData = hlsRes.status === "fulfilled" ? hlsRes.value : null;
       const rainData = rainRes.status === "fulfilled" ? rainRes.value : null;
+
+      if (hlsRes.status === "rejected") {
+        console.error("[FarmCheckFlow] HLS fetch failed:", hlsRes.reason);
+      }
+      if (rainRes.status === "rejected") {
+        console.error("[FarmCheckFlow] Rainfall YoY fetch failed:", rainRes.reason);
+      }
 
       setHlsSummary(hlsData);
       setRainfallYoY(rainData);
@@ -262,7 +265,7 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
         createdAt: new Date().toISOString(),
       };
 
-      const suitabilityResults = evaluateNextCrops(targetField, {
+      const evaluation = evaluateNextCrops(targetField, {
         recentAvgTempC: 22.5,
         recentMaxTempC: 28.0,
         recentMinTempC: 16.0,
@@ -270,20 +273,9 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
         soilMoisturePct: null,
       });
 
-      const priorityOrder: Record<string, number> = {
-        highly_suitable: 3,
-        suitable: 2,
-        caution: 1,
-        unsuitable: 0,
-      };
-
-      const sorted = [...suitabilityResults].sort(
-        (a, b) =>
-          (priorityOrder[b.suitabilityStatus] ?? 0) - (priorityOrder[a.suitabilityStatus] ?? 0),
-      );
-
-      setTopCrops(sorted.slice(0, 3));
+      setCropEval(evaluation);
     } catch (err: unknown) {
+      console.error("FarmCheckFlow analysis failed:", err);
       const msg = err instanceof Error ? err.message : String(err);
       setAnalysisError(
         lang === "ne"
@@ -297,7 +289,7 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
 
   // Health Status Logic
   const getHealthStatus = (): {
-    level: "green" | "yellow" | "red";
+    level: "green" | "yellow" | "red" | "grey";
     titleNe: string;
     titleEn: string;
     meaningNe: string;
@@ -305,11 +297,29 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
     actionNe: string;
     actionEn: string;
   } => {
-    const ndvi = hlsSummary?.currentNdvi;
-    const yoy = hlsSummary?.ndviDifferenceFromLastYear;
+    const ndvi = hlsSummary?.currentYearObservation?.ndvi ?? hlsSummary?.latestNdvi ?? null;
+    const yoy = hlsSummary?.ndviDelta ?? null;
 
-    if (ndvi !== null && ndvi !== undefined && yoy !== null && yoy !== undefined) {
-      if (ndvi >= 0.45 && yoy >= -0.05) {
+    const hasRain = rainfallYoY?.deltaPct !== null && rainfallYoY?.deltaPct !== undefined;
+    const hasVeg = ndvi !== null && ndvi !== undefined;
+
+    // Honest grey: both data sources missing
+    if (!hasRain && !hasVeg) {
+      return {
+        level: "grey",
+        titleNe: "पर्याप्त डाटा छैन",
+        titleEn: "Not enough data",
+        meaningNe:
+          "अहिले उपग्रह डाटा प्राप्त गर्न सकिएन। खेतमा आँखाले निरीक्षण गर्नुहोस् र स्थानीय कृषि शाखामा सोध्नुहोस्।",
+        meaningEn:
+          "We could not get satellite data right now. Check your field by eye and ask your local agriculture office.",
+        actionNe: "स्थानीय कृषि ज्ञान केन्द्र वा कृषि शाखामा सम्पर्क गर्नुहोस्।",
+        actionEn: "Contact your local Krishi Gyan Kendra or agriculture extension office.",
+      };
+    }
+
+    if (hasVeg) {
+      if (ndvi! >= 0.45 && (yoy === null || yoy >= -0.05)) {
         return {
           level: "green",
           titleNe: "राम्रो अवस्था (Good)",
@@ -320,7 +330,7 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
           actionEn: "Continue regular field care and maintain scheduled irrigation.",
         };
       }
-      if (ndvi >= 0.25 || yoy >= -0.15) {
+      if (ndvi! >= 0.25 || (yoy !== null && yoy >= -0.15)) {
         return {
           level: "yellow",
           titleNe: "मध्यम अवस्था (Moderate)",
@@ -332,19 +342,29 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
           actionEn: "Inspect soil moisture in low spots and verify irrigation canal flow.",
         };
       }
+      return {
+        level: "red",
+        titleNe: "ध्यान दिनुपर्ने (Needs Attention)",
+        titleEn: "Needs Attention",
+        meaningNe:
+          "बिरुवाको हरियाली निकै कम देखिएको छ वा सुख्खा मौसमले बालीमा असर पुर्‍याएको हुन सक्छ।",
+        meaningEn: "Plant greenness is noticeably low or dry weather may be stressing crops.",
+        actionNe:
+          "खेतमा प्रत्यक्ष निरीक्षण गर्नुहोस् र स्थानीय कृषि शाखाका प्राविधिकसँग परामर्श गर्नुहोस्।",
+        actionEn:
+          "Walk your field to check for dry soil, and consult your local agriculture officer.",
+      };
     }
 
+    // Rain data only (no veg) — moderate state
     return {
-      level: "red",
-      titleNe: "ध्यान दिनुपर्ने (Needs Attention)",
-      titleEn: "Needs Attention",
-      meaningNe:
-        "बिरुवाको हरियाली निकै कम देखिएको छ वा सुख्खा मौसमले बालीमा असर पुर्‍याएको हुन सक्छ।",
-      meaningEn: "Plant greenness is noticeably low or dry weather may be stressing crops.",
-      actionNe:
-        "खेतमा प्रत्यक्ष निरीक्षण गर्नुहोस् र स्थानीय कृषि शाखाका प्राविधिकसँग परामर्श गर्नुहोस्।",
-      actionEn:
-        "Walk your field to check for dry soil, and consult your local agriculture officer.",
+      level: "yellow",
+      titleNe: "मध्यम अवस्था (Moderate)",
+      titleEn: "Partial Data",
+      meaningNe: "वर्षाको डाटा उपलब्ध छ तर हरियाली डाटा प्राप्त हुन सकेन।",
+      meaningEn: "Rainfall data is available but satellite vegetation data could not be retrieved.",
+      actionNe: "खेतमा गएर बिरुवाको अवस्था आफैं जाँच्नुहोस्।",
+      actionEn: "Walk your field to assess crop health directly.",
     };
   };
 
@@ -376,30 +396,51 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
     setIsSpeaking(true);
   };
 
-  // Convert crops into map markers
-  const mapCenter: [number, number] = coords ?? [27.6775, 84.4333];
-  const markers: MapPointMarker[] = [
-    {
-      id: "center-farm",
-      lat: mapCenter[0],
-      lon: mapCenter[1],
-      label: locationName || (lang === "ne" ? "तपाईंको खेत" : "Your Farm"),
-      color:
-        health.level === "green" ? "#237A50" : health.level === "yellow" ? "#D97706" : "#DC2626",
-    },
-    ...topCrops.map((c, i) => {
-      const angle = (i * 2 * Math.PI) / 3;
-      const offsetLat = Math.sin(angle) * 0.003;
-      const offsetLon = Math.cos(angle) * 0.003;
-      return {
-        id: `crop-${c.cropId}`,
-        lat: mapCenter[0] + offsetLat,
-        lon: mapCenter[1] + offsetLon,
-        label: `${c.cropNameNe} (${c.suitabilityStatus.replace("_", " ")})`,
-        color: "#237A50",
-      };
-    }),
-  ];
+  // Validate coordinates before rendering map
+  const isValidCoords =
+    coords !== null &&
+    Number.isFinite(coords[0]) &&
+    Number.isFinite(coords[1]) &&
+    coords[0] >= -90 &&
+    coords[0] <= 90 &&
+    coords[1] >= -180 &&
+    coords[1] <= 180;
+
+  const mapCenter: [number, number] = isValidCoords ? coords! : [27.6775, 84.4333];
+
+  // Build map markers: one farm pin + up to 3 ranked crop pins on a ~40m ring
+  const topCrops = cropEval?.topCrops ?? [];
+  const markers: MapPointMarker[] = [];
+  if (isValidCoords) {
+    markers.push({
+      position: [coords![0], coords![1]],
+      color: "#237A50",
+      label: lang === "ne" ? "तपाईंको खेत" : "Your farm",
+      tooltipContent: lang === "ne" ? "तपाईंको खेत" : "Your farm",
+    });
+
+    // Suitable/caution crops get numbered ring pins (~40 m offset)
+    const pinCrops = topCrops.filter(
+      (c) =>
+        c.suitabilityStatus === "suitable" ||
+        c.suitabilityStatus === "highly_suitable" ||
+        c.suitabilityStatus === "caution",
+    );
+    const RING_DEG = 0.00036; // ~40 m
+    const angles = [30, 150, 270];
+    pinCrops.slice(0, 3).forEach((c, i) => {
+      const rad = (angles[i] * Math.PI) / 180;
+      const pLat = coords![0] + RING_DEG * Math.cos(rad);
+      const pLon = coords![1] + RING_DEG * Math.sin(rad);
+      if (!Number.isFinite(pLat) || !Number.isFinite(pLon)) return;
+      markers.push({
+        position: [pLat, pLon],
+        color: c.suitabilityStatus === "caution" ? "#D97706" : "#16A34A",
+        label: `#${i + 1}`,
+        tooltipContent: `#${i + 1} ${lang === "ne" ? c.nameNe : c.nameEn} — ${c.recommendedPlantingWindow}`,
+      });
+    });
+  }
 
   return (
     <div
@@ -736,16 +777,18 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                     "bg-emerald-50/70 border-emerald-300 text-emerald-950",
                   health.level === "yellow" && "bg-amber-50/70 border-amber-300 text-amber-950",
                   health.level === "red" && "bg-rose-50/70 border-rose-300 text-rose-950",
+                  health.level === "grey" && "bg-slate-50/70 border-slate-300 text-slate-800",
                 )}
               >
                 {/* Traffic Light Badge */}
                 <div className="flex items-center gap-2.5">
                   <span
                     className={cn(
-                      "h-4 w-4 rounded-full animate-pulse",
-                      health.level === "green" && "bg-emerald-600 shadow-[0_0_8px_#10B981]",
-                      health.level === "yellow" && "bg-amber-500 shadow-[0_0_8px_#F59E0B]",
-                      health.level === "red" && "bg-rose-600 shadow-[0_0_8px_#EF4444]",
+                      "h-4 w-4 rounded-full",
+                      health.level === "green" && "bg-emerald-600 animate-pulse shadow-[0_0_8px_#10B981]",
+                      health.level === "yellow" && "bg-amber-500 animate-pulse shadow-[0_0_8px_#F59E0B]",
+                      health.level === "red" && "bg-rose-600 animate-pulse shadow-[0_0_8px_#EF4444]",
+                      health.level === "grey" && "bg-slate-400",
                     )}
                   />
                   <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wide">
@@ -774,11 +817,10 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                     {lang === "ne" ? "वर्षा तुलना (Rain Comparison)" : "Rain vs Last Year"}
                   </span>
                   <div className="text-xl sm:text-2xl font-extrabold text-foreground">
-                    {rainfallYoY?.percentageChange !== null &&
-                    rainfallYoY?.percentageChange !== undefined ? (
+                    {rainfallYoY?.deltaPct !== null && rainfallYoY?.deltaPct !== undefined ? (
                       <span>
-                        {Math.abs(rainfallYoY.percentageChange)}%{" "}
-                        {rainfallYoY.percentageChange >= 0
+                        {Math.abs(rainfallYoY.deltaPct)}%{" "}
+                        {rainfallYoY.deltaPct >= 0
                           ? lang === "ne"
                             ? "बढी पानी परेको"
                             : "more rain"
@@ -806,10 +848,9 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                     {lang === "ne" ? "बिरुवाको हरियाली (Plant Greenness)" : "Plant Greenness"}
                   </span>
                   <div className="text-xl sm:text-2xl font-extrabold text-foreground">
-                    {hlsSummary?.ndviDifferenceFromLastYear !== null &&
-                    hlsSummary?.ndviDifferenceFromLastYear !== undefined ? (
+                    {hlsSummary?.ndviDelta !== null && hlsSummary?.ndviDelta !== undefined ? (
                       <span>
-                        {hlsSummary.ndviDifferenceFromLastYear >= 0
+                        {hlsSummary.ndviDelta >= 0
                           ? lang === "ne"
                             ? "गत वर्षभन्दा हरियाली बढी छ"
                             : "Greener than last year"
@@ -817,9 +858,25 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                             ? "गत वर्षभन्दा हरियाली केही कम छ"
                             : "Lower greenness than last year"}
                       </span>
+                    ) : hlsSummary?.latestNdvi !== null && hlsSummary?.latestNdvi !== undefined ? (
+                      <span className="text-base font-bold">
+                        {lang === "ne"
+                          ? `NDVI: ${hlsSummary.latestNdvi.toFixed(2)} (गत वर्षको तुलना उपलब्ध छैन)`
+                          : `NDVI: ${hlsSummary.latestNdvi.toFixed(2)} (no last-year comparison)`}
+                      </span>
                     ) : (
                       <span className="text-sm text-muted-foreground font-normal">
-                        {lang === "ne" ? "उपग्रह तस्बिरमा बादल छ" : "No clear image (clouds)"}
+                        {hlsSummary?.isFallback && hlsSummary?.fallbackReason
+                          ? hlsSummary.fallbackReason.toLowerCase().includes("cloud")
+                            ? lang === "ne"
+                              ? "उपग्रह तस्बिरमा बादल छ"
+                              : "No clear image (clouds)"
+                            : lang === "ne"
+                              ? "उपग्रह डाटा प्राप्त हुन सकेन"
+                              : "Satellite data unavailable"
+                          : lang === "ne"
+                            ? "डाटा उपलब्ध छैन"
+                            : "Data unavailable"}
                       </span>
                     )}
                   </div>
@@ -849,33 +906,121 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                   </p>
                 </div>
 
-                {/* 3 Suitable Crop Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {topCrops.map((c, i) => (
-                    <div
-                      key={c.cropId}
-                      className="p-4 rounded-2xl border border-border bg-secondary/30 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-primary">#{i + 1}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase">
-                          {c.suitabilityStatus.replace("_", " ")}
-                        </span>
-                      </div>
-                      <strong className="block text-base font-extrabold text-foreground">
-                        {lang === "ne" ? c.cropNameNe : c.cropNameEn}
-                      </strong>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {lang === "ne" ? c.reasonNe : c.reasonEn}
+                {/* Nothing in season fallback */}
+                {cropEval && !cropEval.hasSeasonMatch ? (
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/50 text-amber-900 space-y-2">
+                      <p className="font-bold text-sm">
+                        {lang === "ne"
+                          ? "⏳ अहिले रोप्न उपयुक्त मौसम छैन।"
+                          : "⏳ Nothing is ideal to plant right now."}
+                      </p>
+                      <p className="text-xs leading-relaxed">
+                        {lang === "ne"
+                          ? "यो महिना रोप्नका लागि कुनै उत्तम बाली छैन। तल आगामी महिनाका लागि तयारी गर्न सक्ने बालीहरू हेर्नुहोस्।"
+                          : "No crop is at its optimal planting window this month. See upcoming candidates below to plan ahead."}
                       </p>
                     </div>
-                  ))}
-                </div>
+                    {cropEval.upcomingCrops.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {cropEval.upcomingCrops.map((u) => (
+                          <div
+                            key={u.cropId}
+                            className="p-3 rounded-xl border border-border bg-card flex items-center justify-between gap-2"
+                          >
+                            <div>
+                              <strong className="block text-sm font-extrabold text-foreground">
+                                {lang === "ne" ? u.nameNe : u.nameEn}
+                              </strong>
+                              <span className="text-xs text-muted-foreground">
+                                {lang === "ne" ? "उत्तम समय:" : "Best time:"} {u.plantingWindowStr}
+                              </span>
+                            </div>
+                            <span className="text-xs font-bold text-primary shrink-0">
+                              {u.monthsAway === 1
+                                ? lang === "ne"
+                                  ? "१ महिनामा"
+                                  : "In 1 month"
+                                : lang === "ne"
+                                  ? `${u.monthsAway} महिनामा`
+                                  : `In ${u.monthsAway} months`}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* 3 Suitable Crop Cards */
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {topCrops.map((c, i) => {
+                      const isNegative =
+                        c.suitabilityStatus === "unsuitable" || c.suitabilityStatus === "caution";
+                      const cardText = isNegative
+                        ? c.incompatibilityReasons?.[0] || c.rotationRisks || ""
+                        : c.compatibilityReasons?.[0] || c.rotationBenefits || "";
+                      const badgeColor =
+                        c.suitabilityStatus === "highly_suitable" ||
+                        c.suitabilityStatus === "suitable"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : c.suitabilityStatus === "caution"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-rose-100 text-rose-800";
+                      return (
+                        <div
+                          key={c.cropId}
+                          className="p-4 rounded-2xl border border-border bg-secondary/30 space-y-1.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-primary">#{i + 1}</span>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${badgeColor}`}
+                            >
+                              {c.suitabilityStatus.replace("_", " ")}
+                            </span>
+                          </div>
+                          <strong className="block text-base font-extrabold text-foreground">
+                            {lang === "ne" ? c.nameNe : c.nameEn}
+                          </strong>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{cardText}</p>
+                          <p className="text-[10px] text-primary/70 font-semibold">
+                            🗓 {c.recommendedPlantingWindow}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-                {/* Leaflet Map with Top 3 Crops */}
-                <div className="h-64 sm:h-72 rounded-2xl overflow-hidden border border-border shadow-xs">
-                  <LazyMap center={mapCenter} zoom={15} markers={markers} height={288} />
-                </div>
+                {/* Leaflet Map with Farm Pin + Crop Ranking Pins */}
+                {isValidCoords ? (
+                  <div className="space-y-1">
+                    <div className="h-64 sm:h-72 rounded-2xl overflow-hidden border border-border shadow-xs">
+                      <LazyMap center={mapCenter} zoom={15} markers={markers} height={288} />
+                    </div>
+                    {markers.length > 1 && (
+                      <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+                        {lang === "ne"
+                          ? "पिनहरूले क्रम देखाउँछन्, सटीक स्थान होइन। आफ्नो खेतमा गएर हेर्नुहोस् र आफ्नो निर्णय गर्नुहोस्।"
+                          : "Pins show the ranking, not exact spots. Walk your field and use your own judgment."}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-2xl border border-border bg-muted/30 text-center space-y-3">
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {lang === "ne"
+                        ? "तपाईंको खेतको स्थान फेला परेन।"
+                        : "We could not find your location."}
+                    </p>
+                    <button
+                      onClick={() => setStep(1)}
+                      className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-xs"
+                    >
+                      {lang === "ne" ? "नक्सामा स्थान रोज्नुहोस्" : "Pick on map"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Collapsed Technical Details */}
@@ -898,23 +1043,36 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
                   <div className="flex justify-between">
                     <span>Greenness Index (NDVI):</span>
                     <strong className="text-foreground font-mono">
-                      {hlsSummary?.currentNdvi ?? "N/A"}
+                      {hlsSummary?.latestNdvi?.toFixed(4) ??
+                        hlsSummary?.currentYearObservation?.ndvi?.toFixed(4) ??
+                        "N/A"}
                     </strong>
                   </div>
                   <div className="flex justify-between">
                     <span>Scene Date:</span>
                     <strong className="text-foreground">
-                      {hlsSummary?.currentDate || "Recent"}
+                      {hlsSummary?.currentYearObservation?.date || "Recent"}
                     </strong>
                   </div>
                   <div className="flex justify-between">
                     <span>Cloud Cover:</span>
                     <strong className="text-foreground">
-                      {hlsSummary?.cloudPercentage !== undefined
-                        ? `${hlsSummary.cloudPercentage}%`
-                        : "Clear"}
+                      {hlsSummary?.currentYearObservation?.cloudCoverPct !== undefined
+                        ? `${hlsSummary.currentYearObservation.cloudCoverPct}%`
+                        : "Unknown"}
                     </strong>
                   </div>
+                  {hlsSummary?.isFallback && (
+                    <div className="text-amber-700 bg-amber-50 rounded-lg p-2 mt-1">
+                      ⚠ Greenness:{" "}
+                      {hlsSummary.fallbackReason || "HLS service not reachable, used MODIS fallback"}
+                    </div>
+                  )}
+                  {!rainfallYoY && (
+                    <div className="text-amber-700 bg-amber-50 rounded-lg p-2">
+                      ⚠ Rainfall: NASA POWER request did not return data (server error or timeout)
+                    </div>
+                  )}
                 </div>
               </details>
 

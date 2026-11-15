@@ -42,6 +42,20 @@ export interface ExistingCropHarvestAdvice {
   confidenceExplanation: string;
 }
 
+export interface UpcomingCrop {
+  cropId: string;
+  nameEn: string;
+  nameNe: string;
+  plantingWindowStr: string;
+  monthsAway: number;
+}
+
+export interface NextCropEvaluation {
+  topCrops: NextCropSuitabilityScore[];
+  hasSeasonMatch: boolean;
+  upcomingCrops: UpcomingCrop[];
+}
+
 export interface NextCropSuitabilityScore {
   cropId: string;
   nameEn: string;
@@ -257,7 +271,7 @@ export function evaluateNextCrops(
     recentRainSumMm: number | null;
     soilMoisturePct: number | null;
   },
-): NextCropSuitabilityScore[] {
+): NextCropEvaluation {
   const currentMonth = new Date().getMonth() + 1; // 1-12
   const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
   const followingMonth = nextMonth === 12 ? 1 : nextMonth + 1;
@@ -422,7 +436,41 @@ export function evaluateNextCrops(
 
   // Sort: Highly suitable first, then suitable, caution, and unsuitable
   const rankOrder = { highly_suitable: 0, suitable: 1, caution: 2, unsuitable: 3 };
-  return results.sort((a, b) => rankOrder[a.suitabilityStatus] - rankOrder[b.suitabilityStatus]);
+  const sorted = results.sort((a, b) => rankOrder[a.suitabilityStatus] - rankOrder[b.suitabilityStatus]);
+
+  const hasSeasonMatch = sorted.some(
+    (r) => r.suitabilityStatus === "highly_suitable" || r.suitabilityStatus === "suitable" || r.suitabilityStatus === "caution",
+  );
+
+  // Build upcoming list (nearest future planting months) for use when nothing is in season
+  const upcomingCrops: UpcomingCrop[] = NEXT_CROP_SUITABILITY_CATALOG
+    .filter((candidate) => !candidate.suitablePlantingMonths.some((m) => targetWindowMonths.includes(m)))
+    .map((candidate) => {
+      // Find the nearest planting month beyond the current window
+      let minAway = 12;
+      for (const pm of candidate.suitablePlantingMonths) {
+        let away = pm - currentMonth;
+        if (away <= 0) away += 12;
+        if (away < minAway) minAway = away;
+      }
+      return {
+        cropId: candidate.cropId,
+        nameEn: candidate.nameEn,
+        nameNe: candidate.nameNe,
+        plantingWindowStr: candidate.suitablePlantingMonths
+          .map((m) => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m - 1])
+          .join(" – "),
+        monthsAway: minAway,
+      };
+    })
+    .sort((a, b) => a.monthsAway - b.monthsAway)
+    .slice(0, 4);
+
+  return {
+    topCrops: sorted.slice(0, 3),
+    hasSeasonMatch,
+    upcomingCrops,
+  };
 }
 
 /**

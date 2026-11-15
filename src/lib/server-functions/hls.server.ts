@@ -113,6 +113,7 @@ export async function resolveHlsVegetation(
     }
   } catch (_err) {
     // Python microservice offline or request timed out; proceed to clean MODIS fallback
+    console.error("[hls.server] Python HLS microservice unreachable or timed out:", _err);
   }
 
   // 2. Clean fallback to verified MODIS function
