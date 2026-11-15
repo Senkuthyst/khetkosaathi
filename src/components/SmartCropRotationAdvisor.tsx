@@ -132,13 +132,15 @@ export function SmartCropRotationAdvisor() {
     soilMoisturePct: envMetrics.soilMoisture,
   });
 
-  const nextCrops = evaluateNextCrops(selectedField, {
+  const nextCropEval = evaluateNextCrops(selectedField, {
     recentAvgTempC: envMetrics.avgTemp,
     recentMaxTempC: envMetrics.maxTemp,
     recentMinTempC: envMetrics.minTemp,
     recentRainSumMm: envMetrics.rainSum,
     soilMoisturePct: envMetrics.soilMoisture,
   });
+
+  const nextCrops = nextCropEval.topCrops;
 
   const topNextCrop =
     nextCrops.find(

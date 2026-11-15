@@ -19,6 +19,7 @@ const daySchema = z.object({
   rain: z.number().nullable(),
   humidity: z.number().nullable(),
   solar: z.number().nullable(),
+  wind: z.number().nullable().optional(),
   t2m: z.number().nullable().optional(),
 });
 
@@ -65,6 +66,8 @@ function cachedData(cache: z.infer<typeof cacheSchema>, mode: "live" | "cached")
       rain: d.rain,
       humidity: d.humidity,
       solar: d.solar,
+      wind: d.wind ?? null,
+      t2m: d.t2m ?? null,
     })),
     provenance: {
       dataset: "NASA POWER Daily (AG Community)",
@@ -148,6 +151,8 @@ export async function fetchNasaPowerDaily(
         rain: o.prectotcorr,
         humidity: o.rh2m,
         solar: o.allskySfcSwDwn,
+        wind: o.ws2m ?? null,
+        t2m: o.t2m ?? null,
       }));
 
       memory = {

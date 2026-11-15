@@ -5,16 +5,30 @@
 import { fetchFirmsHotspotsServerFn } from "@/lib/server-functions/firms.server";
 import { fetchGpmPrecipitationServerFn } from "@/lib/server-functions/gpm.server";
 import { fetchModisVegetationServerFn } from "@/lib/server-functions/modis.server";
-import { fetchSmapSoilMoistureServerFn, type SmapObservationSummary } from "@/lib/server-functions/smap.server";
+import {
+  fetchSmapSoilMoistureServerFn,
+  type SmapObservationSummary,
+} from "@/lib/server-functions/smap.server";
 import { fetchHlsVegetationServerFn } from "@/lib/server-functions/hls.server";
 import { fetchPowerRainfallYoYServerFn } from "@/lib/server-functions/power-yoy.server";
+import {
+  fetchAgroClimateServerFn,
+  type AgroClimateResult,
+  type AgroClimateInput,
+} from "@/lib/server-functions/agro-climate.server";
 import type { FirmsSummary } from "./firms-service";
 import type { GpmPrecipitationSummary } from "./gpm-service";
 import type { ModisFieldSummary } from "./modis-service";
 import type { HlsVegetationSummary } from "./hls-service";
 import type { YearOverYearRainfallResult } from "./nasa-power-yoy";
 
-export type { SmapObservationSummary, HlsVegetationSummary, YearOverYearRainfallResult };
+export type {
+  SmapObservationSummary,
+  HlsVegetationSummary,
+  YearOverYearRainfallResult,
+  AgroClimateResult,
+  AgroClimateInput,
+};
 
 export async function fetchLiveFirmsHotspots(options: {
   latitude: number;
@@ -148,6 +162,36 @@ export async function fetchLivePowerRainfallYoY(options: {
     return res;
   } catch (err) {
     console.error("[nasa-client] fetchLivePowerRainfallYoY failed:", err);
+    return null;
+  }
+}
+
+export async function fetchLiveAgroClimate(options: {
+  latitude: number;
+  longitude: number;
+  fieldId?: string;
+  cropId?: string;
+  plantingDate?: string;
+  elevationM?: number;
+}): Promise<AgroClimateResult | null> {
+  try {
+    const res = await (
+      fetchAgroClimateServerFn as unknown as (opts: {
+        data: AgroClimateInput;
+      }) => Promise<AgroClimateResult>
+    )({
+      data: {
+        latitude: options.latitude,
+        longitude: options.longitude,
+        fieldId: options.fieldId ?? "crop-health",
+        cropId: options.cropId ?? "rice",
+        plantingDate: options.plantingDate,
+        elevationM: options.elevationM ?? 100,
+      },
+    });
+    return res;
+  } catch (err) {
+    console.error("[nasa-client] fetchLiveAgroClimate failed:", err);
     return null;
   }
 }

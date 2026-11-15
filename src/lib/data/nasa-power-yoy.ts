@@ -1,7 +1,12 @@
 // Year-Over-Year Rainfall Comparison Helper using existing NASA POWER Service
 // Compares this year's observation window against the exact same calendar window last year.
 
-import { buildNasaPowerUrl, normalizeNasaPowerResponse, NASA_POWER_PARAMETERS } from "./nasa-power-service";
+import {
+  buildNasaPowerUrl,
+  normalizeNasaPowerResponse,
+  NASA_POWER_PARAMETERS,
+} from "./nasa-power-service";
+import { calculateDailyETo } from "./water-balance";
 
 export interface YearOverYearRainfallResult {
   latitude: number;
@@ -116,4 +121,109 @@ export async function fetchPowerRainfallYearOverYear(options: {
     retrievalTimestamp,
     dailyComparison,
   };
+}
+
+/**
+ * Fetch historical 14-day window water balance values (Rainfall minus ET0)
+ * across the past 15 years to construct empirical climatological distribution.
+ */
+export async function fetchHistoricalWindowNetClimatology(options: {
+  latitude: number;
+  longitude: number;
+  fieldId?: string;
+  currentStart: Date;
+  currentEnd: Date;
+  elevationM?: number;
+  maxYears?: number; // default 15
+}): Promise<number[]> {
+  const {
+    latitude,
+    longitude,
+    fieldId = "plot-1",
+    currentStart,
+    currentEnd,
+    elevationM = 100,
+    maxYears = 15,
+  } = options;
+
+  const toCompact = (d: Date) => d.toISOString().slice(0, 10).replaceAll("-", "");
+  const retrievalTimestamp = new Date().toISOString();
+
+  const fetchYearNet = async (yearsAgo: number): Promise<number | null> => {
+    try {
+      const start = new Date(currentStart);
+      start.setUTCFullYear(start.getUTCFullYear() - yearsAgo);
+      const end = new Date(currentEnd);
+      end.setUTCFullYear(end.getUTCFullYear() - yearsAgo);
+
+      const url = buildNasaPowerUrl({
+        latitude,
+        longitude,
+        startDate: toCompact(start),
+        endDate: toCompact(end),
+        parameters: NASA_POWER_PARAMETERS,
+        community: "AG",
+      });
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { signal: controller.signal }).catch(() => null);
+      clearTimeout(timeout);
+
+      if (!res || !res.ok) return null;
+      const json = await res.json().catch(() => null);
+      if (!json) return null;
+
+      const norm = normalizeNasaPowerResponse(json, {
+        fieldId,
+        latitude,
+        longitude,
+        retrievalTimestamp,
+      });
+      if (!norm || norm.observations.length === 0) return null;
+
+      let yearTotalRain = 0;
+      let yearTotalET0 = 0;
+      let validDays = 0;
+
+      for (const obs of norm.observations) {
+        const et0 = calculateDailyETo({
+          latitude,
+          date: obs.date,
+          tMax: obs.t2mMax,
+          tMin: obs.t2mMin,
+          rhMean: obs.rh2m,
+          solarRadiationMj: obs.allskySfcSwDwn,
+          windSpeed2mMps: obs.ws2m,
+          elevationM,
+        });
+
+        if (obs.prectotcorr !== null && et0 !== null) {
+          yearTotalRain += obs.prectotcorr;
+          yearTotalET0 += et0;
+          validDays++;
+        }
+      }
+
+      if (validDays < 5) return null;
+      return Math.round((yearTotalRain - yearTotalET0) * 10) / 10;
+    } catch {
+      return null;
+    }
+  };
+
+  const tasks: Promise<number | null>[] = [];
+  for (let y = 1; y <= maxYears; y++) {
+    tasks.push(fetchYearNet(y));
+  }
+
+  const results = await Promise.allSettled(tasks);
+  const netValues: number[] = [];
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value !== null) {
+      netValues.push(r.value);
+    }
+  }
+
+  return netValues;
 }

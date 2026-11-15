@@ -20,6 +20,8 @@ export interface PowerDay {
   rain: number | null;
   humidity: number | null;
   solar: number | null;
+  wind?: number | null;
+  t2m?: number | null;
 }
 
 export interface PowerData {

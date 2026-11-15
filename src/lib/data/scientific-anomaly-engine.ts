@@ -26,6 +26,13 @@ export interface ScientificAnomalyReport {
   evidenceStatements: string[];
   scientificUncertaintyNotes: string[];
   fieldInspectionRecommendations: string[];
+
+  // Agro-climate enhancements
+  maturityDetectionMethod?: "gdd" | "crop_age_fallback";
+  isMaturing?: boolean;
+  gddStageKey?: string | null;
+  waterBalance14DayNetMm?: number | null;
+  waterBalanceClimatologyPercentile?: number | null;
 }
 
 /**
@@ -43,6 +50,16 @@ export function computeScientificAnomalies(input: {
   thermalHotspotsCount?: number;
   cropAgeDays?: number;
   cropType?: string;
+  gddStage?: {
+    stageKey: string;
+    nameEn: string;
+    isMaturing?: boolean;
+    cumulativeGdd?: number;
+  } | null;
+  waterBalance14Day?: {
+    rollingNetMm: number;
+    percentile: number | null;
+  } | null;
 }): ScientificAnomalyReport {
   const {
     locationName,
@@ -56,6 +73,8 @@ export function computeScientificAnomalies(input: {
     thermalHotspotsCount = 0,
     cropAgeDays = 45,
     cropType = "rice",
+    gddStage = null,
+    waterBalance14Day = null,
   } = input;
 
   // 1. Temperature Analysis
@@ -80,17 +99,54 @@ export function computeScientificAnomalies(input: {
   const isRainfallDeficit = rainAnomalyPct !== null && rainAnomalyPct <= -30.0;
   const isExcessRainfall = rainAnomalyPct !== null && rainAnomalyPct >= 100.0;
 
-  // 3. Vegetation Analysis
+  // 3. Vegetation & Phenology Analysis
   const modisBaselineMean = (modisBaselineLow + modisBaselineHigh) / 2;
   const vegAnomaly =
     modisNdvi !== null ? Math.round((modisNdvi - modisBaselineMean) * 100) / 100 : null;
-  const isMaturing = cropAgeDays >= 95; // Rice senescence
+
+  let isMaturing: boolean;
+  let maturityDetectionMethod: "gdd" | "crop_age_fallback";
+  if (gddStage !== null && gddStage !== undefined) {
+    isMaturing = Boolean(
+      gddStage.isMaturing ||
+      gddStage.stageKey === "grain_fill" ||
+      gddStage.stageKey === "tuber_bulking" ||
+      gddStage.stageKey === "fruit_development" ||
+      gddStage.stageKey === "mature" ||
+      gddStage.stageKey === "ripening",
+    );
+    maturityDetectionMethod = "gdd";
+  } else {
+    isMaturing = cropAgeDays >= 95; // Fallback legacy shortcut
+    maturityDetectionMethod = "crop_age_fallback";
+  }
+
   const isVegetationDecline = !isMaturing && vegAnomaly !== null && vegAnomaly <= -0.06;
 
   // 4. Evidence Statements Generation
   const evidence: string[] = [];
   const uncertainties: string[] = [];
   const recommendations: string[] = [];
+
+  // GDD Phenology Evidence
+  if (gddStage !== null && gddStage !== undefined) {
+    evidence.push(
+      `Crop phenology (GDD): Model indicates "${gddStage.nameEn}" stage${gddStage.cumulativeGdd !== undefined ? ` with ${gddStage.cumulativeGdd} accumulated thermal units` : ""}.`,
+    );
+    uncertainties.push(
+      "GDD stage estimation is derived from ~0.5° regional reanalysis and serves as an approximate phenological guide.",
+    );
+  }
+
+  // Water Balance Context Evidence
+  if (waterBalance14Day !== null && waterBalance14Day !== undefined) {
+    evidence.push(
+      `Water balance context: 14-day rolling net balance of ${waterBalance14Day.rollingNetMm >= 0 ? "+" : ""}${waterBalance14Day.rollingNetMm.toFixed(1)} mm (precipitation minus reference ET₀)${waterBalance14Day.percentile !== null ? `, ranking at the ${waterBalance14Day.percentile}th percentile of 15-year climatology` : ""}.`,
+    );
+    uncertainties.push(
+      "Water balance context reflects atmospheric moisture supply vs evaporative demand and is not a direct measure of root-zone soil water content or an irrigation schedule.",
+    );
+  }
 
   if (tempMeanMax !== null && tempAnomaly !== null) {
     evidence.push(
@@ -184,5 +240,10 @@ export function computeScientificAnomalies(input: {
     evidenceStatements: evidence,
     scientificUncertaintyNotes: uncertainties,
     fieldInspectionRecommendations: recommendations,
+    maturityDetectionMethod,
+    isMaturing,
+    gddStageKey: gddStage?.stageKey ?? null,
+    waterBalance14DayNetMm: waterBalance14Day?.rollingNetMm ?? null,
+    waterBalanceClimatologyPercentile: waterBalance14Day?.percentile ?? null,
   };
 }

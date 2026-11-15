@@ -45971,7 +45971,7 @@ var require_lucide_react = /* @__PURE__ */ __commonJSMin(((exports) => {
 		]
 	};
 	__iconData$3b.node;
-	createLucideIcon(__iconData$3b);
+	var ThermometerSun = createLucideIcon(__iconData$3b);
 	var __iconData$3a = {
 		name: "thermometer",
 		size: 24,
@@ -51424,6 +51424,7 @@ var require_lucide_react = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.Sprout = Sprout;
 	exports.Stethoscope = Stethoscope;
 	exports.Thermometer = Thermometer;
+	exports.ThermometerSun = ThermometerSun;
 	exports.Trash2 = Trash;
 	exports.TrendingUp = TrendingUp;
 	exports.User = User;

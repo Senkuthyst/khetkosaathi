@@ -596,7 +596,7 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     nameEn: "Chickpea (Chana)",
     nameNe: "चना",
     family: "Fabaceae",
-    suitablePlantingMonths: [10, 11, 12], // Oct – Dec
+    suitablePlantingMonths: [10, 11, 12, 1], // Oct – Jan (Terai late-sown rabi)
     growthDurationDays: [120, 145],
     tempRangeC: [5, 28],
     optimalTempRangeC: [10, 20],
@@ -691,6 +691,96 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
       publishingInstitution: "Vegetable Development Directorate, Ministry of Agriculture, Nepal",
       referenceUrl: "https://moald.gov.np/",
       publicationYear: 2021,
+    },
+  },
+  {
+    cropId: "monsoon_maize",
+    nameEn: "Monsoon Maize (Barkhe Makai)",
+    nameNe: "बर्खे मकै",
+    family: "Poaceae",
+    suitablePlantingMonths: [5, 6, 7], // May - Jul (Monsoon season)
+    growthDurationDays: [95, 120],
+    tempRangeC: [18, 38],
+    optimalTempRangeC: [22, 32],
+    waterRequirementMm: [500, 750],
+    compatibleSoilTextures: ["loam", "silt loam", "clay loam", "alluvial"],
+    toleratesHeavyClay: true,
+    irrigationNeeded: false, // Rainfed during monsoon
+    incompatiblePrecedingFamilies: ["Poaceae"],
+    beneficialPrecedingFamilies: ["Fabaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Staple rainy season cereal. Good companion or rotation with legumes like soybean and cowpea. High biomass producer.",
+    rotationBenefitsNe: "वर्षायामको प्रमुख खाद्यबाली। दलहनसँग घुम्ती खेती गर्दा माटोको उर्वराशक्ति सन्तुलित रहन्छ।",
+    rotationRisksEn: "Vulnerable to banded leaf and sheath blight in prolonged excessive humidity.",
+    rotationRisksNe: "लगातार पानी पर्दा पात तथा फेद कुहिने रोगको जोखिम।",
+    agronomicRequirementsEn:
+      "Ensure proper ridge tillage for surface drainage. Varieties: Rampur Composite, Deuti, Sheetala. Source: NMRP NARC.",
+    agronomicRequirementsNe: "पानी निकासका लागि ड्याङ बनाएर लगाउनुहोस्। सिफारिस जातहरू: देउती, शीतला।",
+    citation: {
+      sourceTitle: "Maize Production Technologies in Nepal",
+      publishingInstitution: "National Maize Research Program (NMRP), Rampur, Chitwan, NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2021,
+    },
+  },
+  {
+    cropId: "soybean",
+    nameEn: "Soybean (Bhatmas)",
+    nameNe: "भटमास",
+    family: "Fabaceae",
+    suitablePlantingMonths: [5, 6, 7, 8], // May - Aug (Monsoon/Kharif pulse)
+    growthDurationDays: [90, 120],
+    tempRangeC: [18, 35],
+    optimalTempRangeC: [22, 30],
+    waterRequirementMm: [450, 700],
+    compatibleSoilTextures: ["loam", "sandy loam", "clay loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false,
+    incompatiblePrecedingFamilies: ["Fabaceae"],
+    beneficialPrecedingFamilies: ["Poaceae", "Solanaceae"],
+    rotationBenefitsEn:
+      "Enriches soil through atmospheric nitrogen fixation (+40-60 kg N/ha). Excellent intercrop or rotation crop for maize.",
+    rotationBenefitsNe: "माटोमा नाइट्रोजन थपेर उर्वराशक्ति बढाउँछ। मकैसँग अन्तरबाली वा घुम्ती खेतीका लागि उपयुक्त।",
+    rotationRisksEn: "Susceptible to soybean rust in wet cloudy conditions; ensure good field drainage.",
+    rotationRisksNe: "अत्यधिक वर्षा र बादल लाग्दा खिया रोग (rust) को जोखिम।",
+    agronomicRequirementsEn:
+      "Sow at 60-70 kg/ha in rows. Varieties: Tarkari Bhatmas-1, Puja, Lumle-1. Source: NGLRP NARC.",
+    agronomicRequirementsNe: "हल्का चिस्यान भएको माटोमा लाइनमा रोप्नुहोस्। सिफारिस जातहरू: तरकारी भटमास-१, पूजा।",
+    citation: {
+      sourceTitle: "Grain Legumes and Vegetable Cowpea Cultivation",
+      publishingInstitution: "National Grain Legumes Research Program (NGLRP), NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2020,
+    },
+  },
+  {
+    cropId: "blackgram",
+    nameEn: "Blackgram (Kalo Daal / Masko Daal)",
+    nameNe: "मास",
+    family: "Fabaceae",
+    suitablePlantingMonths: [6, 7, 8], // Jun - Aug (Late Kharif pulse)
+    growthDurationDays: [75, 90],
+    tempRangeC: [22, 38],
+    optimalTempRangeC: [25, 33],
+    waterRequirementMm: [350, 500],
+    compatibleSoilTextures: ["loam", "sandy loam", "clay loam", "alluvial"],
+    toleratesHeavyClay: false,
+    irrigationNeeded: false,
+    incompatiblePrecedingFamilies: ["Fabaceae"],
+    beneficialPrecedingFamilies: ["Poaceae"],
+    rotationBenefitsEn:
+      "High protein pulse that enriches soil organic matter and nitrogen in late monsoon before winter crops.",
+    rotationBenefitsNe: "हिउँदे बाली लगाउनु अघि माटोमा नाइट्रोजन र प्राङ्गारिक पदार्थ थप्ने उत्तम दलहन।",
+    rotationRisksEn: "Sensitive to waterlogging during early vegetative growth.",
+    rotationRisksNe: "सुरुको अवस्थामा पानी जमेमा बिरुवा पहेंलिने र कुहिने जोखिम।",
+    agronomicRequirementsEn:
+      "Broadcast or line sow at 25-30 kg/ha. Varieties: Kalu, Shekhar. Source: NGLRP NARC.",
+    agronomicRequirementsNe: "प्रति हेक्टर २५-३० कि.ग्रा. बिउ प्रयोग गर्नुहोस्। जात: कालु, शेखर।",
+    citation: {
+      sourceTitle: "Grain Legumes and Vegetable Cowpea Cultivation",
+      publishingInstitution: "National Grain Legumes Research Program (NGLRP), NARC",
+      referenceUrl: "https://narc.gov.np/",
+      publicationYear: 2020,
     },
   },
 ];

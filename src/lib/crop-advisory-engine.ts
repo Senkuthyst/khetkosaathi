@@ -50,11 +50,11 @@ export interface UpcomingCrop {
   monthsAway: number;
 }
 
-export interface NextCropEvaluation {
+export type NextCropEvaluation = NextCropSuitabilityScore[] & {
   topCrops: NextCropSuitabilityScore[];
   hasSeasonMatch: boolean;
   upcomingCrops: UpcomingCrop[];
-}
+};
 
 export interface NextCropSuitabilityScore {
   cropId: string;
@@ -134,7 +134,7 @@ export function computeHarvestAdvice(
       hasCrop: Boolean(field.cropType),
       cropName: field.cropType || "Unspecified Crop",
       cropNameNe: field.cropType || "बाली",
-      cropVariety: field.cropVariety,
+      ...(field.cropVariety !== undefined ? { cropVariety: field.cropVariety } : {}),
       plantingDate: field.plantingDate,
       cropAgeDays: diffDays,
       expectedDurationRangeDays: [90, 120],
@@ -242,7 +242,7 @@ export function computeHarvestAdvice(
     hasCrop: true,
     cropName: agronomy.nameEn,
     cropNameNe: agronomy.nameNe,
-    cropVariety: field.cropVariety,
+    ...(field.cropVariety !== undefined ? { cropVariety: field.cropVariety } : {}),
     plantingDate: field.plantingDate,
     cropAgeDays: diffDays,
     expectedDurationRangeDays: [minDays, maxDays],
@@ -466,11 +466,12 @@ export function evaluateNextCrops(
     .sort((a, b) => a.monthsAway - b.monthsAway)
     .slice(0, 4);
 
-  return {
-    topCrops: sorted.slice(0, 3),
+  const topCrops = sorted.slice(0, 3);
+  return Object.assign([...sorted], {
+    topCrops,
     hasSeasonMatch,
     upcomingCrops,
-  };
+  });
 }
 
 /**

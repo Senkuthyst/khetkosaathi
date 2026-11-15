@@ -139,7 +139,7 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
 
           {/* FIRST THING A FARMER SEES: CHECK MY FARM FLOW */}
           <div className="mx-auto max-w-3xl">
-            <FarmCheckFlow onViewDashboard={onEnterDashboard} />
+            <FarmCheckFlow {...(onEnterDashboard ? { onViewDashboard: onEnterDashboard } : {})} />
           </div>
 
           {/* Secondary Marketing & Overview Context */}

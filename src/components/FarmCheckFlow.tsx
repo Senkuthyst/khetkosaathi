@@ -254,7 +254,7 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
               ],
             ],
           },
-          properties: { name: locationName },
+          properties: { name: locationName, area_hectares: 0.4046, area_m2: 4046 },
         },
         areaM2: 4046,
         areaUnit: "ropani",
@@ -411,9 +411,11 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
   // Build map markers: one farm pin + up to 3 ranked crop pins on a ~40m ring
   const topCrops = cropEval?.topCrops ?? [];
   const markers: MapPointMarker[] = [];
-  if (isValidCoords) {
+  if (isValidCoords && coords !== null) {
+    const farmLat = coords[0];
+    const farmLon = coords[1];
     markers.push({
-      position: [coords![0], coords![1]],
+      position: [farmLat, farmLon],
       color: "#237A50",
       label: lang === "ne" ? "तपाईंको खेत" : "Your farm",
       tooltipContent: lang === "ne" ? "तपाईंको खेत" : "Your farm",
@@ -429,9 +431,10 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
     const RING_DEG = 0.00036; // ~40 m
     const angles = [30, 150, 270];
     pinCrops.slice(0, 3).forEach((c, i) => {
-      const rad = (angles[i] * Math.PI) / 180;
-      const pLat = coords![0] + RING_DEG * Math.cos(rad);
-      const pLon = coords![1] + RING_DEG * Math.sin(rad);
+      const angle = angles[i] ?? 0;
+      const rad = (angle * Math.PI) / 180;
+      const pLat = farmLat + RING_DEG * Math.cos(rad);
+      const pLon = farmLon + RING_DEG * Math.sin(rad);
       if (!Number.isFinite(pLat) || !Number.isFinite(pLon)) return;
       markers.push({
         position: [pLat, pLon],
