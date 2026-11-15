@@ -1,35 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect } from "react";
 import {
   RefreshCw,
   ShieldAlert,
   Satellite,
   Globe2,
-  Droplets,
-  CloudSun,
-  Layers,
-  Search,
-  Calendar,
-  ExternalLink,
-  Info,
-  CheckCircle2,
   Flame,
-  AlertTriangle,
   MapPin,
   Sprout,
   ChevronRight,
-  ChevronDown,
-  Eye,
-  KeyRound,
-  Ban,
-  Clock,
-  Radio,
-  CloudRain,
-  Leaf,
 } from "lucide-react";
-import { Btn, Card, DataProvenance, FreshBadge, PageTitle, Skeleton, SourceTag } from "@/components/kit";
+import {
+  Btn,
+  Card,
+  DataProvenance,
+  FreshBadge,
+  PageTitle,
+  Skeleton,
+  SourceTag,
+} from "@/components/kit";
 import { TrendChart } from "@/components/Charts";
 import { LazyMap } from "@/components/LazyMap";
+import type { MapPoly } from "@/components/FieldMap";
 import { EarthDataStatusSection } from "@/components/EarthDataStatusSection";
 import {
   GlobalLocationSelector,
@@ -44,17 +36,11 @@ import {
   fetchNasaPowerDaily,
   computeScientificAnomalies,
   type PowerData,
-  type Provenance,
-  type RiskLevel,
 } from "@/lib/data";
 import {
   fetchLiveFirmsHotspots,
-  fetchLiveGpmPrecipitation,
   fetchLiveModisVegetation,
-  fetchLiveSmapSoilMoisture,
-  type SmapObservationSummary,
 } from "@/lib/data/nasa-client";
-import type { GpmPrecipitationSummary } from "@/lib/data/gpm-service";
 import type { ModisFieldSummary } from "@/lib/data/modis-service";
 import { cn } from "@/lib/utils";
 
@@ -62,196 +48,51 @@ export const Route = createFileRoute("/earth-intelligence")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Global Earth Intelligence Module",
-      "NASA Earth observation provenance and regional agricultural intelligence for Nepal and globally (POWER, SMAP, GPM IMERG, MODIS, FIRMS)."
+      "NASA Earth observation provenance and regional agricultural intelligence for Nepal and globally (POWER, SMAP, GPM IMERG, MODIS, FIRMS).",
     ),
   component: EarthIntelligence,
 });
 
-const fmt = (v: number | null, d = 1) => (v === null ? null : Number(v.toFixed(d)));
-
-export type ObservationDisplayStatus =
-  | "AVAILABLE"
-  | "LOADING"
-  | "STALE"
-  | "MISSING"
-  | "AUTHORIZATION_REQUIRED"
-  | "UNSUPPORTED"
-  | "ERROR";
+type ActiveLayer = "ndvi" | "precipitation" | "moisture" | "firms";
 
 function ScientificTag({ type }: { type: "direct" | "satellite" | "calculated" | "model" }) {
   const configs = {
-    direct: { label: "Direct In-Situ Observation", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    satellite: { label: "Satellite-Derived Estimate", cls: "bg-blue-100 text-blue-800 border-blue-300" },
-    calculated: { label: "Calculated Anomaly Indicator", cls: "bg-amber-100 text-amber-800 border-amber-300" },
-    model: { label: "Model Reanalysis Grid", cls: "bg-purple-100 text-purple-800 border-purple-300" },
+    direct: {
+      label: "Direct In-Situ Observation",
+      cls: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    },
+    satellite: {
+      label: "Satellite-Derived Estimate",
+      cls: "bg-blue-100 text-blue-800 border-blue-300",
+    },
+    calculated: {
+      label: "Calculated Anomaly Indicator",
+      cls: "bg-amber-100 text-amber-800 border-amber-300",
+    },
+    model: {
+      label: "Model Reanalysis Grid",
+      cls: "bg-purple-100 text-purple-800 border-purple-300",
+    },
   }[type];
 
   return (
-    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border", configs.cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border",
+        configs.cls,
+      )}
+    >
       {configs.label}
     </span>
-  );
-}
-
-function StatusPill({ status }: { status: ObservationDisplayStatus }) {
-  const config = {
-    AVAILABLE: { label: "Available", cls: "bg-emerald-100 text-emerald-800 border-emerald-300", icon: CheckCircle2 },
-    LOADING: { label: "Loading", cls: "bg-blue-100 text-blue-800 border-blue-300", icon: RefreshCw },
-    STALE: { label: "Stale Data", cls: "bg-amber-100 text-amber-800 border-amber-300", icon: Clock },
-    MISSING: { label: "Missing Coverage", cls: "bg-gray-100 text-gray-700 border-gray-300", icon: Ban },
-    AUTHORIZATION_REQUIRED: { label: "Auth Required", cls: "bg-purple-100 text-purple-800 border-purple-300", icon: KeyRound },
-    UNSUPPORTED: { label: "Unsupported Upstream", cls: "bg-orange-100 text-orange-800 border-orange-300", icon: Ban },
-    ERROR: { label: "Query Error", cls: "bg-rose-100 text-rose-800 border-rose-300", icon: AlertTriangle },
-  }[status];
-
-  const Icon = config.icon;
-
-  return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border", config.cls)}>
-      <Icon className={cn("h-3 w-3", status === "LOADING" && "animate-spin")} />
-      {config.label}
-    </span>
-  );
-}
-
-interface ObservationCardProps {
-  title: string;
-  sourceType: "satellite" | "model" | "direct";
-  productName: string;
-  spatialResolution: string;
-  observationDate: string | null;
-  status: ObservationDisplayStatus;
-  primaryValue: ReactNode;
-  unit?: string;
-  retrievalTimestamp?: string | null;
-  diagnosticDetails?: ReactNode;
-  unavailableReason?: string;
-  actionGuidance?: ReactNode;
-  onRetry?: () => void;
-  isLoading?: boolean;
-}
-
-function ResponsiveObservationCard({
-  title,
-  sourceType,
-  productName,
-  spatialResolution,
-  observationDate,
-  status,
-  primaryValue,
-  unit,
-  retrievalTimestamp,
-  diagnosticDetails,
-  unavailableReason,
-  actionGuidance,
-  onRetry,
-  isLoading = false,
-}: ObservationCardProps) {
-  const [showDiag, setShowDiag] = useState(false);
-
-  return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 border-l-4 border-l-satellite border-dashed flex flex-col justify-between">
-      <div>
-        {/* Header: Title, Category, and Status Badge */}
-        <div className="flex items-start justify-between gap-2 border-b border-border/60 pb-3">
-          <div>
-            <h2 className="text-base font-extrabold text-foreground tracking-tight">{title}</h2>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <ScientificTag type={sourceType} />
-              <span className="text-[11px] text-muted-foreground">{productName}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <StatusPill status={isLoading ? "LOADING" : status} />
-            {onRetry && (
-              <button
-                type="button"
-                onClick={onRetry}
-                disabled={isLoading}
-                title="Retry observation request"
-                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-              >
-                <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Card Body */}
-        <div className="mt-3">
-          {status === "AVAILABLE" && primaryValue ? (
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-foreground tracking-tight">{primaryValue}</span>
-                {unit && <span className="text-sm font-semibold text-muted-foreground">{unit}</span>}
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Observed: <strong>{observationDate ?? "Recent"}</strong> · Resolution: <strong>{spatialResolution}</strong>
-              </p>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-border/60 bg-muted/40 p-3.5 space-y-2">
-              <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div className="text-xs space-y-1">
-                  <p className="font-bold text-foreground">
-                    {status === "AUTHORIZATION_REQUIRED" && "NASA Archive Authorization Required"}
-                    {status === "UNSUPPORTED" && "Service Not Supported Upstream"}
-                    {status === "MISSING" && "Observation Unavailable for Plot"}
-                    {status === "ERROR" && "Query or Pipeline Error"}
-                    {status === "STALE" && "Stale Observation Record"}
-                  </p>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {unavailableReason ?? "Satellite observations for this parcel are currently being refreshed or unavailable for the requested window."}
-                  </p>
-                </div>
-              </div>
-              {actionGuidance && <div className="pt-1 text-xs">{actionGuidance}</div>}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer: Diagnostic toggle, Resolution & Metadata */}
-      <div className="pt-2 border-t border-border/60 space-y-2">
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span>Grid: <strong>{spatialResolution}</strong></span>
-          {diagnosticDetails && (
-            <button
-              type="button"
-              onClick={() => setShowDiag(!showDiag)}
-              className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-[11px]"
-            >
-              <span>{showDiag ? "Hide Details" : "Diagnostics"}</span>
-              <ChevronDown className={cn("h-3 w-3 transition-transform", showDiag && "rotate-180")} />
-            </button>
-          )}
-        </div>
-
-        {/* Expandable Diagnostic Panel */}
-        {showDiag && diagnosticDetails && (
-          <div className="rounded-xl bg-secondary/40 p-3 text-[11px] text-muted-foreground space-y-1.5 border border-border/50">
-            {diagnosticDetails}
-          </div>
-        )}
-      </div>
-    </section>
   );
 }
 
 function EarthIntelligence() {
   const { t, lang, selectedField, farmFields } = useApp();
   const [power, setPower] = useState<PowerData | null>(null);
-  const [gpmSummary, setGpmSummary] = useState<GpmPrecipitationSummary | null>(null);
   const [modisSummary, setModisSummary] = useState<ModisFieldSummary | null>(null);
-  const [smapSummary, setSmapSummary] = useState<SmapObservationSummary | null>(null);
   const [busy, setBusy] = useState(false);
-  const [activeLayer, setActiveLayer] = useState<"ndvi" | "precipitation" | "moisture" | "firms">("ndvi");
-
-  // Per-card retry loading states
-  const [loadingModis, setLoadingModis] = useState(false);
-  const [loadingGpm, setLoadingGpm] = useState(false);
-  const [loadingSmap, setLoadingSmap] = useState(false);
+  const [activeLayer, setActiveLayer] = useState<ActiveLayer>("ndvi");
 
   const [currentLocation, setCurrentLocation] = useState<GeoLocation>(() => {
     if (selectedField) {
@@ -268,7 +109,12 @@ function EarthIntelligence() {
     return PRESET_GLOBAL_LOCATIONS[0];
   });
 
-  const [firmsMarkers, setFirmsMarkers] = useState<Array<{ latitude: number; longitude: number; label: string }>>([]);
+  const [firmsMarkers, setFirmsMarkers] = useState<
+    Array<{ latitude: number; longitude: number; label: string }>
+  >([]);
+  const [firmsStatus, setFirmsStatus] = useState<
+    "AVAILABLE" | "AUTH_REQUIRED" | "DOWNLOAD_FAILED" | "MISSING_COVERAGE"
+  >("MISSING_COVERAGE");
 
   // Sync currentLocation when selectedField changes in top bar
   useEffect(() => {
@@ -285,38 +131,14 @@ function EarthIntelligence() {
     }
   }, [selectedField]);
 
-  const retryModis = (loc = currentLocation) => {
-    setLoadingModis(true);
+  const loadModis = (loc = currentLocation) => {
     fetchLiveModisVegetation({
       fieldId: loc.id,
       latitude: loc.latitude,
       longitude: loc.longitude,
       fieldAreaM2: selectedField?.areaM2 ?? 4046,
     })
-      .then(setModisSummary)
-      .finally(() => setLoadingModis(false));
-  };
-
-  const retryGpm = (loc = currentLocation) => {
-    setLoadingGpm(true);
-    fetchLiveGpmPrecipitation({
-      fieldId: loc.id,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-    })
-      .then(setGpmSummary)
-      .finally(() => setLoadingGpm(false));
-  };
-
-  const retrySmap = (loc = currentLocation) => {
-    setLoadingSmap(true);
-    fetchLiveSmapSoilMoisture({
-      fieldId: loc.id,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-    })
-      .then(setSmapSummary)
-      .finally(() => setLoadingSmap(false));
+      .then(setModisSummary);
   };
 
   const load = (force = false, loc = currentLocation) => {
@@ -335,33 +157,38 @@ function EarthIntelligence() {
       })
       .finally(() => setBusy(false));
 
-    // 2. Fetch real NASA FIRMS Active Thermal Anomaly Hotspots (via MAP_API_KEY)
+    // 2. Fetch real NASA FIRMS Active Thermal Anomaly Hotspots
     fetchLiveFirmsHotspots({
       latitude: loc.latitude,
       longitude: loc.longitude,
       radiusKm: 60,
     }).then((res) => {
-      if (res && res.detections.length > 0) {
+      if (!res) {
+        setFirmsStatus("DOWNLOAD_FAILED");
+        setFirmsMarkers([]);
+      } else if (res.queryStatus === "AUTH_REQUIRED") {
+        setFirmsStatus("AUTH_REQUIRED");
+        setFirmsMarkers([]);
+      } else if (res.queryStatus === "DOWNLOAD_FAILED") {
+        setFirmsStatus("DOWNLOAD_FAILED");
+        setFirmsMarkers([]);
+      } else if (res.detections.length > 0) {
+        setFirmsStatus("AVAILABLE");
         setFirmsMarkers(
           res.detections.map((d) => ({
             latitude: d.latitude,
             longitude: d.longitude,
             label: `Hotspot: ${d.brightness}K (${d.instrument} ${d.confidence} conf)`,
-          }))
+          })),
         );
       } else {
+        setFirmsStatus("MISSING_COVERAGE");
         setFirmsMarkers([]);
       }
     });
 
-    // 3. Fetch real NASA GPM IMERG
-    retryGpm(loc);
-
-    // 4. Fetch real NASA MODIS
-    retryModis(loc);
-
-    // 5. Fetch real NASA SMAP
-    retrySmap(loc);
+    // Fetch real NASA MODIS for the anomaly analysis panel.
+    loadModis(loc);
   };
 
   useEffect(() => {
@@ -378,7 +205,8 @@ function EarthIntelligence() {
           </div>
           <h2 className="text-2xl font-extrabold text-foreground">Select or Register a Farm</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            All NASA Earth observations are strictly mapped to your registered agricultural parcel coordinates. Please register your plot to view verified satellite data.
+            All NASA Earth observations are strictly mapped to your registered agricultural parcel
+            coordinates. Please register your plot to view verified satellite data.
           </p>
           <div className="pt-2 flex justify-center gap-3">
             <Link
@@ -395,10 +223,6 @@ function EarthIntelligence() {
   }
 
   // Derive real parameters from actual NASA POWER response
-  const maxes = power?.days.map((d) => d.tMax).filter((v): v is number => v !== null) ?? [];
-  const meanMax = maxes.length ? maxes.reduce((a, b) => a + b, 0) / maxes.length : null;
-  const powerRainTotal = power?.days.reduce((acc, d) => acc + (d.rain ?? 0), 0) ?? null;
-
   // Synthesize genuine scientific anomaly report across real observation streams
   const anomalyReport = computeScientificAnomalies({
     locationName: currentLocation.name,
@@ -411,11 +235,8 @@ function EarthIntelligence() {
     modisBaselineHigh: 0.75,
     thermalHotspotsCount: firmsMarkers.length,
     cropAgeDays: 45,
-    cropType: (selectedField?.cropType as any) ?? "rice",
+    cropType: selectedField?.cropType ?? "rice",
   });
-
-  const signed = (v: number | null, unit: string) =>
-    v === null ? t("missing") : `${v > 0 ? "+" : ""}${num(lang, fmt(v)!)}${unit}`;
 
   // Build Layer Tile Overlay for NASA GIBS
   const getTileOverlay = () => {
@@ -449,7 +270,7 @@ function EarthIntelligence() {
   const tileOverlay = getTileOverlay();
 
   // SMAP or GPM Regional bounding box overlay
-  const regionalPolygons: any[] = [];
+  const regionalPolygons: MapPoly[] = [];
   if (activeLayer === "moisture") {
     const d = 0.04;
     regionalPolygons.push({
@@ -486,36 +307,17 @@ function EarthIntelligence() {
   if (selectedField?.boundary && selectedField.boundary.length > 0) {
     regionalPolygons.push({
       positions: selectedField.boundary,
-      color: activeLayer === "ndvi" ? "var(--veg-good)" : activeLayer === "firms" ? "#ef4444" : "var(--satellite)",
+      color:
+        activeLayer === "ndvi"
+          ? "var(--veg-good)"
+          : activeLayer === "firms"
+            ? "#ef4444"
+            : "var(--satellite)",
       weight: 3,
       fillOpacity: 0.45,
       label: selectedField.fieldName,
     });
   }
-
-  // Determine observation statuses for each card
-  const modisStatus: ObservationDisplayStatus =
-    modisSummary?.latestNdvi != null
-      ? "AVAILABLE"
-      : modisSummary?.provenance?.qualityFlags?.some((f) => f.includes("TOKEN_NOT_CONFIGURED"))
-        ? "AUTHORIZATION_REQUIRED"
-        : modisSummary?.provenance?.observedAt
-          ? "MISSING"
-          : "MISSING";
-
-  const gpmStatus: ObservationDisplayStatus =
-    gpmSummary?.totalAccumulation7DayMm != null
-      ? "AVAILABLE"
-      : gpmSummary?.provenance?.qualityFlags?.some((f) => f.includes("GES_DISC_AUTHENTICATED"))
-        ? "MISSING"
-        : "AUTHORIZATION_REQUIRED";
-
-  const smapStatus: ObservationDisplayStatus =
-    smapSummary?.surfaceSoilMoistureM3M3 != null
-      ? "AVAILABLE"
-      : smapSummary?.provenance?.qualityFlags?.some((f) => f.includes("501"))
-        ? "UNSUPPORTED"
-        : "MISSING";
 
   return (
     <div className="space-y-6">
@@ -533,7 +335,8 @@ function EarthIntelligence() {
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary shrink-0" />
               <span>
-                Coordinates: {currentLocation.latitude.toFixed(4)}° N, {currentLocation.longitude.toFixed(4)}° E · Field:{" "}
+                Coordinates: {currentLocation.latitude.toFixed(4)}° N,{" "}
+                {currentLocation.longitude.toFixed(4)}° E · Field:{" "}
                 <strong>{selectedField?.fieldName ?? currentLocation.name}</strong>
               </span>
             </p>
@@ -592,7 +395,8 @@ function EarthIntelligence() {
                 Regional Earth Observation Map
               </h3>
               <span className="text-xs text-muted-foreground">
-                Layer: <strong>{activeLayer.toUpperCase()}</strong> · Coordinates: {currentLocation.latitude.toFixed(2)}°, {currentLocation.longitude.toFixed(2)}°
+                Layer: <strong>{activeLayer.toUpperCase()}</strong> · Coordinates:{" "}
+                {currentLocation.latitude.toFixed(2)}°, {currentLocation.longitude.toFixed(2)}°
               </span>
             </div>
 
@@ -606,12 +410,12 @@ function EarthIntelligence() {
               ].map((layer) => (
                 <button
                   key={layer.id}
-                  onClick={() => setActiveLayer(layer.id as any)}
+                  onClick={() => setActiveLayer(layer.id as ActiveLayer)}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
                     activeLayer === layer.id
                       ? "bg-card text-primary shadow-xs ring-1 ring-primary/20"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {layer.label}
@@ -684,7 +488,8 @@ function EarthIntelligence() {
             {activeLayer === "firms" ? (
               <span className="text-rose-700 font-semibold flex items-center gap-1">
                 <Flame className="h-3.5 w-3.5" />
-                NASA FIRMS: {firmsMarkers.length} thermal anomalies detected within 60 km (VIIRS 375m / MODIS 1km)
+                NASA FIRMS: {firmsMarkers.length} thermal anomalies detected within 60 km (VIIRS
+                375m / MODIS 1km)
               </span>
             ) : (
               <span>● Field Boundary: {selectedField?.fieldName ?? currentLocation.name}</span>
@@ -707,7 +512,8 @@ function EarthIntelligence() {
             </h3>
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>
-                <strong>Coordinates:</strong> {currentLocation.latitude.toFixed(4)}° N, {currentLocation.longitude.toFixed(4)}° E
+                <strong>Coordinates:</strong> {currentLocation.latitude.toFixed(4)}° N,{" "}
+                {currentLocation.longitude.toFixed(4)}° E
               </p>
               <p>
                 <strong>NASA POWER Status:</strong>{" "}
@@ -721,13 +527,24 @@ function EarthIntelligence() {
               </p>
               <p>
                 <strong>NASA FIRMS Status:</strong>{" "}
-                <span className="text-emerald-700 font-bold">
-                  Active ({firmsMarkers.length} detections in region)
+                <span
+                  className={cn(
+                    "font-bold",
+                    firmsStatus === "AVAILABLE" ? "text-emerald-700" : "text-amber-700",
+                  )}
+                >
+                  {firmsStatus === "AVAILABLE" &&
+                    `Active (${firmsMarkers.length} detections in region)`}
+                  {firmsStatus === "MISSING_COVERAGE" &&
+                    "No detections returned for the requested period"}
+                  {firmsStatus === "AUTH_REQUIRED" && "MAP_KEY authorization required"}
+                  {firmsStatus === "DOWNLOAD_FAILED" && "Query failed"}
                 </span>
               </p>
               <p>
                 <strong>Active Overlay:</strong>{" "}
-                <span className="text-primary font-bold uppercase">{activeLayer}</span> (NASA GIBS Live Stream)
+                <span className="text-primary font-bold uppercase">{activeLayer}</span> (NASA GIBS
+                Live Stream)
               </p>
               <p>
                 <strong>SMAP Soil Resolution:</strong> 9 km regional grid (Regional indicator only)
@@ -752,7 +569,8 @@ function EarthIntelligence() {
               <ScientificTag type="model" />
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              NASA Langley Atmospheric Science Data Center · 0.5° × 0.625° Agroclimatology Grid · {currentLocation.name}
+              NASA Langley Atmospheric Science Data Center · 0.5° × 0.625° Agroclimatology Grid ·{" "}
+              {currentLocation.name}
             </p>
           </div>
           <a
@@ -808,150 +626,6 @@ function EarthIntelligence() {
         )}
       </Card>
 
-      {/* =========================================================================
-          REDESIGNED RESPONSIVE MULTI-SENSOR CARDS: MODIS, GPM, SMAP
-         ========================================================================= */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-base font-extrabold text-foreground flex items-center gap-2">
-              <Satellite className="h-4 w-4 text-primary" />
-              Satellite Observation Telemetry & Multi-Sensor Feeds
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Individual satellite instrument status for {selectedField?.fieldName ?? currentLocation.name}. Real NASA observations without synthetic or pilot fallbacks.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {/* Card 1: MODIS NDVI */}
-          <ResponsiveObservationCard
-            title="Vegetation Health (NDVI)"
-            sourceType="satellite"
-            productName="NASA Terra MODIS (MOD13Q1 V061)"
-            spatialResolution="250 m"
-            observationDate={modisSummary?.provenance?.observedAt ?? null}
-            status={modisStatus}
-            primaryValue={modisSummary?.latestNdvi != null ? num(lang, modisSummary.latestNdvi) : null}
-            unit="unitless (-0.2 to 1.0)"
-            isLoading={loadingModis}
-            onRetry={() => retryModis()}
-            unavailableReason={
-              modisSummary?.latestNdvi == null
-                ? "Terra MODIS 250m composite observation is currently pending point extraction. NASA LP DAAC archive is authenticated. Awaiting latest clear-sky composite."
-                : undefined
-            }
-            actionGuidance={
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  LP DAAC Pipeline Verified
-                </span>
-                <button
-                  type="button"
-                  onClick={() => retryModis()}
-                  className="font-bold text-primary hover:underline"
-                >
-                  Query latest granule
-                </button>
-              </div>
-            }
-            diagnosticDetails={
-              <div className="space-y-1">
-                <p><strong>Dataset:</strong> Terra MODIS 16-Day 250m Global VI</p>
-                <p><strong>Scale Factor:</strong> 0.0001 (Valid: -2000 to 10000)</p>
-                <p><strong>Latest Granule:</strong> {modisSummary?.provenance?.observedAt ?? "Discovered in NASA CMR"}</p>
-                <p><strong>Quality Filter:</strong> SummaryQA & Cloud Mask active</p>
-                <p><strong>Flags:</strong> {modisSummary?.provenance?.qualityFlags?.join(", ") || "LP_DAAC_AUTHENTICATED"}</p>
-              </div>
-            }
-          />
-
-          {/* Card 2: NASA GPM IMERG */}
-          <ResponsiveObservationCard
-            title="NASA GPM IMERG Precipitation"
-            sourceType="satellite"
-            productName="GPM IMERG Daily Late Run (V07B)"
-            spatialResolution="0.1° (~10 km)"
-            observationDate={gpmSummary?.provenance?.observedAt ?? null}
-            status={gpmStatus}
-            primaryValue={gpmSummary?.totalAccumulation7DayMm != null ? `${num(lang, gpmSummary.totalAccumulation7DayMm)} mm` : null}
-            unit="7-day sum"
-            isLoading={loadingGpm}
-            onRetry={() => retryGpm()}
-            unavailableReason={
-              gpmSummary?.totalAccumulation7DayMm == null
-                ? "NASA GES DISC IMERG daily granule was discovered via CMR. Live point extraction requires authorized Earthdata profile or uses verified NASA POWER precipitation above."
-                : undefined
-            }
-            actionGuidance={
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-primary font-semibold">
-                  POWER 7-Day Rainfall: {powerRainTotal !== null ? `${powerRainTotal.toFixed(1)} mm` : "Loaded"}
-                </span>
-                <a
-                  href="https://urs.earthdata.nasa.gov/users/profile"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  <span>Authorize GES DISC</span>
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            }
-            diagnosticDetails={
-              <div className="space-y-1">
-                <p><strong>Granule Product:</strong> GPM_3IMERGDL V07</p>
-                <p><strong>Grid Resolution:</strong> 0.1° × 0.1° (~10 km regional)</p>
-                <p><strong>Archive:</strong> NASA GES DISC / CMR Discovery</p>
-                <p><strong>Distinction:</strong> GPM IMERG is satellite radar/microwave, NASA POWER is MERRA-2 model</p>
-                <p><strong>Flags:</strong> {gpmSummary?.provenance?.qualityFlags?.join(", ") || "GES_DISC_AUTHENTICATED"}</p>
-              </div>
-            }
-          />
-
-          {/* Card 3: NASA SMAP */}
-          <ResponsiveObservationCard
-            title="NASA SMAP Soil Moisture"
-            sourceType="satellite"
-            productName="NASA SMAP Enhanced L3 (SPL3SMP_E)"
-            spatialResolution="9 km / 36 km"
-            observationDate={smapSummary?.provenance?.observedAt ?? null}
-            status={smapStatus}
-            primaryValue={smapSummary?.surfaceSoilMoistureM3M3 != null ? `${smapSummary.surfaceSoilMoistureM3M3} m³/m³` : null}
-            unit="volumetric"
-            isLoading={loadingSmap}
-            onRetry={() => retrySmap()}
-            unavailableReason={
-              "NASA Earthdata Harmony reports HTTP 501 ('Not yet implemented' upstream for NSIDC SMAP CPRD collections). Broad 9 km footprint is active on regional map overlay."
-            }
-            actionGuidance={
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-muted-foreground">
-                  View 9 km regional moisture footprint on Map above
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveLayer("moisture")}
-                  className="font-bold text-primary hover:underline"
-                >
-                  Switch map layer
-                </button>
-              </div>
-            }
-            diagnosticDetails={
-              <div className="space-y-1">
-                <p><strong>Collection ID:</strong> C2938664763-NSIDC_CPRD</p>
-                <p><strong>Upstream Response:</strong> HTTP 501 (Not Implemented in Harmony OGC EDR)</p>
-                <p><strong>Spatial Resolution:</strong> 9 km EASE-Grid 2.0 (Too coarse for farm plot)</p>
-                <p><strong>Map Stream:</strong> NASA GIBS SMAP L4 Surface Soil Moisture</p>
-              </div>
-            }
-          />
-        </div>
-      </div>
     </div>
   );
 }
