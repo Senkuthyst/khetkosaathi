@@ -5,11 +5,12 @@
 import { fetchFirmsHotspotsServerFn } from "@/lib/server-functions/firms.server";
 import { fetchGpmPrecipitationServerFn } from "@/lib/server-functions/gpm.server";
 import { fetchModisVegetationServerFn } from "@/lib/server-functions/modis.server";
-import { fetchSmapSoilMoistureServerFn } from "@/lib/server-functions/smap.server";
+import { fetchSmapSoilMoistureServerFn, type SmapObservationSummary } from "@/lib/server-functions/smap.server";
 import type { FirmsSummary } from "./firms-service";
 import type { GpmPrecipitationSummary } from "./gpm-service";
 import type { ModisFieldSummary } from "./modis-service";
-import type { SmapObservationSummary } from "@/lib/server/smap.server";
+
+export type { SmapObservationSummary };
 
 export async function fetchLiveFirmsHotspots(options: {
   latitude: number;
