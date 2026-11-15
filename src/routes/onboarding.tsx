@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
 import { createFarmField } from "@/lib/farm-fields-service";
-import { AuthModal } from "@/components/AuthModal";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/onboarding")({
@@ -42,10 +41,9 @@ const provinces = [
 ];
 
 function Onboarding() {
-  const { lang, t, user, reloadFarmFields, setSelectedField } = useApp();
+  const { lang, t, reloadFarmFields, setSelectedField } = useApp();
   const nav = useNavigate();
   const [step, setStep] = useState(1);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // STEP 1: Farmer & Location details
   const [province, setProvince] = useState("Koshi Province");
@@ -88,11 +86,12 @@ function Onboarding() {
       if (geocoded.cityOrTown) setMunicipality(geocoded.cityOrTown);
       if (geocoded.district) setDistrict(geocoded.district);
       if (geocoded.stateOrProvince) setProvince(geocoded.stateOrProvince);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (showAlert) {
         alert(
-          err.message ||
-            "Could not retrieve GPS coordinates. You can pan and zoom the map manually.",
+          err instanceof Error
+            ? err.message
+            : "Could not retrieve GPS coordinates. You can pan and zoom the map manually.",
         );
       }
     } finally {
@@ -111,10 +110,6 @@ function Onboarding() {
   };
 
   const handleFinish = async () => {
-    if (!user) {
-      setAuthModalOpen(true);
-      return;
-    }
     if (!confirmedBoundary || confirmedBoundary.length < 3) {
       alert("Please draw and confirm your agricultural plot on the map before proceeding.");
       setStep(3);
@@ -141,8 +136,8 @@ function Onboarding() {
       await reloadFarmFields();
       setSelectedField(newField);
       nav({ to: "/" });
-    } catch (err: any) {
-      alert(`Error saving field: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error saving field: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setSaving(false);
     }
@@ -484,12 +479,6 @@ function Onboarding() {
           </div>
         </Card>
       )}
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultMode="signup"
-      />
     </div>
   );
 }

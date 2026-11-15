@@ -19,20 +19,19 @@ import {
   ChevronRight,
   ExternalLink,
   Sparkles,
-  User,
   Compass,
-  LogIn,
-  LogOut,
   ChevronDown,
   Navigation,
   Plus,
+  HelpCircle,
+  MoreHorizontal,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { currentAlerts } from "@/lib/derived";
 import { num } from "@/lib/i18n";
 import { BrandLogo } from "./BrandLogo";
 import { AiAssistant } from "./AiAssistant";
-import { AuthModal } from "./AuthModal";
+import { HelpSheet } from "./HelpSheet";
 import { Btn } from "@/components/kit";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
 import { cn } from "@/lib/utils";
@@ -43,9 +42,8 @@ export function Shell({ children }: { children: ReactNode }) {
     lang,
     setLang,
     ready,
-    user,
-    profile,
-    signOut,
+    demoProfile,
+    resetDemoData,
     selectedField,
     setSelectedField,
     farmFields,
@@ -62,7 +60,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [helpSheetOpen, setHelpSheetOpen] = useState(false);
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState(false);
   const [locatingGps, setLocatingGps] = useState(false);
 
@@ -85,8 +83,8 @@ export function Shell({ children }: { children: ReactNode }) {
       const coords = await getCurrentBrowserCoordinates();
       const geocoded = await reverseGeocodeCoordinates(coords.latitude, coords.longitude);
       setCurrentGpsLocationName(geocoded.displayName);
-    } catch (err: any) {
-      alert(err.message || "Could not retrieve GPS location.");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Could not retrieve GPS location.");
     } finally {
       setLocatingGps(false);
     }
@@ -237,6 +235,21 @@ export function Shell({ children }: { children: ReactNode }) {
               </div>
             )}
           </button>
+
+          {/* Help & Questions Sidebar Trigger */}
+          <button
+            onClick={() => setHelpSheetOpen(true)}
+            className={cn(
+              "w-full group mt-1.5 flex items-center gap-3 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-all relative",
+              sidebarCollapsed ? "justify-center" : "justify-start",
+            )}
+            title={lang === "ne" ? "मद्दत र जानकारी खोल्नुहोस्" : "Open Help & FAQs"}
+          >
+            <HelpCircle className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+            {!sidebarCollapsed && (
+              <span>{lang === "ne" ? "मद्दत र जानकारी" : "Help & Questions"}</span>
+            )}
+          </button>
         </div>
 
         {/* Sidebar Footer Controls */}
@@ -377,15 +390,41 @@ export function Shell({ children }: { children: ReactNode }) {
 
             {/* Right Header Actions */}
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Big, Obvious Language Toggle */}
+              <div className="flex items-center rounded-xl border-2 border-primary/40 bg-muted/60 p-0.5 shadow-2xs">
+                <button
+                  onClick={() => setLang("ne")}
+                  className={cn(
+                    "px-2.5 py-1 text-xs font-extrabold rounded-lg transition-all",
+                    lang === "ne"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-label="नेपाली भाषा"
+                >
+                  नेपाली
+                </button>
+                <button
+                  onClick={() => setLang("en")}
+                  className={cn(
+                    "px-2.5 py-1 text-xs font-extrabold rounded-lg transition-all",
+                    lang === "en"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-label="English language"
+                >
+                  EN
+                </button>
+              </div>
+
               {/* AI Assistant Quick Pill */}
               <button
                 onClick={() => setAiAssistantOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-secondary/80 px-3 py-1.5 text-xs font-extrabold text-primary hover:bg-secondary transition-all shadow-2xs"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-secondary/80 px-3 py-1.5 text-xs font-extrabold text-primary hover:bg-secondary transition-all shadow-2xs"
               >
                 <Sparkles className="h-3.5 w-3.5 text-leaf" />
-                <span className="hidden sm:inline">
-                  {lang === "ne" ? "AI सहायक" : "AI Assistant"}
-                </span>
+                <span>{lang === "ne" ? "AI सहायक" : "AI Assistant"}</span>
               </button>
 
               {/* Alerts Bell */}
@@ -402,35 +441,34 @@ export function Shell({ children }: { children: ReactNode }) {
                 )}
               </Link>
 
-              {/* User Authentication Avatar / Sign In Button */}
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/my-farm"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-xs"
-                    title={profile?.full_name ?? user.email ?? "Farmer Profile"}
-                  >
-                    <User className="h-4 w-4" />
-                  </Link>
-                  <button
-                    onClick={signOut}
-                    className="hidden sm:flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                    title="Sign Out"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <Btn
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="gap-1.5 text-xs font-bold"
+              {/* Demo Account Chip - small and secondary */}
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to="/my-farm"
+                  className="rounded-lg bg-muted px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  title="Demo Account"
                 >
-                  <LogIn className="h-3.5 w-3.5 text-primary" />
-                  <span>Sign In</span>
-                </Btn>
-              )}
+                  {lang === "ne" ? "डेमो" : "Demo"}
+                </Link>
+                <button
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        lang === "ne"
+                          ? "डेमो डाटा रिसेट गर्ने?"
+                          : "Reset all demo data? This will clear all saved farms and settings.",
+                      )
+                    ) {
+                      resetDemoData();
+                      window.location.reload();
+                    }
+                  }}
+                  className="text-[11px] text-muted-foreground hover:text-destructive transition-colors hidden sm:block"
+                  title="Reset Demo Data"
+                >
+                  {lang === "ne" ? "रिसेट" : "Reset"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -445,15 +483,107 @@ export function Shell({ children }: { children: ReactNode }) {
           )}
         </header>
 
-        {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">{children}</main>
+        {/* Dynamic Page Content (with bottom padding on mobile for 5-tab bar) */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full">
+          {children}
+        </main>
       </div>
+
+      {/* =========================================================================
+          MOBILE 5-TAB BOTTOM NAVIGATION (< md)
+         ========================================================================= */}
+      <nav
+        aria-label="Mobile Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-card/95 backdrop-blur-md px-1 py-1.5 shadow-lg"
+      >
+        <div className="grid grid-cols-5 items-center gap-0.5">
+          {/* Tab 1: Check My Farm */}
+          <Link
+            to="/farm-check"
+            className={cn(
+              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl text-center transition-colors min-h-[48px]",
+              loc.pathname.startsWith("/farm-check")
+                ? "text-primary font-bold bg-primary/10"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Compass className="h-5 w-5 shrink-0" />
+            <span className="text-[10px] font-semibold truncate mt-0.5 max-w-full px-0.5">
+              {lang === "ne" ? "खेत जाँच" : "Check Farm"}
+            </span>
+          </Link>
+
+          {/* Tab 2: My Farm */}
+          <Link
+            to="/my-farm"
+            className={cn(
+              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl text-center transition-colors min-h-[48px]",
+              loc.pathname.startsWith("/my-farm")
+                ? "text-primary font-bold bg-primary/10"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <MapPin className="h-5 w-5 shrink-0" />
+            <span className="text-[10px] font-semibold truncate mt-0.5 max-w-full px-0.5">
+              {lang === "ne" ? "मेरो खेत" : "My Farm"}
+            </span>
+          </Link>
+
+          {/* Tab 3: Weather */}
+          <Link
+            to="/weather"
+            className={cn(
+              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl text-center transition-colors min-h-[48px]",
+              loc.pathname.startsWith("/weather")
+                ? "text-primary font-bold bg-primary/10"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <CloudSun className="h-5 w-5 shrink-0" />
+            <span className="text-[10px] font-semibold truncate mt-0.5 max-w-full px-0.5">
+              {lang === "ne" ? "मौसम" : "Weather"}
+            </span>
+          </Link>
+
+          {/* Tab 4: Alerts */}
+          <Link
+            to="/alerts"
+            className={cn(
+              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl text-center transition-colors relative min-h-[48px]",
+              loc.pathname.startsWith("/alerts")
+                ? "text-primary font-bold bg-primary/10"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Bell className="h-5 w-5 shrink-0" />
+            {alertCount > 0 && (
+              <span className="absolute top-1 right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[8px] font-extrabold text-destructive-foreground">
+                {num(lang, alertCount)}
+              </span>
+            )}
+            <span className="text-[10px] font-semibold truncate mt-0.5 max-w-full px-0.5">
+              {lang === "ne" ? "सूचना" : "Alerts"}
+            </span>
+          </Link>
+
+          {/* Tab 5: Help */}
+          <button
+            onClick={() => setHelpSheetOpen(true)}
+            className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl text-center text-muted-foreground hover:text-foreground transition-colors min-h-[48px]"
+          >
+            <HelpCircle className="h-5 w-5 shrink-0" />
+            <span className="text-[10px] font-semibold truncate mt-0.5 max-w-full px-0.5">
+              {lang === "ne" ? "मद्दत" : "Help"}
+            </span>
+          </button>
+        </div>
+      </nav>
 
       {/* AI Assistant Modal Scaffolding */}
       <AiAssistant isOpen={aiAssistantOpen} onClose={() => setAiAssistantOpen(false)} />
 
-      {/* Auth Modal */}
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      {/* Plain Language Help Sheet */}
+      <HelpSheet isOpen={helpSheetOpen} onClose={() => setHelpSheetOpen(false)} />
     </div>
   );
 }

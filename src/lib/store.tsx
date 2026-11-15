@@ -1,10 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { translate, type Lang, type TKey } from "./i18n";
 import type { Field } from "./data";
-import {
-  loadUserFarmFields,
-  type FarmField,
-} from "./farm-fields-service";
+import { loadUserFarmFields, type FarmField } from "./farm-fields-service";
 import {
   loadDemoProfile,
   saveDemoProfile,
@@ -84,20 +81,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [farmFields, setFarmFields] = useState<FarmField[]>([]);
   const [selectedField, setSelectedFieldState] = useState<FarmField | null>(null);
 
-  const [lang, setLangS] = useState<Lang>("en");
+  const [lang, setLangS] = useState<Lang>("ne");
   const [thresholds, setThS] = useState<Thresholds>(defaults);
   const [inspections, setInsp] = useState<Inspection[]>([]);
   const [ready, setReady] = useState(false);
-  const [activeView, setActiveViewS] = useState<"dashboard" | "landing">("dashboard");
+  const [activeView, setActiveViewS] = useState<"dashboard" | "landing">("landing");
 
   const reloadFarmFields = async () => {
     const fields = await loadUserFarmFields();
     setFarmFields(fields);
     if (fields.length > 0) {
       const savedId =
-        typeof localStorage !== "undefined"
-          ? localStorage.getItem("naip.selected_field_id")
-          : null;
+        typeof localStorage !== "undefined" ? localStorage.getItem("naip.selected_field_id") : null;
       const matched =
         fields.find((f) => f.id === savedId) ?? fields.find((f) => f.isPrimary) ?? fields[0];
       setSelectedFieldState(matched ?? null);
@@ -108,10 +103,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Load settings and farm fields on mount
   useEffect(() => {
-    setLangS(load("naip.lang", "en"));
+    setLangS(load("naip.lang", "ne"));
     setThS(load("naip.th", defaults));
     setInsp(load("naip.insp", []));
-    setActiveViewS(load("naip.view", "dashboard"));
+    setActiveViewS(load("naip.view", "landing"));
     setCurrentGpsLocationName(load("naip.gps_loc", null));
     reloadFarmFields().finally(() => setReady(true));
   }, []);
@@ -153,7 +148,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSelectedFieldState(null);
     setThS(defaults);
     setInsp([]);
-    setLangS("en");
+    setLangS("ne");
   };
 
   // Bridge selectedField to legacy Field shape
@@ -161,7 +156,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ? {
         id: selectedField.id,
         name: selectedField.fieldName,
-        crop: selectedField.cropType as any,
+        crop: (selectedField.cropType || "rice") as Field["crop"],
         plantingDate: selectedField.plantingDate,
         municipality: selectedField.municipality ?? "unspecified",
         boundary: selectedField.boundary,

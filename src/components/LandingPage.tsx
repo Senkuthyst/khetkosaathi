@@ -18,6 +18,7 @@ import {
   Leaf,
 } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
+import { FarmCheckFlow } from "./FarmCheckFlow";
 import { useApp } from "@/lib/store";
 import { num } from "@/lib/i18n";
 
@@ -86,12 +87,63 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section id="hero" className="relative overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
+      <section id="hero" className="relative overflow-hidden pt-4 pb-16 lg:pt-8 lg:pb-24">
         {/* Background Atmospheric Grid */}
         <div className="absolute inset-0 opacity-40 pointer-events-none bg-[radial-gradient(#237A50_1px,transparent_1px)] [background-size:24px_24px]" />
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
+          {/* 3-Icon "How It Works" Strip */}
+          <div className="mx-auto max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 sm:p-4 rounded-3xl bg-white border border-[#E5EAE2] shadow-xs">
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#EBF4EC]/60">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-extrabold text-base shadow-xs">
+                📍
+              </span>
+              <div>
+                <strong className="block text-xs sm:text-sm font-bold text-[#123B2A]">
+                  {lang === "ne" ? "१. खेतको स्थान" : "1. Farm Location"}
+                </strong>
+                <span className="text-[11px] text-[#18251E]/70 block leading-tight">
+                  {lang === "ne" ? "एक ट्यापमा GPS वा नक्सा" : "One tap GPS or map"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#EBF4EC]/60">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#237A50] text-white font-extrabold text-base shadow-xs">
+                🛰️
+              </span>
+              <div>
+                <strong className="block text-xs sm:text-sm font-bold text-[#123B2A]">
+                  {lang === "ne" ? "२. उपग्रह जाँच" : "2. Satellite Check"}
+                </strong>
+                <span className="text-[11px] text-[#18251E]/70 block leading-tight">
+                  {lang === "ne" ? "नासा उपग्रहबाट वर्षा र हरियाली" : "NASA rain & greenness"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#EBF4EC]/60">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#B8D987] text-[#123B2A] font-extrabold text-base shadow-xs">
+                🌾
+              </span>
+              <div>
+                <strong className="block text-xs sm:text-sm font-bold text-[#123B2A]">
+                  {lang === "ne" ? "३. सरल नतिजा" : "3. Plain Results"}
+                </strong>
+                <span className="text-[11px] text-[#18251E]/70 block leading-tight">
+                  {lang === "ne" ? "बत्ती, आवाज र उपयुक्त बाली" : "Light, voice & next crops"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* FIRST THING A FARMER SEES: CHECK MY FARM FLOW */}
+          <div className="mx-auto max-w-3xl">
+            <FarmCheckFlow onViewDashboard={onEnterDashboard} />
+          </div>
+
+          {/* Secondary Marketing & Overview Context */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-8 border-t border-[#E5EAE2]">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               {/* Mission Pill */}
@@ -101,7 +153,7 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#123B2A] leading-[1.12]">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#123B2A] leading-[1.15]">
                 Bringing NASA Earth Intelligence to Nepal&apos;s Farms.
               </h1>
 

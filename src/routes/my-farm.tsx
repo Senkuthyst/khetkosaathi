@@ -19,10 +19,8 @@ import {
 import { useApp } from "@/lib/store";
 import { Skeleton, Btn, Card, inputCls } from "@/components/kit";
 import { pageHead } from "@/lib/page-head";
-import { AuthModal } from "@/components/AuthModal";
 import { deleteFarmField, setPrimaryFarmField } from "@/lib/farm-fields-service";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
-import { supabase } from "@/integrations/supabase/client";
 
 const MyFarmMap = lazy(() => import("@/components/MyFarmMap"));
 
@@ -39,9 +37,8 @@ function MyFarm() {
   const {
     t,
     lang,
-    user,
-    profile,
-    refreshProfile,
+    demoProfile,
+    updateDemoProfile,
     farmFields,
     selectedField,
     setSelectedField,
@@ -50,12 +47,8 @@ function MyFarm() {
     setCurrentGpsLocationName,
   } = useApp();
 
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileName, setProfileName] = useState(profile?.full_name ?? "");
-  const [profilePhone, setProfilePhone] = useState(profile?.phone_number ?? "");
-  const [profileDistrict, setProfileDistrict] = useState(profile?.district ?? "");
-  const [profileMunicipality, setProfileMunicipality] = useState(profile?.municipality ?? "");
+  const [profileName, setProfileName] = useState(demoProfile.name);
   const [locatingGps, setLocatingGps] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -67,20 +60,8 @@ function MyFarm() {
       const gps = await getCurrentBrowserCoordinates();
       const geocoded = await reverseGeocodeCoordinates(gps.latitude, gps.longitude);
       setCurrentGpsLocationName(geocoded.displayName);
-
-      if (user) {
-        await supabase
-          .from("user_profiles")
-          .update({
-            current_location_name: geocoded.displayName,
-            current_latitude: gps.latitude,
-            current_longitude: gps.longitude,
-          })
-          .eq("id", user.id);
-        await refreshProfile();
-      }
-    } catch (err: any) {
-      alert(err.message || "Could not retrieve GPS coordinates.");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Could not retrieve GPS coordinates.");
     } finally {
       setLocatingGps(false);
     }
@@ -88,23 +69,10 @@ function MyFarm() {
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     setSavingProfile(true);
     try {
-      const { error } = await supabase
-        .from("user_profiles")
-        .update({
-          full_name: profileName.trim(),
-          phone_number: profilePhone.trim() || null,
-          district: profileDistrict.trim() || null,
-          municipality: profileMunicipality.trim() || null,
-        })
-        .eq("id", user.id);
-      if (error) throw error;
-      await refreshProfile();
+      updateDemoProfile({ name: profileName.trim() || "Demo Farmer" });
       setEditingProfile(false);
-    } catch (err: any) {
-      alert(`Error updating profile: ${err.message}`);
     } finally {
       setSavingProfile(false);
     }
@@ -115,18 +83,17 @@ function MyFarm() {
     try {
       await deleteFarmField(fieldId);
       await reloadFarmFields();
-    } catch (err: any) {
-      alert(`Error deleting field: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error deleting field: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
   const handleSetPrimary = async (fieldId: string) => {
-    if (!user) return;
     try {
-      await setPrimaryFarmField(fieldId, user.id);
+      await setPrimaryFarmField(fieldId);
       await reloadFarmFields();
-    } catch (err: any) {
-      alert(`Error setting primary field: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error setting primary field: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -150,15 +117,6 @@ function MyFarm() {
               and crop inventory.
             </p>
           </div>
-
-          {!user && (
-            <Btn
-              onClick={() => setAuthModalOpen(true)}
-              className="self-start sm:self-auto font-bold text-xs"
-            >
-              Sign In to Save Plots
-            </Btn>
-          )}
         </div>
       </div>
 
@@ -173,31 +131,25 @@ function MyFarm() {
                   <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-foreground">
-                    {profile?.full_name ?? user?.email ?? "Farmer Profile"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {user ? "Verified Account" : "Unauthenticated Guest"}
-                  </p>
+                  <h3 className="text-base font-extrabold text-foreground">{demoProfile.name}</h3>
+                  <p className="text-xs text-muted-foreground">Demo Account — stored locally</p>
                 </div>
               </div>
 
-              {user && (
-                <button
-                  onClick={() => setEditingProfile(!editingProfile)}
-                  className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                >
-                  <Edit3 className="h-3.5 w-3.5" />
-                  {editingProfile ? "Cancel" : "Edit"}
-                </button>
-              )}
+              <button
+                onClick={() => setEditingProfile(!editingProfile)}
+                className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              >
+                <Edit3 className="h-3.5 w-3.5" />
+                {editingProfile ? "Cancel" : "Edit"}
+              </button>
             </div>
 
             {/* Profile Info Details or Edit Form */}
             {editingProfile ? (
               <form onSubmit={handleSaveProfile} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Full Name</label>
+                  <label className="block font-bold text-foreground mb-1">Farmer Name</label>
                   <input
                     type="text"
                     value={profileName}
@@ -205,38 +157,6 @@ function MyFarm() {
                     className={inputCls}
                     required
                   />
-                </div>
-                <div>
-                  <label className="block font-bold text-foreground mb-1">Phone Number</label>
-                  <input
-                    type="text"
-                    value={profilePhone}
-                    onChange={(e) => setProfilePhone(e.target.value)}
-                    className={inputCls}
-                    placeholder="+977-98..."
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block font-bold text-foreground mb-1">District</label>
-                    <input
-                      type="text"
-                      value={profileDistrict}
-                      onChange={(e) => setProfileDistrict(e.target.value)}
-                      className={inputCls}
-                      placeholder="e.g. Sunsari"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-foreground mb-1">Municipality</label>
-                    <input
-                      type="text"
-                      value={profileMunicipality}
-                      onChange={(e) => setProfileMunicipality(e.target.value)}
-                      className={inputCls}
-                      placeholder="e.g. Itahari"
-                    />
-                  </div>
                 </div>
                 <Btn
                   type="submit"
@@ -250,22 +170,8 @@ function MyFarm() {
             ) : (
               <dl className="space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-border/50">
-                  <dt className="text-muted-foreground">Email:</dt>
-                  <dd className="font-semibold text-foreground">
-                    {user?.email ?? "Not logged in"}
-                  </dd>
-                </div>
-                <div className="flex justify-between py-1 border-b border-border/50">
-                  <dt className="text-muted-foreground">Phone:</dt>
-                  <dd className="font-semibold text-foreground">{profile?.phone_number || "—"}</dd>
-                </div>
-                <div className="flex justify-between py-1 border-b border-border/50">
-                  <dt className="text-muted-foreground">Location:</dt>
-                  <dd className="font-semibold text-foreground">
-                    {[profile?.municipality, profile?.district, profile?.country]
-                      .filter(Boolean)
-                      .join(", ") || "Not set"}
-                  </dd>
+                  <dt className="text-muted-foreground">Account type:</dt>
+                  <dd className="font-semibold text-foreground">Local Demo</dd>
                 </div>
                 <div className="flex justify-between py-1">
                   <dt className="text-muted-foreground">Preferred Language:</dt>
@@ -426,8 +332,6 @@ function MyFarm() {
           </div>
         </div>
       </div>
-
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 }

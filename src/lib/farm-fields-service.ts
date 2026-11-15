@@ -169,9 +169,7 @@ export async function createFarmField(params: {
   const existing = readAll();
 
   // If this is marked primary, unset others first
-  let updated = params.isPrimary
-    ? existing.map((f) => ({ ...f, isPrimary: false }))
-    : existing;
+  let updated = params.isPrimary ? existing.map((f) => ({ ...f, isPrimary: false })) : existing;
 
   updated = [newField, ...updated];
   writeAll(updated);

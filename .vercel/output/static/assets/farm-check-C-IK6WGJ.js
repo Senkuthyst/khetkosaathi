@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-BD7UtArG.js";import{t}from"./FarmCheckFlow-CfsLS0ii.js";var n=e();function r(){return(0,n.jsx)(`div`,{className:`max-w-3xl mx-auto space-y-6`,children:(0,n.jsx)(t,{})})}export{r as component};
