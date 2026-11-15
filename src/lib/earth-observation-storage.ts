@@ -10,7 +10,6 @@ import type {
   NasaPowerDailySet,
   NasaPowerObservationResult,
 } from "./data/earth-observation-contract";
-import { powerPilot } from "./data/earth-pilot";
 
 function deviceToken(): string {
   if (typeof window === "undefined") return "00000000-0000-0000-0000-000000000000";

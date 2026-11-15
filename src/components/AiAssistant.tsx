@@ -11,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { stationCurrent, imergPilot, smapPilot, modisPilot } from "@/lib/data";
+import { stationCurrent } from "@/lib/data";
 import { summary } from "@/lib/derived";
 import { cn } from "@/lib/utils";
 
@@ -73,15 +73,19 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
           ? "नमस्ते! म खेतको साथीको कृषि बौद्धिक सहायक (KHETKOSAATHI Agricultural Assistant) हुँ। म तपाईंलाई NASA भू-उपग्रह डाटा (POWER, SMAP, GPM IMERG, MODIS), खेतका सेन्सरहरू, र नेपाल कृषि अनुसन्धान परिषद् (NARC) का सिफारिसहरू बुझ्न सहयोग गर्दछु। मलाई कुनै प्रश्न सोध्नुहोस्!"
           : "Namaste! I am the KHETKOSAATHI Agricultural Intelligence Assistant. I synthesize live NASA Earth observations (NASA POWER, SMAP, GPM IMERG, MODIS), on-farm sensor measurements, and Nepal Agricultural Research Council (NARC) agronomic principles to help you make informed decisions. How may I assist your farm today?",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      contextData: [
-        { label: "Location", value: "Chitwan, Nepal (27.6775° N, 84.4333° E)" },
-        { label: "Station Temp", value: `${stationCurrent.temp}°C` },
-        { label: "Station Soil", value: `${stationCurrent.soil}% (15cm)` },
-        { label: "MODIS NDVI", value: `${modisPilot.composites.at(-1)?.ndvi}` },
-      ],
+      contextData: selectedField
+        ? [
+            { label: "Selected Farm", value: `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` },
+            { label: "Coordinates", value: `${selectedField.latitude.toFixed(4)}° N, ${selectedField.longitude.toFixed(4)}° E` },
+            { label: "Crop", value: `${selectedField.cropType}` },
+          ]
+        : [
+            { label: "Selected Farm", value: "No farm plot registered yet" },
+            { label: "Status", value: "Register plot via Onboarding" },
+          ],
       sources: [
         { label: "NASA POWER Daily API", url: "https://power.larc.nasa.gov/" },
-        { label: "NASA SMAP Soil Moisture", url: "https://smap.jpl.nasa.gov/" },
+        { label: "NASA Earth Observation System", url: "https://earthdata.nasa.gov/" },
         { label: "NARC Agronomy Division", url: "https://narc.gov.np" },
       ],
     },
@@ -97,45 +101,44 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
 
     // Soil moisture query
     if (q.includes("soil") || q.includes("चिस्यान") || q.includes("moisture")) {
+      const fieldDesc = selectedField ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` : "तपाईंको खेत";
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
         text:
           lang === "ne"
-            ? `हाल तपाईंको खेतको सेन्सरले १५ से.मि. गहिराइमा ${stationCurrent.soil}% माटोको चिस्यान देखाएको छ। यता NASA SMAP उपग्रहको ५ से.मि. सतह चिस्यान ${smapPilot.surfaceVolumetric} m³/m³ छ। धानको लागि सक्रिय वृद्धि अवस्थामा कम्तीमा २५% भन्दा माथिको चिस्यान आवश्यक हुन्छ। चिस्यान हाल अनुकूल दायरामा छ, तर वर्षा विचलन कम रहेकाले आगामी ३ दिनमा नियमित खेत निरीक्षण सिफारिस गरिन्छ।`
-            : `Your farm station sensor indicates ${stationCurrent.soil}% volumetric soil moisture at 15 cm depth. Regional NASA SMAP microwave observations report ${smapPilot.surfaceVolumetric} m³/m³ in the top 5 cm horizon. For actively tillering rice, maintain moisture above the 25% lower threshold. Currently, moisture levels are satisfactory, but given negative rainfall anomaly trends, parcel-level perimeter checks are advised.`,
+            ? `${fieldDesc} को लागि माटोको चिस्यान अनुगमन गर्दा: सतह मुनि कम्तीमा २५% भन्दा माथिको चिस्यान धान तथा हिउँदे बालीका लागि आवश्यक हुन्छ। NASA SMAP उपग्रहले ९-३६ कि.मि. क्षेत्रीय दायरामा सतह चिस्यान मापन गर्दछ भने खेत-स्तरको सटीक व्यवस्थापनका लागि सिँचाइ नाला तथा माटोको अवस्था प्रत्यक्ष जाँच्न सिफारिस गरिन्छ।`
+            : `For ${selectedField ? selectedField.fieldName : "your farm plot"}: Active root-zone moisture above 25% volumetric is recommended to sustain vigorous vegetative growth. Regional NASA SMAP microwave observations report regional moisture trends across a 9 km to 36 km grid, while field-level irrigation should be managed based on direct soil inspection.`,
         timestamp: time,
         contextData: [
-          { label: "Station Soil (15cm)", value: `${stationCurrent.soil}%` },
-          { label: "SMAP Surface (5cm)", value: `${smapPilot.surfaceVolumetric} m³/m³` },
-          { label: "Threshold", value: "> 25%" },
+          { label: "Target Moisture", value: "> 25% Volumetric" },
+          { label: "SMAP Resolution", value: "9 km / 36 km regional grid" },
         ],
         sources: [
-          { label: "NASA SMAP SPL3SMP V009", url: "https://nsidc.org/data/spl3smp" },
-          { label: "In-Situ Farm Probe (Chitwan)" },
+          { label: "NASA SMAP Mission", url: "https://smap.jpl.nasa.gov/" },
+          { label: "NARC Soil Science Division", url: "https://narc.gov.np" },
         ],
       };
     }
 
     // MODIS / NDVI / Vegetation query
     if (q.includes("ndvi") || q.includes("modis") || q.includes("हरियाली") || q.includes("vegetation")) {
-      const latest = modisPilot.composites.at(-1)!;
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
         text:
           lang === "ne"
-            ? `NASA MODIS उपग्रह (MOD13Q1 २५० मि. रिजोल्युसन) ले पछिल्लो १६ दिने संयुक्त दृश्यमा NDVI मान ${latest.ndvi} देखाएको छ। यस मौसमको ऐतिहासिक आधार सीमा ${latest.baselineLow} देखि ${latest.baselineHigh} हो। जब बाली पाक्ने अवस्था (८०% उमेर भन्दा बढी) मा पुग्छ, पात पहेँलिँदै जानु स्वाभाविक हो। त्यसैले यो घटबढ रोग भन्दा पनि प्राकृतिक परिपक्वता (senescence) को संकेत हुन सक्छ।`
-            : `NASA MODIS (MOD13Q1, 250 m spatial resolution) 16-day composite shows an NDVI of ${latest.ndvi}. The seasonal Chitwan reference envelope spans ${latest.baselineLow} to ${latest.baselineHigh}. Note that for crops past 80% seasonal duration, declining chlorophyll reflectance often signifies natural physiological maturation rather than biological distress. Ground inspection confirms grain filling.`,
+            ? `NASA MODIS (MOD13Q1, २५० मिटर रिजोल्युसन) ले वनस्पति क्यानोपीको हरियाली (NDVI) मापन गर्दछ। ध्यान दिनुहोस्: उपग्रहले बालीको प्रत्यक्ष रोग निदान गर्दैन, बरु क्यानोपीको परावर्तन सूचकाङ्क मात्र देखाउँछ। बाली पाक्ने बेलामा पात पहेँलिँदै जानु स्वाभाविक परिपक्वता (senescence) हो। कुनै शंका लागेमा खेत निरीक्षण गर्नुहोस्।`
+            : `NASA MODIS (MOD13Q1, 250 m spatial resolution) provides vegetation indices (NDVI/EVI) indicating photosynthetic canopy vitality. A satellite vegetation index is an environmental indicator, not a direct disease diagnosis. Declining greenness during late-season crop maturity typically reflects natural senescence rather than distress. Always confirm via ground inspection.`,
         timestamp: time,
         contextData: [
-          { label: "MODIS NDVI", value: `${latest.ndvi}` },
-          { label: "Baseline Range", value: `${latest.baselineLow} – ${latest.baselineHigh}` },
-          { label: "Pixel Scale", value: "250 m composite" },
+          { label: "MODIS Sensor", value: "Terra MODIS MOD13Q1" },
+          { label: "Spatial Resolution", value: "250 m (16-day composite)" },
+          { label: "Principle", value: "Indicator, not direct crop disease diagnosis" },
         ],
         sources: [
           { label: "NASA LP DAAC MOD13Q1", url: "https://lpdaac.usgs.gov/" },
-          { label: "Chitwan Phenological Baseline" },
+          { label: "FAO Crop Phenology Guidelines" },
         ],
       };
     }
@@ -164,23 +167,22 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
 
     // Weather / Rain / Temperature query
     if (q.includes("weather") || q.includes("rain") || q.includes("तापक्रम") || q.includes("वर्षा") || q.includes("power") || q.includes("imerg")) {
-      const rainSum = imergPilot.daily.reduce((a, b) => a + b, 0);
+      const fieldDesc = selectedField ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` : "तपाईंको खेत";
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
         text:
           lang === "ne"
-            ? `NASA GPM IMERG उपग्रहको ७ दिने वर्षा जम्मा ${rainSum.toFixed(1)} मि.मि. रहेको छ (नमुना मौसमी आधार: ${imergPilot.seasonalBaselineMm} मि.मि.)। खेत केन्द्रमा पछिल्लो ७ दिनमा ${s.rain7} मि.मि. वर्षा मापन गरिएको छ। NASA POWER दैनिक मोडलले अधिकतम तापक्रम २९.३°C र आर्द्रता ७४% देखाएको छ। वर्षामा केही कमी रहेकाले सुख्खापन नहोस् भनी माटो चिस्यान अनुगमन गर्नुपर्छ।`
-            : `NASA GPM IMERG 0.1° gridded estimates register a 7-day total of ${rainSum.toFixed(1)} mm against a seasonal baseline of ${imergPilot.seasonalBaselineMm} mm. Local farm station readings recorded ${s.rain7} mm. NASA POWER climatology displays a mean daily max temperature of 29.3°C with 74% relative humidity. We observe a negative precipitation anomaly; monitor irrigation gates accordingly.`,
+            ? `${fieldDesc} को लागि: NASA POWER दैनिक मोडलले खेतको अक्षांश र देशान्तरमा आधारित सतही मौसम (अधिकतम/न्यूनतम तापक्रम, आर्द्रता, वायु गति र सच्याइएको वर्षा) गणना गर्दछ। उपग्रहिय मौसम विश्लेषणले स्थानीय मौसमी उतारचढाव बुझ्न र सिँचाइ समय निर्धारण गर्न मद्दत गर्दछ।`
+            : `For ${selectedField ? selectedField.fieldName : "your farm plot"}: NASA POWER provides daily point meteorology (temperatures, relative humidity, wind speed, corrected precipitation, and solar radiation) parameterized for your exact coordinates. Spaceborne meteorology helps anticipate moisture shifts and optimize irrigation scheduling.`,
         timestamp: time,
         contextData: [
-          { label: "7-day IMERG Total", value: `${rainSum.toFixed(1)} mm` },
-          { label: "Farm Rain Gauge", value: `${s.rain7} mm` },
-          { label: "NASA POWER Temp", value: "29.3°C Max" },
+          { label: "Data Source", value: "NASA POWER Daily API (MERRA-2)" },
+          { label: "Community", value: "Agroclimatology (AG)" },
         ],
         sources: [
-          { label: "NASA GPM IMERG Early Run", url: "https://gpm.nasa.gov/data/imerg" },
           { label: "NASA POWER Daily Temporal API", url: "https://power.larc.nasa.gov/" },
+          { label: "NASA Earthdata Science Systems", url: "https://earthdata.nasa.gov/" },
         ],
       };
     }
@@ -273,13 +275,13 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
             </span>
             <span className="text-muted-foreground shrink-0">|</span>
             <span className="shrink-0 text-muted-foreground">
-              🌡 Station: <strong className="text-foreground">{stationCurrent.temp}°C</strong>
+              📍 Coords: <strong className="text-foreground">{selectedField ? `${selectedField.latitude.toFixed(2)}°N, ${selectedField.longitude.toFixed(2)}°E` : "Not set"}</strong>
             </span>
             <span className="shrink-0 text-muted-foreground">
-              💧 Soil: <strong className="text-foreground">{stationCurrent.soil}%</strong>
+              🌾 Crop: <strong className="text-foreground">{selectedField?.cropType ?? "Rice"}</strong>
             </span>
             <span className="shrink-0 text-muted-foreground">
-              🛰 NDVI: <strong className="text-foreground">{modisPilot.composites.at(-1)?.ndvi}</strong>
+              🛰 NASA POWER: <strong className="text-foreground">Connected</strong>
             </span>
           </div>
         </div>

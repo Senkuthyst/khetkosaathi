@@ -1,9 +1,9 @@
-// Rules-based Earth Intelligence anomaly engine (pure, testable). Demonstration rules, not a calibrated model.
-import { imergPilot, modisPilot, powerPilot, pilotSeasonalMaxTemp, type CropId, type PowerDay } from "./data";
+// Rules-based Earth Intelligence anomaly engine (pure, testable).
+import type { CropId, PowerDay } from "./data";
 
 export type EarthRisk = "low" | "moderate" | "high" | "critical" | "missing";
 
-/** Typical season length (days from planting to harvest) for Chitwan pilot crops. */
+/** Typical season length (days from planting to harvest) for Nepal staple crops (NARC/FAO). */
 export const seasonDays: Record<CropId, number> = { rice: 120, maize: 110, wheat: 130, potato: 100, tomato: 120 };
 /** From this share of the season onward, NDVI decline is expected maturation/senescence. */
 export const MATURITY_SHARE = 0.8;
@@ -40,19 +40,16 @@ export function assessEarth(i: EarthInputs): EarthAssessment {
   return { risk: (["low", "moderate", "high", "critical"] as const)[n] ?? "critical", signals, maturing };
 }
 
-/** Assessment from the Chitwan pilot records; optional live POWER days replace pilot temperature. */
-export function chitwanAssessment(crop: CropId, cropAgeDays: number, powerDays: PowerDay[] = powerPilot.days) {
-  const latest = modisPilot.composites.at(-1)!;
-  const maxes = powerDays.map(d => d.tMax).filter((v): v is number => v !== null);
-  return {
-    latest,
-    rainTotal: imergPilot.daily.reduce((a, b) => a + b, 0),
-    meanMax: maxes.length ? maxes.reduce((a, b) => a + b, 0) / maxes.length : null,
-    ...assessEarth({
-      rainCurrent: imergPilot.daily.reduce((a, b) => a + b, 0), rainNormal: imergPilot.seasonalBaselineMm,
-      ndviCurrent: latest.ndvi, ndviNormal: (latest.baselineLow + latest.baselineHigh) / 2,
-      tempCurrent: maxes.length ? maxes.reduce((a, b) => a + b, 0) / maxes.length : null, tempNormal: pilotSeasonalMaxTemp,
-      crop, cropAgeDays,
-    }),
-  };
+/** Assessment for a specific farm field from its real observations. */
+export function assessFieldEarthObservations(options: {
+  crop: CropId;
+  cropAgeDays: number;
+  rainCurrent: number | null;
+  rainNormal: number;
+  ndviCurrent: number | null;
+  ndviNormal: number;
+  tempCurrent: number | null;
+  tempNormal: number;
+}) {
+  return assessEarth(options);
 }

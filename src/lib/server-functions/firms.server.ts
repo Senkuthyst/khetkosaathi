@@ -30,7 +30,7 @@ export const fetchFirmsHotspotsServerFn = createServerFn({ method: "POST" })
   .validator((data: unknown) => firmsQuerySchema.parse(data))
   .handler(async ({ data }): Promise<FirmsSummary> => {
     const { latitude, longitude, radiusKm, dayRange, source } = data;
-    const mapKey = process.env.NASA_FIRMS_MAP_KEY;
+    const mapKey = process.env.MAP_API_KEY || process.env.NASA_FIRMS_MAP_KEY;
     const retrievalTimestamp = new Date().toISOString();
 
     const degApprox = radiusKm / 111.0;
@@ -56,9 +56,9 @@ export const fetchFirmsHotspotsServerFn = createServerFn({ method: "POST" })
     };
 
     if (!mapKey) {
-      console.info("NASA_FIRMS_MAP_KEY not configured. Reporting empty thermal anomaly list with credential requirement.");
-      provenance.mode = "pilot";
-      provenance.quality = "pilotQuality";
+      console.info("MAP_API_KEY / NASA_FIRMS_MAP_KEY not configured. Reporting empty thermal anomaly list with credential notice.");
+      provenance.mode = "live";
+      provenance.quality = "missing";
 
       return {
         region: `BBox: ${bbox}`,
@@ -69,7 +69,7 @@ export const fetchFirmsHotspotsServerFn = createServerFn({ method: "POST" })
         totalDetections: 0,
         highConfidenceCount: 0,
         provenance,
-        disclaimer: `${FIRMS_DISCLAIMER} (Backend requires NASA_FIRMS_MAP_KEY to query live VIIRS/MODIS feeds).`,
+        disclaimer: `${FIRMS_DISCLAIMER} (Backend requires MAP_API_KEY or NASA_FIRMS_MAP_KEY configured in backend environment).`,
       };
     }
 

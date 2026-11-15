@@ -169,8 +169,25 @@ export async function fetchNasaPowerDaily(
       }
 
       return cachedData(memory, "live");
-    } catch {
-      return cache ? cachedData(cache, "cached") : powerPilot;
+    } catch (err) {
+      if (cache) {
+        return cachedData(cache, "cached");
+      }
+      return {
+        days: [],
+        provenance: {
+          dataset: "NASA POWER Daily (AG Community)",
+          productId: "POWER_DAILY_AG",
+          source: "nasa_power",
+          resolution: "0.5° × 0.625° / 1° solar",
+          periodStart: "",
+          observedAt: null,
+          retrievedAt: new Date().toISOString(),
+          mode: "live",
+          quality: "missing",
+          url: "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
+        },
+      };
     } finally {
       clearTimeout(timer);
       pending = undefined;

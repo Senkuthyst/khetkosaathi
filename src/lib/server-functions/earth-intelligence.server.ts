@@ -15,7 +15,6 @@ import type {
   NasaPowerObservationResult,
   EarthObservationRecord,
 } from "@/lib/data/earth-observation-contract";
-import { powerPilot } from "@/lib/data/earth-pilot";
 
 const globalFetchParamsSchema = z.object({
   fieldId: z.string().min(1).max(100),
@@ -105,64 +104,6 @@ export const fetchNasaPowerDailyServerFn = createServerFn({ method: "POST" })
       });
     } catch (err) {
       console.warn(`NASA POWER fetch failed for [${latitude}, ${longitude}]:`, (err as Error).message);
-
-      // Return structured fallback for the specific requested location
-      const retrievalTimestamp = new Date().toISOString();
-      const pilotRecords: EarthObservationRecord[] = [];
-
-      const pilotDays = powerPilot.days.map((d) => ({
-        date: d.date,
-        t2m: d.tMax != null && d.tMin != null ? Math.round(((d.tMax + d.tMin) / 2) * 10) / 10 : null,
-        t2mMax: d.tMax,
-        t2mMin: d.tMin,
-        rh2m: d.humidity,
-        prectotcorr: d.rain,
-        allskySfcSwDwn: d.solar,
-        qualityStatus: "pilotQuality" as const,
-      }));
-
-      for (const d of pilotDays) {
-        pilotRecords.push({
-          fieldId,
-          sourceName: "nasa_power",
-          productId: "POWER_DAILY_AG",
-          productVersion: "v2.0",
-          variableName: "T2M_MAX",
-          value: d.t2mMax,
-          unit: "°C",
-          observationStart: `${d.date}T00:00:00Z`,
-          observationEnd: `${d.date}T23:59:59Z`,
-          retrievalTimestamp,
-          spatialResolution: "0.5° × 0.625°",
-          temporalResolution: "daily",
-          spatialExtractionMethod: "point_nearest_grid",
-          qualityStatus: "pilotQuality",
-          qualityFlags: ["PILOT_FALLBACK_OFFLINE"],
-          processingVersion: "MERRA-2",
-          provenanceMetadata: { latitude, longitude, offlineFallback: true },
-        });
-      }
-
-      return {
-        fieldId,
-        coordinates: { latitude, longitude },
-        observations: pilotDays,
-        provenance: {
-          dataset: "NASA POWER Daily (Offline Reference)",
-          productId: "POWER_DAILY_AG",
-          source: "nasa_power",
-          resolution: "0.5° × 0.625° / 1° solar",
-          temporalResolution: "daily",
-          spatialExtractionMethod: "point_nearest_grid",
-          processingVersion: "MERRA-2",
-          observedAt: pilotDays.at(-1)?.date ?? null,
-          periodStart: pilotDays[0]?.date,
-          retrievedAt: retrievalTimestamp,
-          quality: "pilotQuality",
-          mode: "pilot",
-          url: "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
-        },
-        records: pilotRecords,
-      };
+      throw new Error(`NASA POWER API is temporarily unavailable: ${(err as Error).message}. Please try again later.`);
     }
   });

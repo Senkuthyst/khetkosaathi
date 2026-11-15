@@ -24,6 +24,7 @@ export const NASA_POWER_PARAMETERS = [
   "RH2M",
   "PRECTOTCORR",
   "ALLSKY_SFC_SW_DWN",
+  "WS2M",
 ] as const;
 
 export type NasaPowerParam = (typeof NASA_POWER_PARAMETERS)[number];
@@ -38,6 +39,7 @@ export const NASA_POWER_VARIABLE_METADATA: Record<
   RH2M: { label: "Relative Humidity at 2 Meters", unit: "%", min: 0, max: 100 },
   PRECTOTCORR: { label: "Corrected Precipitation", unit: "mm/day", min: 0, max: 2000 },
   ALLSKY_SFC_SW_DWN: { label: "All Sky Insolation Incident on a Horizontal Surface", unit: "MJ/m²/day", min: 0, max: 100 },
+  WS2M: { label: "Wind Speed at 2 Meters", unit: "m/s", min: 0, max: 150 },
 };
 
 const rawResponseSchema = z.object({
@@ -151,8 +153,9 @@ export function normalizeNasaPowerResponse(
     const rh2m = cleanVal("RH2M", d);
     const prectotcorr = cleanVal("PRECTOTCORR", d);
     const allskySfcSwDwn = cleanVal("ALLSKY_SFC_SW_DWN", d);
+    const ws2m = cleanVal("WS2M", d);
 
-    const values = [t2m, t2mMax, t2mMin, rh2m, prectotcorr, allskySfcSwDwn];
+    const values = [t2m, t2mMax, t2mMin, rh2m, prectotcorr, allskySfcSwDwn, ws2m];
     const nonNullCount = values.filter((v) => v !== null).length;
     let qualityStatus: EarthQualityStatus = "good";
     if (nonNullCount === 0) qualityStatus = "missing";
@@ -166,6 +169,7 @@ export function normalizeNasaPowerResponse(
       rh2m,
       prectotcorr,
       allskySfcSwDwn,
+      ws2m,
       qualityStatus,
     });
 

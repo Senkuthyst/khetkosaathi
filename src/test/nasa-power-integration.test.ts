@@ -68,6 +68,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
           RH2M: { "20261101": 76.5, "20261102": 150 }, // 150 is out of valid range (0-100)
           PRECTOTCORR: { "20261101": 0.0, "20261102": 1.4 },
           ALLSKY_SFC_SW_DWN: { "20261101": 17.5, "20261102": 16.8 },
+          WS2M: { "20261101": 2.4, "20261102": 3.1 },
         },
       },
     };
@@ -101,7 +102,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
     expect(day2.qualityStatus).toBe("marginal");
 
     // Granular typed observation records verification
-    expect(normalized.records.length).toBe(12); // 2 days * 6 parameters
+    expect(normalized.records.length).toBe(14); // 2 days * 7 parameters
     const t2mDay2Record = normalized.records.find(
       (r) => r.observationStart.startsWith("2026-11-02") && r.variableName === "T2M"
     );
@@ -175,9 +176,11 @@ describe("NASA POWER Data Integration and Contracts", () => {
       "RH2M",
       "PRECTOTCORR",
       "ALLSKY_SFC_SW_DWN",
+      "WS2M",
     ]);
 
     expect(NASA_POWER_VARIABLE_METADATA.T2M.unit).toBe("°C");
+    expect(NASA_POWER_VARIABLE_METADATA.WS2M.unit).toBe("m/s");
     expect(NASA_POWER_VARIABLE_METADATA.RH2M.unit).toBe("%");
     expect(NASA_POWER_VARIABLE_METADATA.PRECTOTCORR.unit).toBe("mm/day");
     expect(NASA_POWER_VARIABLE_METADATA.ALLSKY_SFC_SW_DWN.unit).toBe("MJ/m²/day");

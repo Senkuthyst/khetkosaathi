@@ -85,6 +85,7 @@ export interface NasaPowerDailySet {
   rh2m: number | null; // Relative Humidity at 2 Meters (%)
   prectotcorr: number | null; // Corrected Total Precipitation (mm/day)
   allskySfcSwDwn: number | null; // All Sky Surface Shortwave Downward Irradiance (MJ/m²/day)
+  ws2m?: number | null; // Wind Speed at 2 Meters (m/s)
   qualityStatus: EarthQualityStatus;
 }
 
