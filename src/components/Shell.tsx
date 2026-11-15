@@ -151,7 +151,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <aside
         className={cn(
           "hidden md:flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out shrink-0 sticky top-0 h-screen z-30",
-          sidebarCollapsed ? "w-20" : "w-64"
+          sidebarCollapsed ? "w-20" : "w-64",
         )}
       >
         {/* Brand Logo Header */}
@@ -165,7 +165,11 @@ export function Shell({ children }: { children: ReactNode }) {
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             aria-label={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
           </button>
         </div>
 
@@ -182,11 +186,16 @@ export function Shell({ children }: { children: ReactNode }) {
                   active
                     ? "bg-primary text-primary-foreground shadow-xs font-bold"
                     : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
-                  sidebarCollapsed && "justify-center px-0"
+                  sidebarCollapsed && "justify-center px-0",
                 )}
                 title={sidebarCollapsed ? item.label : undefined}
               >
-                <item.Icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", active ? "text-primary-foreground" : "text-primary")} />
+                <item.Icon
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-transform group-hover:scale-110",
+                    active ? "text-primary-foreground" : "text-primary",
+                  )}
+                />
                 {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
 
                 {/* Notification Badge */}
@@ -194,7 +203,7 @@ export function Shell({ children }: { children: ReactNode }) {
                   <span
                     className={cn(
                       "rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.2",
-                      sidebarCollapsed ? "absolute top-1.5 right-1.5" : "ml-auto"
+                      sidebarCollapsed ? "absolute top-1.5 right-1.5" : "ml-auto",
                     )}
                   >
                     {num(lang, item.badge)}
@@ -209,7 +218,7 @@ export function Shell({ children }: { children: ReactNode }) {
             onClick={() => setAiAssistantOpen(true)}
             className={cn(
               "w-full group mt-2 flex items-center gap-3 rounded-xl border border-primary/20 bg-secondary/60 px-3 py-2.5 text-xs sm:text-sm font-bold text-primary hover:bg-secondary hover:shadow-xs transition-all relative",
-              sidebarCollapsed ? "justify-center" : "justify-start"
+              sidebarCollapsed ? "justify-center" : "justify-start",
             )}
             title={lang === "ne" ? "AI कृषि सहायक खोल्नुहोस्" : "Open AI Agricultural Assistant"}
           >
@@ -233,7 +242,7 @@ export function Shell({ children }: { children: ReactNode }) {
               onClick={() => setLang(lang === "ne" ? "en" : "ne")}
               className={cn(
                 "tap flex-1 rounded-xl border border-border text-xs font-bold text-primary hover:bg-secondary transition-colors text-center py-2",
-                sidebarCollapsed && "px-1 text-[11px]"
+                sidebarCollapsed && "px-1 text-[11px]",
               )}
               title="Toggle Language"
             >
@@ -244,9 +253,17 @@ export function Shell({ children }: { children: ReactNode }) {
               <button
                 onClick={() => setActiveView(activeView === "dashboard" ? "landing" : "dashboard")}
                 className="tap flex-1 rounded-xl bg-muted hover:bg-secondary text-xs font-bold text-foreground py-2 text-center transition-colors truncate px-2"
-                title={activeView === "dashboard" ? "Switch to Landing View" : "Switch to Dashboard"}
+                title={
+                  activeView === "dashboard" ? "Switch to Landing View" : "Switch to Dashboard"
+                }
               >
-                {activeView === "dashboard" ? (lang === "ne" ? "ल्यान्डिङ" : "Showcase") : (lang === "ne" ? "ड्यासबोर्ड" : "Dashboard")}
+                {activeView === "dashboard"
+                  ? lang === "ne"
+                    ? "ल्यान्डिङ"
+                    : "Showcase"
+                  : lang === "ne"
+                    ? "ड्यासबोर्ड"
+                    : "Dashboard"}
               </button>
             )}
           </div>
@@ -319,7 +336,7 @@ export function Shell({ children }: { children: ReactNode }) {
                             "w-full text-left p-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between",
                             selectedField?.id === f.id
                               ? "bg-primary text-primary-foreground font-bold"
-                              : "hover:bg-muted text-foreground"
+                              : "hover:bg-muted text-foreground",
                           )}
                         >
                           <span className="truncate">{f.fieldName}</span>
@@ -345,7 +362,9 @@ export function Shell({ children }: { children: ReactNode }) {
                   disabled={locatingGps}
                   className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                 >
-                  <Navigation className={cn("h-3.5 w-3.5 text-primary", locatingGps && "animate-spin")} />
+                  <Navigation
+                    className={cn("h-3.5 w-3.5 text-primary", locatingGps && "animate-spin")}
+                  />
                   <span>{locatingGps ? "Acquiring GPS..." : "Acquire Current GPS"}</span>
                 </button>
               )}
@@ -359,7 +378,9 @@ export function Shell({ children }: { children: ReactNode }) {
                 className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-secondary/80 px-3 py-1.5 text-xs font-extrabold text-primary hover:bg-secondary transition-all shadow-2xs"
               >
                 <Sparkles className="h-3.5 w-3.5 text-leaf" />
-                <span className="hidden sm:inline">{lang === "ne" ? "AI सहायक" : "AI Assistant"}</span>
+                <span className="hidden sm:inline">
+                  {lang === "ne" ? "AI सहायक" : "AI Assistant"}
+                </span>
               </button>
 
               {/* Alerts Bell */}
@@ -420,9 +441,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          {children}
-        </main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">{children}</main>
       </div>
 
       {/* AI Assistant Modal Scaffolding */}

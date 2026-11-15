@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Agricultural Intelligence Center",
-      "Nepal-focused agricultural intelligence dashboard powered by NASA Earth observations (POWER, SMAP, GPM IMERG, MODIS) and on-farm sensors."
+      "Nepal-focused agricultural intelligence dashboard powered by NASA Earth observations (POWER, SMAP, GPM IMERG, MODIS) and on-farm sensors.",
     ),
   component: DashboardOverview,
 });
@@ -105,7 +105,8 @@ function DashboardOverview() {
           </div>
           <h2 className="text-2xl font-extrabold text-foreground">Welcome to Khetkosaathi</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            No agricultural plot registered yet. Register your farmland anywhere in Nepal to monitor real satellite indicators, weather forecasts, and crop health.
+            No agricultural plot registered yet. Register your farmland anywhere in Nepal to monitor
+            real satellite indicators, weather forecasts, and crop health.
           </p>
           <div className="pt-2 flex justify-center gap-3">
             <Link
@@ -130,9 +131,8 @@ function DashboardOverview() {
   const powerDays = powerData?.days ?? [];
   const powerMaxTemps = powerDays.map((d) => d.tMax).filter((v): v is number => v !== null);
   const powerLatestMax = powerMaxTemps.length > 0 ? powerMaxTemps.at(-1)! : null;
-  const powerRainTotal = powerDays.length > 0
-    ? powerDays.reduce((acc, d) => acc + (d.rain ?? 0), 0)
-    : null;
+  const powerRainTotal =
+    powerDays.length > 0 ? powerDays.reduce((acc, d) => acc + (d.rain ?? 0), 0) : null;
 
   return (
     <div className="space-y-6">
@@ -160,13 +160,18 @@ function DashboardOverview() {
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm text-muted-foreground">
               <span className="flex items-center gap-1 font-medium text-foreground">
                 <MapPin className="h-4 w-4 text-primary" />
-                {currentField.municipality || "Nepal"}{currentField.district ? `, ${currentField.district}` : ""} ({currentField.latitude.toFixed(4)}° N, {currentField.longitude.toFixed(4)}° E)
+                {currentField.municipality || "Nepal"}
+                {currentField.district ? `, ${currentField.district}` : ""} (
+                {currentField.latitude.toFixed(4)}° N, {currentField.longitude.toFixed(4)}° E)
               </span>
               <span>•</span>
               <span className="flex items-center gap-1 font-medium text-foreground">
                 <Sprout className="h-4 w-4 text-primary" />
-                {currentField.cropType} · {num(lang, cropAgeDays(currentField.plantingDate))} {t("days")}
-                <span className="text-muted-foreground">({lang === "ne" ? "सक्रिय चरण" : "Active Growth Stage"})</span>
+                {currentField.cropType} · {num(lang, cropAgeDays(currentField.plantingDate))}{" "}
+                {t("days")}
+                <span className="text-muted-foreground">
+                  ({lang === "ne" ? "सक्रिय चरण" : "Active Growth Stage"})
+                </span>
               </span>
             </div>
           </div>
@@ -195,7 +200,10 @@ function DashboardOverview() {
         <div className="mt-4 pt-3 border-t border-border/60 flex items-start gap-2 text-xs text-muted-foreground">
           <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <span>
-            Environmental observations are derived from live NASA Earth observation models (NASA POWER Daily Point API at {currentField.latitude.toFixed(2)}° N, {currentField.longitude.toFixed(2)}° E). Satellite estimates reflect regional grids, not direct ground sensor readings.
+            Environmental observations are derived from live NASA Earth observation models (NASA
+            POWER Daily Point API at {currentField.latitude.toFixed(2)}° N,{" "}
+            {currentField.longitude.toFixed(2)}° E). Satellite estimates reflect regional grids, not
+            direct ground sensor readings.
           </span>
         </div>
       </div>
@@ -210,7 +218,9 @@ function DashboardOverview() {
             {lang === "ne" ? "वातावरणीय मुख्य सूचकहरू" : "Environmental Core Metrics"}
           </h2>
           <span className="text-xs text-muted-foreground">
-            {lang === "ne" ? "NASA POWER भू-उपग्रह मोडल तथा खेत सेन्सर" : "NASA Satellite & Farm Sensor Observations"}
+            {lang === "ne"
+              ? "NASA POWER भू-उपग्रह मोडल तथा खेत सेन्सर"
+              : "NASA Satellite & Farm Sensor Observations"}
           </span>
         </div>
 
@@ -232,12 +242,19 @@ function DashboardOverview() {
                 <span className="text-sm font-semibold text-muted-foreground">mm</span>
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                NASA POWER 7-day grid sum: <strong>{powerRainTotal !== null ? `${powerRainTotal.toFixed(1)} mm` : "Loading..."}</strong>
+                NASA POWER 7-day grid sum:{" "}
+                <strong>
+                  {powerRainTotal !== null ? `${powerRainTotal.toFixed(1)} mm` : "Loading..."}
+                </strong>
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-border/60 flex items-center justify-between text-[10px] text-muted-foreground">
-              <span className="text-[10px] font-semibold text-primary">NASA POWER Daily (MERRA-2)</span>
-              <span>{powerData?.provenance?.observedAt ?? fmtDate(lang, stationCurrent.observedAt)}</span>
+              <span className="text-[10px] font-semibold text-primary">
+                NASA POWER Daily (MERRA-2)
+              </span>
+              <span>
+                {powerData?.provenance?.observedAt ?? fmtDate(lang, stationCurrent.observedAt)}
+              </span>
             </div>
           </div>
 
@@ -253,17 +270,24 @@ function DashboardOverview() {
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-extrabold text-foreground">
-                  {powerLatestMax !== null ? powerLatestMax.toFixed(1) : num(lang, stationCurrent.temp)}
+                  {powerLatestMax !== null
+                    ? powerLatestMax.toFixed(1)
+                    : num(lang, stationCurrent.temp)}
                 </span>
                 <span className="text-sm font-semibold text-muted-foreground">°C</span>
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                NASA POWER regional: <strong>{powerLatestMax !== null ? `${powerLatestMax.toFixed(1)}°C Max` : "Loading..."}</strong>
+                NASA POWER regional:{" "}
+                <strong>
+                  {powerLatestMax !== null ? `${powerLatestMax.toFixed(1)}°C Max` : "Loading..."}
+                </strong>
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-border/60 flex items-center justify-between text-[10px] text-muted-foreground">
               <span className="text-[10px] font-semibold text-primary">NASA POWER Point Daily</span>
-              <span>{powerData?.provenance?.observedAt ?? fmtDate(lang, stationCurrent.observedAt)}</span>
+              <span>
+                {powerData?.provenance?.observedAt ?? fmtDate(lang, stationCurrent.observedAt)}
+              </span>
             </div>
           </div>
 
@@ -278,7 +302,9 @@ function DashboardOverview() {
                 <FreshBadge f={f} />
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-foreground">{num(lang, stationCurrent.soil)}</span>
+                <span className="text-3xl font-extrabold text-foreground">
+                  {num(lang, stationCurrent.soil)}
+                </span>
                 <span className="text-sm font-semibold text-muted-foreground">%</span>
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
@@ -327,10 +353,14 @@ function DashboardOverview() {
           <div>
             <h3 className="font-extrabold text-base text-foreground flex items-center gap-2">
               <Globe2 className="h-4 w-4 text-primary" />
-              {lang === "ne" ? "भू-उपग्रह अवलोकन नक्सा तथा पार्सल सिमाना" : "Earth Observation Map & Parcel Boundaries"}
+              {lang === "ne"
+                ? "भू-उपग्रह अवलोकन नक्सा तथा पार्सल सिमाना"
+                : "Earth Observation Map & Parcel Boundaries"}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {currentField.municipality || "Nepal"}{currentField.district ? `, ${currentField.district}` : ""} · Selected parcel boundary overlaid on high-resolution cadastre
+              {currentField.municipality || "Nepal"}
+              {currentField.district ? `, ${currentField.district}` : ""} · Selected parcel boundary
+              overlaid on high-resolution cadastre
             </p>
           </div>
 
@@ -372,7 +402,12 @@ function DashboardOverview() {
 
         <div className="flex flex-wrap items-center justify-between text-xs text-muted-foreground pt-1 gap-2">
           <span>
-            Farm Area: <strong>{currentField.areaM2 ? (currentField.areaM2 / 10000).toFixed(2) : "0.5"} ha</strong> · Selected Field ID: <span className="font-mono text-[11px]">{currentField.id.slice(0, 8)}...</span>
+            Farm Area:{" "}
+            <strong>
+              {currentField.areaM2 ? (currentField.areaM2 / 10000).toFixed(2) : "0.5"} ha
+            </strong>{" "}
+            · Selected Field ID:{" "}
+            <span className="font-mono text-[11px]">{currentField.id.slice(0, 8)}...</span>
           </span>
           <span className="text-[11px]">
             Data Sources: NASA POWER Point API, MODIS 250m, OpenStreetMap
@@ -389,7 +424,9 @@ function DashboardOverview() {
           <div className="flex items-center justify-between border-b border-border pb-3">
             <h3 className="font-extrabold text-base text-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              {lang === "ne" ? "कृषि अन्तर्दृष्टि तथा विसङ्गति मूल्याङ्कन" : "Agricultural Insights & Anomaly Analysis"}
+              {lang === "ne"
+                ? "कृषि अन्तर्दृष्टि तथा विसङ्गति मूल्याङ्कन"
+                : "Agricultural Insights & Anomaly Analysis"}
             </h3>
             <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-bold text-primary">
               NARC Calibrated
@@ -399,21 +436,32 @@ function DashboardOverview() {
           <div className="space-y-3">
             <div className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                <span>{lang === "ne" ? "वर्षा तथा सिँचाइ विश्लेषण" : "Precipitation & Irrigation Balance"}</span>
+                <span>
+                  {lang === "ne"
+                    ? "वर्षा तथा सिँचाइ विश्लेषण"
+                    : "Precipitation & Irrigation Balance"}
+                </span>
                 <span className="text-primary font-extrabold">NASA POWER Verified</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                7-day accumulated precipitation for coordinates [{currentField.latitude.toFixed(2)}°N, {currentField.longitude.toFixed(2)}°E] is {powerRainTotal !== null ? `${powerRainTotal.toFixed(1)} mm` : "being verified"}. Maintain proper field moisture balance for active growth of {currentField.cropType}.
+                7-day accumulated precipitation for coordinates [{currentField.latitude.toFixed(2)}
+                °N, {currentField.longitude.toFixed(2)}°E] is{" "}
+                {powerRainTotal !== null ? `${powerRainTotal.toFixed(1)} mm` : "being verified"}.
+                Maintain proper field moisture balance for active growth of {currentField.cropType}.
               </p>
             </div>
 
             <div className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                <span>{lang === "ne" ? "वनस्पति स्वास्थ्य सूचकाङ्क" : "Vegetation Chlorophyll Index"}</span>
+                <span>
+                  {lang === "ne" ? "वनस्पति स्वास्थ्य सूचकाङ्क" : "Vegetation Chlorophyll Index"}
+                </span>
                 <span className="text-fresh font-extrabold">Canopy Active</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Spaceborne vegetation reflectance indicates photosynthetic activity within expected regional range. Continue routine field walk to check for localized pests or soil nutrient deficiency.
+                Spaceborne vegetation reflectance indicates photosynthetic activity within expected
+                regional range. Continue routine field walk to check for localized pests or soil
+                nutrient deficiency.
               </p>
             </div>
           </div>
@@ -426,8 +474,12 @@ function DashboardOverview() {
               <RotateCcw className="h-4 w-4" />
               <span>
                 {showRotationPlanner
-                  ? (lang === "ne" ? "बाली चक्र योजनाकार बन्द गर्नुहोस्" : "Hide Rotation Planner")
-                  : (lang === "ne" ? "बाली चक्र योजनाकार खोल्नुहोस्" : "Open 5-Step Crop Rotation Planner")}
+                  ? lang === "ne"
+                    ? "बाली चक्र योजनाकार बन्द गर्नुहोस्"
+                    : "Hide Rotation Planner"
+                  : lang === "ne"
+                    ? "बाली चक्र योजनाकार खोल्नुहोस्"
+                    : "Open 5-Step Crop Rotation Planner"}
               </span>
             </button>
           </div>
@@ -457,8 +509,12 @@ function DashboardOverview() {
                     {num(lang, c.inDays)} {t("inDays")}
                   </span>
                   <div>
-                    <p className="text-xs font-semibold text-foreground leading-relaxed">{c[lang]}</p>
-                    <span className="text-[10px] text-muted-foreground block mt-1">Source: NARC Agronomy Advisory</span>
+                    <p className="text-xs font-semibold text-foreground leading-relaxed">
+                      {c[lang]}
+                    </p>
+                    <span className="text-[10px] text-muted-foreground block mt-1">
+                      Source: NARC Agronomy Advisory
+                    </span>
                   </div>
                 </li>
               ))}

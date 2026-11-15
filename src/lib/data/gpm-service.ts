@@ -41,7 +41,7 @@ export interface GpmPrecipitationSummary {
 
 export function calculateRainfallAnomaly(
   accumulatedMm: number | null,
-  baselineMm: number
+  baselineMm: number,
 ): number | null {
   if (accumulatedMm == null || baselineMm <= 0) return null;
   return Math.round(((accumulatedMm - baselineMm) / baselineMm) * 1000) / 10;
@@ -84,7 +84,8 @@ export function normalizeGpmImergObservations(options: {
 
     dailyPoints.push({
       date: s.date,
-      precipitationMm: qualityStatus === "missing" ? null : Math.round(s.precipitationMm! * 10) / 10,
+      precipitationMm:
+        qualityStatus === "missing" ? null : Math.round(s.precipitationMm! * 10) / 10,
       randomErrorMm: s.randomErrorMm != null ? Math.round(s.randomErrorMm * 10) / 10 : null,
       productType,
       qualityStatus,

@@ -112,9 +112,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
 
               {/* Supporting Description */}
               <p className="text-base sm:text-lg text-[#18251E]/80 max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                Monitor changing environmental conditions, explore satellite-powered agricultural insights,
-                and make smarter farming decisions with KHETKOSAATHI. Grounded in real-time NASA POWER, SMAP,
-                GPM IMERG, and MODIS observations calibrated for Nepal.
+                Monitor changing environmental conditions, explore satellite-powered agricultural
+                insights, and make smarter farming decisions with KHETKOSAATHI. Grounded in
+                real-time NASA POWER, SMAP, GPM IMERG, and MODIS observations calibrated for Nepal.
               </p>
 
               {/* CTAs */}
@@ -124,7 +124,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#123B2A] px-6 py-3.5 text-sm font-bold text-[#F7F8F2] shadow-md hover:bg-[#237A50] hover:shadow-lg transition-all"
                 >
                   <Globe2 className="h-4 w-4 text-[#B8D987]" />
-                  <span>{lang === "ne" ? "भू-सूचना अन्वेषण गर्नुहोस्" : "Explore Earth Intelligence"}</span>
+                  <span>
+                    {lang === "ne" ? "भू-सूचना अन्वेषण गर्नुहोस्" : "Explore Earth Intelligence"}
+                  </span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
 
@@ -141,7 +143,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               <div className="pt-4 grid grid-cols-3 gap-4 border-t border-[#E5EAE2] text-left">
                 <div>
                   <span className="block text-2xl font-extrabold text-[#123B2A]">4+</span>
-                  <span className="text-xs text-[#758078] font-medium">NASA Satellites Ingested</span>
+                  <span className="text-xs text-[#758078] font-medium">
+                    NASA Satellites Ingested
+                  </span>
                 </div>
                 <div>
                   <span className="block text-2xl font-extrabold text-[#237A50]">250 m</span>
@@ -149,7 +153,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                 </div>
                 <div>
                   <span className="block text-2xl font-extrabold text-[#123B2A]">100%</span>
-                  <span className="text-xs text-[#758078] font-medium">Bilingual (नेपाली / EN)</span>
+                  <span className="text-xs text-[#758078] font-medium">
+                    Bilingual (नेपाली / EN)
+                  </span>
                 </div>
               </div>
             </div>
@@ -181,11 +187,41 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                       strokeLinecap="round"
                     />
                     {/* Field Cadastral Polygons with NDVI false color representation */}
-                    <polygon points="50,130 110,120 130,190 70,200" fill="#2E7D32" fillOpacity="0.7" stroke="#81C784" strokeWidth="1" />
-                    <polygon points="120,115 190,95 210,165 140,185" fill="#388E3C" fillOpacity="0.8" stroke="#A5D6A7" strokeWidth="1" />
-                    <polygon points="65,210 145,195 160,280 80,290" fill="#1B5E20" fillOpacity="0.9" stroke="#66BB6A" strokeWidth="1.5" />
-                    <polygon points="230,130 310,110 330,190 250,210" fill="#43A047" fillOpacity="0.75" stroke="#81C784" strokeWidth="1" />
-                    <polygon points="260,220 340,200 360,280 280,295" fill="#689F38" fillOpacity="0.7" stroke="#C5E1A5" strokeWidth="1" />
+                    <polygon
+                      points="50,130 110,120 130,190 70,200"
+                      fill="#2E7D32"
+                      fillOpacity="0.7"
+                      stroke="#81C784"
+                      strokeWidth="1"
+                    />
+                    <polygon
+                      points="120,115 190,95 210,165 140,185"
+                      fill="#388E3C"
+                      fillOpacity="0.8"
+                      stroke="#A5D6A7"
+                      strokeWidth="1"
+                    />
+                    <polygon
+                      points="65,210 145,195 160,280 80,290"
+                      fill="#1B5E20"
+                      fillOpacity="0.9"
+                      stroke="#66BB6A"
+                      strokeWidth="1.5"
+                    />
+                    <polygon
+                      points="230,130 310,110 330,190 250,210"
+                      fill="#43A047"
+                      fillOpacity="0.75"
+                      stroke="#81C784"
+                      strokeWidth="1"
+                    />
+                    <polygon
+                      points="260,220 340,200 360,280 280,295"
+                      fill="#689F38"
+                      fillOpacity="0.7"
+                      stroke="#C5E1A5"
+                      strokeWidth="1"
+                    />
                     {/* Selected Farm Target Highlight in Bharatpur-14 */}
                     <polygon
                       points="155,200 235,180 250,260 170,275"
@@ -196,7 +232,15 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                       strokeDasharray="4 2"
                     />
                     <circle cx="205" cy="230" r="4" fill="#B8D987" />
-                    <circle cx="205" cy="230" r="10" stroke="#B8D987" strokeWidth="1" strokeDasharray="2 2" className="animate-ping" />
+                    <circle
+                      cx="205"
+                      cy="230"
+                      r="10"
+                      stroke="#B8D987"
+                      strokeWidth="1"
+                      strokeDasharray="2 2"
+                      className="animate-ping"
+                    />
                   </svg>
 
                   {/* Satellite Orbit Overlay */}
@@ -265,8 +309,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               Four NASA Missions. One Unified Agro-Intelligence System.
             </h2>
             <p className="text-sm sm:text-base text-[#18251E]/75">
-              KHETKOSAATHI transforms raw spaceborne observations into actionable agricultural intelligence
-              for extension workers and smallholder farmers.
+              KHETKOSAATHI transforms raw spaceborne observations into actionable agricultural
+              intelligence for extension workers and smallholder farmers.
             </p>
           </div>
 
@@ -319,7 +363,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                     </span>
                   </div>
                   <h3 className="mt-4 text-lg font-bold text-[#123B2A]">{card.title}</h3>
-                  <span className="text-xs font-semibold text-[#237A50] block mt-0.5">{card.tag}</span>
+                  <span className="text-xs font-semibold text-[#237A50] block mt-0.5">
+                    {card.tag}
+                  </span>
                   <p className="mt-2 text-xs text-[#18251E]/80 leading-relaxed">{card.desc}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-[#E5EAE2] text-[11px] text-[#758078]">
@@ -343,9 +389,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                 Calibrating Orbital Data with On-Farm Realities
               </h2>
               <p className="text-sm sm:text-base text-[#18251E]/80 leading-relaxed">
-                Satellite data provides invaluable macro context, but smallholder agriculture in Nepal
-                requires precise measurement. KHETKOSAATHI seamlessly bridges the gap by comparing regional
-                estimates with local field station sensors.
+                Satellite data provides invaluable macro context, but smallholder agriculture in
+                Nepal requires precise measurement. KHETKOSAATHI seamlessly bridges the gap by
+                comparing regional estimates with local field station sensors.
               </p>
 
               <div className="space-y-3.5">
@@ -363,7 +409,10 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                     desc: "Analyze local valley inversion against NASA POWER gridded 2-meter air temperature records.",
                   },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 rounded-xl bg-white p-4 border border-[#E5EAE2]">
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 rounded-xl bg-white p-4 border border-[#E5EAE2]"
+                  >
                     <CheckCircle className="h-5 w-5 text-[#237A50] shrink-0 mt-0.5" />
                     <div>
                       <h3 className="font-bold text-sm text-[#123B2A]">{item.title}</h3>
@@ -378,8 +427,12 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
             <div className="rounded-3xl border border-[#E5EAE2] bg-white p-6 sm:p-8 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b border-[#E5EAE2] pb-4">
                 <div>
-                  <h3 className="font-bold text-base text-[#123B2A]">Chitwan Pilot Calibration Dashboard</h3>
-                  <span className="text-xs text-[#758078]">Bharatpur-14 · Co-registered Sensors</span>
+                  <h3 className="font-bold text-base text-[#123B2A]">
+                    Chitwan Pilot Calibration Dashboard
+                  </h3>
+                  <span className="text-xs text-[#758078]">
+                    Bharatpur-14 · Co-registered Sensors
+                  </span>
                 </div>
                 <span className="rounded-full bg-[#EBF4EC] px-3 py-1 text-xs font-bold text-[#237A50]">
                   Live Validated
@@ -390,27 +443,37 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               <div className="space-y-3 text-xs">
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F8F2] border border-[#E5EAE2]">
                   <span className="font-semibold text-[#18251E]">Soil Moisture (15 cm Probe)</span>
-                  <strong className="text-sm font-extrabold text-[#237A50]">24.8% Volumetric</strong>
+                  <strong className="text-sm font-extrabold text-[#237A50]">
+                    24.8% Volumetric
+                  </strong>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F8F2] border border-[#E5EAE2]">
                   <span className="font-semibold text-[#18251E]">NASA SMAP Surface (5 cm)</span>
-                  <strong className="text-sm font-extrabold text-[#1D5C8A]">0.21 m³/m³ (21.0%)</strong>
+                  <strong className="text-sm font-extrabold text-[#1D5C8A]">
+                    0.21 m³/m³ (21.0%)
+                  </strong>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F8F2] border border-[#E5EAE2]">
-                  <span className="font-semibold text-[#18251E]">NASA GPM IMERG 7-Day Rainfall</span>
-                  <strong className="text-sm font-extrabold text-[#1D5C8A]">4.3 mm (Deficit: -64%)</strong>
+                  <span className="font-semibold text-[#18251E]">
+                    NASA GPM IMERG 7-Day Rainfall
+                  </span>
+                  <strong className="text-sm font-extrabold text-[#1D5C8A]">
+                    4.3 mm (Deficit: -64%)
+                  </strong>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F8F2] border border-[#E5EAE2]">
                   <span className="font-semibold text-[#18251E]">MODIS NDVI Vegetation Index</span>
-                  <strong className="text-sm font-extrabold text-[#237A50]">0.68 (Normal vegetative)</strong>
+                  <strong className="text-sm font-extrabold text-[#237A50]">
+                    0.68 (Normal vegetative)
+                  </strong>
                 </div>
               </div>
 
               <div className="rounded-xl bg-[#EBF4EC] p-3 text-xs text-[#123B2A] flex items-start gap-2">
                 <ShieldAlert className="h-4 w-4 shrink-0 text-[#237A50] mt-0.5" />
                 <span>
-                  <strong>Scientific Rule:</strong> Never assume coarse satellite pixels equal farm-level microclimate.
-                  Always calibrate using ground-truth observations.
+                  <strong>Scientific Rule:</strong> Never assume coarse satellite pixels equal
+                  farm-level microclimate. Always calibrate using ground-truth observations.
                 </span>
               </div>
             </div>
@@ -429,8 +492,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               Regenerative Crop Intelligence & Soil Rebuilding
             </h2>
             <p className="text-sm sm:text-base text-[#18251E]/75">
-              Empowering farmers to restore degraded soils through evidence-based crop rotations, biological
-              nitrogen fixation, and reduced chemical dependency.
+              Empowering farmers to restore degraded soils through evidence-based crop rotations,
+              biological nitrogen fixation, and reduced chemical dependency.
             </p>
           </div>
 
@@ -441,8 +504,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               </span>
               <h3 className="text-base font-bold text-[#123B2A]">5-Step Interactive Planner</h3>
               <p className="text-xs text-[#758078] leading-relaxed">
-                Input your parcel location, soil pH, organic matter, and drainage to receive dynamically weighted
-                multi-season rotation options.
+                Input your parcel location, soil pH, organic matter, and drainage to receive
+                dynamically weighted multi-season rotation options.
               </p>
             </div>
 
@@ -452,8 +515,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               </span>
               <h3 className="text-base font-bold text-[#123B2A]">NARC Validated Knowledge</h3>
               <p className="text-xs text-[#758078] leading-relaxed">
-                Rules calibrated against multi-decade trials by the Nepal Agricultural Research Council across
-                Terai, Inner Terai, and Mid-Hills agro-ecological zones.
+                Rules calibrated against multi-decade trials by the Nepal Agricultural Research
+                Council across Terai, Inner Terai, and Mid-Hills agro-ecological zones.
               </p>
             </div>
 
@@ -463,8 +526,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               </span>
               <h3 className="text-base font-bold text-[#123B2A]">Water & Nitrogen Scoring</h3>
               <p className="text-xs text-[#758078] leading-relaxed">
-                Transparent quantitative metrics including cubic meters of water consumed and biological nitrogen
-                fixed (+35 to +80 kg N/ha).
+                Transparent quantitative metrics including cubic meters of water consumed and
+                biological nitrogen fixed (+35 to +80 kg N/ha).
               </p>
             </div>
           </div>
@@ -482,7 +545,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               How KHETKOSAATHI Works in Practice
             </h2>
             <p className="text-sm sm:text-base text-[#18251E]/75">
-              From drawing farm boundaries on high-resolution maps to receiving timely anomaly alerts.
+              From drawing farm boundaries on high-resolution maps to receiving timely anomaly
+              alerts.
             </p>
           </div>
 
@@ -509,7 +573,10 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
                 desc: "Plan crop rotations, inspect flagged anomalies in person, and share reports with extension officers.",
               },
             ].map((st, i) => (
-              <div key={i} className="rounded-2xl border border-[#E5EAE2] bg-white p-6 shadow-sm relative">
+              <div
+                key={i}
+                className="rounded-2xl border border-[#E5EAE2] bg-white p-6 shadow-sm relative"
+              >
                 <span className="text-3xl font-black text-[#237A50]/20 block mb-2">{st.step}</span>
                 <h3 className="font-bold text-base text-[#123B2A]">{st.title}</h3>
                 <p className="mt-2 text-xs text-[#758078] leading-relaxed">{st.desc}</p>
@@ -534,8 +601,8 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
           </h2>
 
           <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-            KHETKOSAATHI brings the power of NASA Earth observation satellites down to the farmers of Nepal,
-            fostering sustainable, climate-resilient, and food-secure rural communities.
+            KHETKOSAATHI brings the power of NASA Earth observation satellites down to the farmers
+            of Nepal, fostering sustainable, climate-resilient, and food-secure rural communities.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -543,7 +610,9 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
               onClick={onEnterDashboard}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#B8D987] px-8 py-4 text-base font-extrabold text-[#123B2A] shadow-lg hover:bg-white hover:scale-105 transition-all"
             >
-              <span>{lang === "ne" ? "कृषि ड्यासबोर्ड खोल्नुहोस्" : "Open Agricultural Dashboard"}</span>
+              <span>
+                {lang === "ne" ? "कृषि ड्यासबोर्ड खोल्नुहोस्" : "Open Agricultural Dashboard"}
+              </span>
               <ArrowRight className="h-5 w-5" />
             </button>
 
@@ -559,44 +628,113 @@ export function LandingPage({ onEnterDashboard }: LandingPageProps) {
       </section>
 
       {/* 8. FOOTER (Clean Branding, NASA Attribution, No Lovable Promotional Badges) */}
-      <footer id="about" className="border-t border-[#E5EAE2] bg-[#FFFFFF] py-12 text-xs text-[#758078]">
+      <footer
+        id="about"
+        className="border-t border-[#E5EAE2] bg-[#FFFFFF] py-12 text-xs text-[#758078]"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-3">
               <BrandLogo variant="compact" theme="forest" />
               <p className="text-xs text-[#758078] leading-relaxed">
-                KHETKOSAATHI (खेतको साथी) — Your Intelligent Agricultural Companion.
-                Bringing NASA Earth Intelligence closer to Nepal&apos;s farmers.
+                KHETKOSAATHI (खेतको साथी) — Your Intelligent Agricultural Companion. Bringing NASA
+                Earth Intelligence closer to Nepal&apos;s farmers.
               </p>
             </div>
 
             <div>
               <h4 className="font-bold text-sm text-[#123B2A] mb-3">Core Modules</h4>
               <ul className="space-y-2">
-                <li><Link to="/earth-intelligence" className="hover:text-[#237A50]">Earth Intelligence</Link></li>
-                <li><Link to="/crop-health" className="hover:text-[#237A50]">Crop Health & NDVI</Link></li>
-                <li><Link to="/weather" className="hover:text-[#237A50]">Weather & Station</Link></li>
-                <li><Link to="/my-farm" className="hover:text-[#237A50]">Farm Plot Boundary</Link></li>
-                <li><Link to="/guidance" className="hover:text-[#237A50]">Crop Rotation Guidance</Link></li>
+                <li>
+                  <Link to="/earth-intelligence" className="hover:text-[#237A50]">
+                    Earth Intelligence
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/crop-health" className="hover:text-[#237A50]">
+                    Crop Health & NDVI
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/weather" className="hover:text-[#237A50]">
+                    Weather & Station
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/my-farm" className="hover:text-[#237A50]">
+                    Farm Plot Boundary
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/guidance" className="hover:text-[#237A50]">
+                    Crop Rotation Guidance
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-sm text-[#123B2A] mb-3">Scientific Data Sources</h4>
               <ul className="space-y-2">
-                <li><a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-[#237A50]">NASA POWER Daily AG API</a></li>
-                <li><a href="https://smap.jpl.nasa.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-[#237A50]">NASA SMAP Soil Moisture</a></li>
-                <li><a href="https://gpm.nasa.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-[#237A50]">NASA GPM IMERG Precipitation</a></li>
-                <li><a href="https://lpdaac.usgs.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-[#237A50]">NASA / USGS MODIS & Landsat</a></li>
-                <li><a href="https://narc.gov.np" target="_blank" rel="noopener noreferrer" className="hover:text-[#237A50]">NARC Agronomy Division</a></li>
+                <li>
+                  <a
+                    href="https://power.larc.nasa.gov/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#237A50]"
+                  >
+                    NASA POWER Daily AG API
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://smap.jpl.nasa.gov/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#237A50]"
+                  >
+                    NASA SMAP Soil Moisture
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://gpm.nasa.gov/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#237A50]"
+                  >
+                    NASA GPM IMERG Precipitation
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://lpdaac.usgs.gov/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#237A50]"
+                  >
+                    NASA / USGS MODIS & Landsat
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://narc.gov.np"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#237A50]"
+                  >
+                    NARC Agronomy Division
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-sm text-[#123B2A] mb-3">Compliance & Attribution</h4>
               <p className="text-xs text-[#758078] leading-relaxed">
-                Developed for the NASA Space Apps Challenge 2026. This platform adheres to NASA Open Science data policies.
-                Satellite estimates are regional indicators and do not diagnose farm crop diseases.
+                Developed for the NASA Space Apps Challenge 2026. This platform adheres to NASA Open
+                Science data policies. Satellite estimates are regional indicators and do not
+                diagnose farm crop diseases.
               </p>
               <p className="mt-3 text-[11px] text-[#758078]">
                 © 2026 KHETKOSAATHI · खेतको साथी. All rights reserved.

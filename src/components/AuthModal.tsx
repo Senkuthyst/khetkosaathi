@@ -2,7 +2,16 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Btn, Card, inputCls } from "@/components/kit";
 import { useApp } from "@/lib/store";
-import { LogIn, UserPlus, KeyRound, Mail, AlertCircle, CheckCircle2, Lock, User } from "lucide-react";
+import {
+  LogIn,
+  UserPlus,
+  KeyRound,
+  Mail,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  User,
+} from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -55,14 +64,16 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
 
         // Check if user already exists (Supabase sometimes returns an empty identities array for existing users instead of error)
         if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-          setErrorMsg("An account with this email address already exists. Please sign in or reset your password.");
+          setErrorMsg(
+            "An account with this email address already exists. Please sign in or reset your password.",
+          );
           return;
         }
 
         setSuccessMsg(
           data.session
             ? "Account created successfully! Welcome to Khetkosaathi."
-            : "Sign-up successful! Please check your email to confirm your account."
+            : "Sign-up successful! Please check your email to confirm your account.",
         );
         await refreshProfile();
         await reloadFarmFields();
@@ -91,13 +102,22 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
       let msg = err.message || "An unexpected error occurred.";
       const lower = msg.toLowerCase();
 
-      if (lower.includes("weak_password") || lower.includes("easy to guess") || lower.includes("pwned")) {
-        msg = "Password is too weak or commonly used. Please choose a stronger password with at least 8 characters including letters, numbers, and symbols.";
+      if (
+        lower.includes("weak_password") ||
+        lower.includes("easy to guess") ||
+        lower.includes("pwned")
+      ) {
+        msg =
+          "Password is too weak or commonly used. Please choose a stronger password with at least 8 characters including letters, numbers, and symbols.";
       } else if (lower.includes("already registered") || lower.includes("user_already_exists")) {
-        msg = "An account with this email is already registered. Please sign in or use 'Forgot password'.";
+        msg =
+          "An account with this email is already registered. Please sign in or use 'Forgot password'.";
       } else if (lower.includes("invalid format") || lower.includes("validate email")) {
         msg = "Please enter a valid email address (e.g. name@example.com).";
-      } else if (lower.includes("email signups are disabled") || lower.includes("signup is disabled")) {
+      } else if (
+        lower.includes("email signups are disabled") ||
+        lower.includes("signup is disabled")
+      ) {
         msg = "Email signups are currently disabled in the backend authentication settings.";
       }
 
@@ -120,7 +140,13 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
         {/* Header */}
         <div className="text-center mb-5">
           <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-2">
-            {mode === "signup" ? <UserPlus className="h-6 w-6" /> : mode === "reset" ? <KeyRound className="h-6 w-6" /> : <LogIn className="h-6 w-6" />}
+            {mode === "signup" ? (
+              <UserPlus className="h-6 w-6" />
+            ) : mode === "reset" ? (
+              <KeyRound className="h-6 w-6" />
+            ) : (
+              <LogIn className="h-6 w-6" />
+            )}
           </div>
           <h2 className="text-xl font-extrabold text-foreground tracking-tight">
             {mode === "signup"
@@ -235,7 +261,13 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
           )}
 
           <Btn type="submit" disabled={busy} className="w-full mt-2 font-bold py-2.5">
-            {busy ? "Processing..." : mode === "signup" ? "Create Account" : mode === "reset" ? "Send Reset Link" : "Sign In"}
+            {busy
+              ? "Processing..."
+              : mode === "signup"
+                ? "Create Account"
+                : mode === "reset"
+                  ? "Send Reset Link"
+                  : "Sign In"}
           </Btn>
         </form>
 
@@ -245,14 +277,22 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
             <>
               <button
                 type="button"
-                onClick={() => { setMode("reset"); setErrorMsg(null); setSuccessMsg(null); }}
+                onClick={() => {
+                  setMode("reset");
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
                 className="hover:underline font-semibold text-primary"
               >
                 Forgot password?
               </button>
               <button
                 type="button"
-                onClick={() => { setMode("signup"); setErrorMsg(null); setSuccessMsg(null); }}
+                onClick={() => {
+                  setMode("signup");
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
                 className="hover:underline font-bold text-primary"
               >
                 Create Account
@@ -261,7 +301,11 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
           ) : (
             <button
               type="button"
-              onClick={() => { setMode("login"); setErrorMsg(null); setSuccessMsg(null); }}
+              onClick={() => {
+                setMode("login");
+                setErrorMsg(null);
+                setSuccessMsg(null);
+              }}
               className="hover:underline font-bold text-primary mx-auto"
             >
               Back to Sign In

@@ -152,7 +152,7 @@ export async function createFarmField(params: {
   if (error) {
     if (error.code === "PGRST205" || error.message?.includes("schema cache")) {
       throw new Error(
-        "The 'farm_fields' table is not yet created in your Lovable Cloud database. Please run the SQL migration (0004_auth_and_farm_fields.sql) in your Lovable Cloud SQL Editor."
+        "The 'farm_fields' table is not yet created in your Lovable Cloud database. Please run the SQL migration (0004_auth_and_farm_fields.sql) in your Lovable Cloud SQL Editor.",
       );
     }
     throw error;
@@ -165,7 +165,7 @@ export async function createFarmField(params: {
  */
 export async function updateFarmField(
   fieldId: string,
-  updates: Partial<TablesInsert<"farm_fields">>
+  updates: Partial<TablesInsert<"farm_fields">>,
 ): Promise<FarmField> {
   const { data, error } = await supabase
     .from("farm_fields")

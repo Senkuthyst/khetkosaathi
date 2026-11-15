@@ -18,11 +18,26 @@ interface AiExplanationPanelProps {
 
 export function AiExplanationPanel({ report, className = "" }: AiExplanationPanelProps) {
   const riskConfig = {
-    low: { label: "Favorable Agro-Climatic Conditions", color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
-    moderate: { label: "Moderate Environmental Deviation", color: "text-amber-700 bg-amber-50 border-amber-200" },
-    high: { label: "Elevated Agricultural Risk", color: "text-orange-700 bg-orange-50 border-orange-200" },
-    critical: { label: "Severe Compound Anomaly Alert", color: "text-rose-700 bg-rose-50 border-rose-200 ring-2 ring-rose-200" },
-    insufficient_data: { label: "Incomplete Observations", color: "text-slate-700 bg-slate-50 border-slate-200" },
+    low: {
+      label: "Favorable Agro-Climatic Conditions",
+      color: "text-emerald-700 bg-emerald-50 border-emerald-200",
+    },
+    moderate: {
+      label: "Moderate Environmental Deviation",
+      color: "text-amber-700 bg-amber-50 border-amber-200",
+    },
+    high: {
+      label: "Elevated Agricultural Risk",
+      color: "text-orange-700 bg-orange-50 border-orange-200",
+    },
+    critical: {
+      label: "Severe Compound Anomaly Alert",
+      color: "text-rose-700 bg-rose-50 border-rose-200 ring-2 ring-rose-200",
+    },
+    insufficient_data: {
+      label: "Incomplete Observations",
+      color: "text-slate-700 bg-slate-50 border-slate-200",
+    },
   }[report.overallRiskScore];
 
   return (
@@ -43,8 +58,9 @@ export function AiExplanationPanel({ report, className = "" }: AiExplanationPane
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Region: <span className="font-semibold text-foreground">{report.locationName}</span> · 
-              Coordinates: {report.coordinates.latitude.toFixed(3)}° N, {report.coordinates.longitude.toFixed(3)}° E
+              Region: <span className="font-semibold text-foreground">{report.locationName}</span> ·
+              Coordinates: {report.coordinates.latitude.toFixed(3)}° N,{" "}
+              {report.coordinates.longitude.toFixed(3)}° E
             </p>
           </div>
         </div>
@@ -62,7 +78,8 @@ export function AiExplanationPanel({ report, className = "" }: AiExplanationPane
             Synthesized Environmental Assessment:
           </p>
           <p className="text-muted-foreground">
-            Analysis of the latest NASA Earth Observation data for {report.locationName} indicates that{" "}
+            Analysis of the latest NASA Earth Observation data for {report.locationName} indicates
+            that{" "}
             {report.overallRiskScore === "low"
               ? "environmental indicators remain largely within expected seasonal bounds."
               : report.overallRiskScore === "critical"
@@ -121,7 +138,10 @@ export function AiExplanationPanel({ report, className = "" }: AiExplanationPane
       </div>
 
       <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>Scientific policy: Satellite vegetation deviations never constitute definitive diagnosis of crop pest or pathogen presence.</span>
+        <span>
+          Scientific policy: Satellite vegetation deviations never constitute definitive diagnosis
+          of crop pest or pathogen presence.
+        </span>
         <span className="font-semibold text-primary">NASA Agri-AI v2.4</span>
       </div>
     </Card>

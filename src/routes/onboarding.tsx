@@ -6,7 +6,16 @@ import { num } from "@/lib/i18n";
 import { Btn, Card, inputCls } from "@/components/kit";
 import { LazyPlotDrawerMap } from "@/components/LazyPlotDrawerMap";
 import { pageHead } from "@/lib/page-head";
-import { Sprout, MapPin, CheckCircle2, Navigation, Layers, Info, Pencil, Check } from "lucide-react";
+import {
+  Sprout,
+  MapPin,
+  CheckCircle2,
+  Navigation,
+  Layers,
+  Info,
+  Pencil,
+  Check,
+} from "lucide-react";
 import { getCurrentBrowserCoordinates, reverseGeocodeCoordinates } from "@/lib/geolocation-service";
 import { createFarmField } from "@/lib/farm-fields-service";
 import { AuthModal } from "@/components/AuthModal";
@@ -16,7 +25,7 @@ export const Route = createFileRoute("/onboarding")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Register Your Farm Plot",
-      "Dynamic farm onboarding: provide farmer details, crop specifications, GPS or map location, and cadastral boundaries."
+      "Dynamic farm onboarding: provide farmer details, crop specifications, GPS or map location, and cadastral boundaries.",
     ),
   component: Onboarding,
 });
@@ -81,7 +90,10 @@ function Onboarding() {
       if (geocoded.stateOrProvince) setProvince(geocoded.stateOrProvince);
     } catch (err: any) {
       if (showAlert) {
-        alert(err.message || "Could not retrieve GPS coordinates. You can pan and zoom the map manually.");
+        alert(
+          err.message ||
+            "Could not retrieve GPS coordinates. You can pan and zoom the map manually.",
+        );
       }
     } finally {
       setLocatingGps(false);
@@ -159,7 +171,7 @@ function Onboarding() {
               key={s}
               className={cn(
                 "flex-1 h-2 rounded-full transition-colors",
-                step >= s ? "bg-primary" : "bg-muted"
+                step >= s ? "bg-primary" : "bg-muted",
               )}
             />
           ))}
@@ -179,7 +191,9 @@ function Onboarding() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Province / प्रदेश</label>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Province / प्रदेश
+              </label>
               <select
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
@@ -194,7 +208,9 @@ function Onboarding() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">District / जिल्ला</label>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                District / जिल्ला
+              </label>
               <input
                 type="text"
                 value={district}
@@ -220,7 +236,9 @@ function Onboarding() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Ward Number / वडा नं.</label>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Ward Number / वडा नं.
+              </label>
               <input
                 type="text"
                 value={ward}
@@ -247,7 +265,9 @@ function Onboarding() {
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Field Name / खेतको नाम</label>
+              <label className="block text-xs font-bold text-foreground mb-1">
+                Field Name / खेतको नाम
+              </label>
               <input
                 type="text"
                 value={fieldName}
@@ -260,7 +280,9 @@ function Onboarding() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Crop Type / मुख्य बाली</label>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Crop Type / मुख्य बाली
+                </label>
                 <select
                   value={crop}
                   onChange={(e) => setCrop(e.target.value as CropId)}
@@ -275,7 +297,9 @@ function Onboarding() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Crop Variety / जात</label>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Crop Variety / जात
+                </label>
                 <input
                   type="text"
                   value={cropVariety}
@@ -288,7 +312,9 @@ function Onboarding() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Planting Date / रोपाईं मिति</label>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Planting Date / रोपाईं मिति
+                </label>
                 <input
                   type="date"
                   value={plantingDate}
@@ -299,7 +325,9 @@ function Onboarding() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Irrigation / सिँचाइ प्रकार</label>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Irrigation / सिँचाइ प्रकार
+                </label>
                 <select
                   value={irrigation}
                   onChange={(e) => setIrrigation(e.target.value)}
@@ -333,7 +361,8 @@ function Onboarding() {
                 3. Select Your Agricultural Plot
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Locate your land on the map, draw its boundary, and adjust vertices. Zero default preselection.
+                Locate your land on the map, draw its boundary, and adjust vertices. Zero default
+                preselection.
               </p>
             </div>
 
@@ -363,8 +392,8 @@ function Onboarding() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                 <span>
-                  <strong>Plot Confirmed:</strong> {confirmedBoundary.length} boundary vertices · Area:{" "}
-                  <strong>{confirmedAreaHa} ha</strong>
+                  <strong>Plot Confirmed:</strong> {confirmedBoundary.length} boundary vertices ·
+                  Area: <strong>{confirmedAreaHa} ha</strong>
                 </span>
               </div>
               <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
@@ -375,7 +404,9 @@ function Onboarding() {
             <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
               <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
               <span>
-                <strong>Action Required:</strong> Click <strong>"Draw Plot Boundary"</strong> above to outline your parcel, adjust vertices, and click <strong>"Confirm Plot"</strong> before proceeding to review.
+                <strong>Action Required:</strong> Click <strong>"Draw Plot Boundary"</strong> above
+                to outline your parcel, adjust vertices, and click <strong>"Confirm Plot"</strong>{" "}
+                before proceeding to review.
               </span>
             </div>
           )}
@@ -387,7 +418,9 @@ function Onboarding() {
             <Btn
               onClick={() => {
                 if (!confirmedBoundary || confirmedBoundary.length < 3) {
-                  alert("Please draw your farm boundary and click 'Confirm Plot' before moving to the next step.");
+                  alert(
+                    "Please draw your farm boundary and click 'Confirm Plot' before moving to the next step.",
+                  );
                   return;
                 }
                 setStep(4);
@@ -421,7 +454,9 @@ function Onboarding() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Crop:</span>
-              <strong className="text-foreground">{t(crop)} ({cropVariety})</strong>
+              <strong className="text-foreground">
+                {t(crop)} ({cropVariety})
+              </strong>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Planting Date:</span>
@@ -450,7 +485,11 @@ function Onboarding() {
         </Card>
       )}
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultMode="signup" />
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultMode="signup"
+      />
     </div>
   );
 }

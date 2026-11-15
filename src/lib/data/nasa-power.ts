@@ -7,10 +7,7 @@ import {
   buildNasaPowerUrl,
   normalizeNasaPowerResponse,
 } from "./nasa-power-service";
-import type {
-  NasaPowerObservationResult,
-  NasaPowerDailySet,
-} from "./earth-observation-contract";
+import type { NasaPowerObservationResult, NasaPowerDailySet } from "./earth-observation-contract";
 
 const CACHE_KEY = "khetkosaathi-power-chitwan-v2";
 const TTL = 6 * 60 * 60 * 1000; // 6 hours
@@ -57,7 +54,7 @@ function readCache(): z.infer<typeof cacheSchema> | undefined {
 
 function cachedData(cache: z.infer<typeof cacheSchema>, mode: "live" | "cached"): PowerData {
   const usable = cache.days.filter((d) =>
-    [d.tMax, d.tMin, d.rain, d.humidity, d.solar].some((v) => v !== null)
+    [d.tMax, d.tMin, d.rain, d.humidity, d.solar].some((v) => v !== null),
   );
 
   return {
@@ -78,7 +75,9 @@ function cachedData(cache: z.infer<typeof cacheSchema>, mode: "live" | "cached")
       observedAt: usable.at(-1)?.date ?? null,
       retrievedAt: new Date(cache.savedAt).toISOString(),
       mode,
-      quality: cache.days.some((d) => [d.tMax, d.tMin, d.rain, d.humidity, d.solar].some((v) => v === null))
+      quality: cache.days.some((d) =>
+        [d.tMax, d.tMin, d.rain, d.humidity, d.solar].some((v) => v === null),
+      )
         ? "marginal"
         : "good",
       url: "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
@@ -100,7 +99,7 @@ export async function fetchNasaPowerDaily(
     latitude: 27.6775,
     longitude: 84.4333,
     fieldId: "pilot-1",
-  }
+  },
 ): Promise<PowerData> {
   const cache = readCache();
   if (!force && cache && Date.now() - cache.savedAt < TTL) {

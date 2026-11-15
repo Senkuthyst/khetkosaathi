@@ -52,7 +52,7 @@ export function computeScientificAnomalies(input: {
     rainfallObservations = [],
     modisNdvi = null,
     modisBaselineLow = 0.55,
-    modisBaselineHigh = 0.70,
+    modisBaselineHigh = 0.7,
     thermalHotspotsCount = 0,
     cropAgeDays = 45,
     cropType = "rice",
@@ -62,15 +62,15 @@ export function computeScientificAnomalies(input: {
   const validTMax = temperatureObservations
     .map((o) => o.tMax)
     .filter((v): v is number => v !== null);
-  const tempMeanMax = validTMax.length > 0 ? validTMax.reduce((a, b) => a + b, 0) / validTMax.length : null;
+  const tempMeanMax =
+    validTMax.length > 0 ? validTMax.reduce((a, b) => a + b, 0) / validTMax.length : null;
   const tempBaseline = 28.0; // Seasonal climatological baseline
-  const tempAnomaly = tempMeanMax !== null ? Math.round((tempMeanMax - tempBaseline) * 10) / 10 : null;
+  const tempAnomaly =
+    tempMeanMax !== null ? Math.round((tempMeanMax - tempBaseline) * 10) / 10 : null;
   const isHeatStressed = tempAnomaly !== null && tempAnomaly >= 2.0;
 
   // 2. Rainfall Analysis
-  const validRain = rainfallObservations
-    .map((o) => o.rain)
-    .filter((v): v is number => v !== null);
+  const validRain = rainfallObservations.map((o) => o.rain).filter((v): v is number => v !== null);
   const rainTotal = validRain.length > 0 ? validRain.reduce((a, b) => a + b, 0) : null;
   const rainBaseline = 12.0; // Seasonal reference
   const rainAnomalyPct =
@@ -82,7 +82,8 @@ export function computeScientificAnomalies(input: {
 
   // 3. Vegetation Analysis
   const modisBaselineMean = (modisBaselineLow + modisBaselineHigh) / 2;
-  const vegAnomaly = modisNdvi !== null ? Math.round((modisNdvi - modisBaselineMean) * 100) / 100 : null;
+  const vegAnomaly =
+    modisNdvi !== null ? Math.round((modisNdvi - modisBaselineMean) * 100) / 100 : null;
   const isMaturing = cropAgeDays >= 95; // Rice senescence
   const isVegetationDecline = !isMaturing && vegAnomaly !== null && vegAnomaly <= -0.06;
 
@@ -93,7 +94,7 @@ export function computeScientificAnomalies(input: {
 
   if (tempMeanMax !== null && tempAnomaly !== null) {
     evidence.push(
-      `NASA POWER reanalysis indicates 7-day mean maximum temperature of ${tempMeanMax.toFixed(1)}°C (${tempAnomaly > 0 ? "+" : ""}${tempAnomaly.toFixed(1)}°C anomaly relative to the ${tempBaseline}°C seasonal baseline).`
+      `NASA POWER reanalysis indicates 7-day mean maximum temperature of ${tempMeanMax.toFixed(1)}°C (${tempAnomaly > 0 ? "+" : ""}${tempAnomaly.toFixed(1)}°C anomaly relative to the ${tempBaseline}°C seasonal baseline).`,
     );
   } else {
     uncertainties.push("Temperature reanalysis data is incomplete for this window.");
@@ -101,27 +102,27 @@ export function computeScientificAnomalies(input: {
 
   if (rainTotal !== null && rainAnomalyPct !== null) {
     evidence.push(
-      `Precipitation observation shows ${rainTotal.toFixed(1)} mm accumulated (${rainAnomalyPct > 0 ? "+" : ""}${rainAnomalyPct.toFixed(1)}% deviation against the ${rainBaseline} mm reference baseline).`
+      `Precipitation observation shows ${rainTotal.toFixed(1)} mm accumulated (${rainAnomalyPct > 0 ? "+" : ""}${rainAnomalyPct.toFixed(1)}% deviation against the ${rainBaseline} mm reference baseline).`,
     );
   }
 
   if (modisNdvi !== null) {
     evidence.push(
-      `MODIS MOD13Q1 250m composite shows an NDVI of ${modisNdvi.toFixed(2)} (Reference range: ${modisBaselineLow.toFixed(2)}–${modisBaselineHigh.toFixed(2)}).`
+      `MODIS MOD13Q1 250m composite shows an NDVI of ${modisNdvi.toFixed(2)} (Reference range: ${modisBaselineLow.toFixed(2)}–${modisBaselineHigh.toFixed(2)}).`,
     );
     if (isMaturing) {
       uncertainties.push(
-        "Vegetation index decrease coincides with physiological grain filling and expected crop maturation senescence."
+        "Vegetation index decrease coincides with physiological grain filling and expected crop maturation senescence.",
       );
     }
   }
 
   if (thermalHotspotsCount > 0) {
     evidence.push(
-      `NASA FIRMS detected ${thermalHotspotsCount} thermal anomaly hotspots within the regional radius.`
+      `NASA FIRMS detected ${thermalHotspotsCount} thermal anomaly hotspots within the regional radius.`,
     );
     uncertainties.push(
-      "Thermal hotspots indicate elevated surface temperatures (e.g. brick kilns, residue burns, or clearings); they do not prove localized agricultural damage."
+      "Thermal hotspots indicate elevated surface temperatures (e.g. brick kilns, residue burns, or clearings); they do not prove localized agricultural damage.",
     );
   }
 
@@ -145,17 +146,17 @@ export function computeScientificAnomalies(input: {
   // Recommendations
   if (isRainfallDeficit) {
     recommendations.push(
-      "Verify soil moisture in the root zone (0–15 cm) and inspect field bund water retention."
+      "Verify soil moisture in the root zone (0–15 cm) and inspect field bund water retention.",
     );
   }
   if (isHeatStressed) {
     recommendations.push(
-      "Monitor canopy temperature and consider light morning/evening irrigation to mitigate heat stress."
+      "Monitor canopy temperature and consider light morning/evening irrigation to mitigate heat stress.",
     );
   }
   if (isVegetationDecline) {
     recommendations.push(
-      "Perform multi-point field walkthrough to check for nitrogen depletion, moisture stress, or weed competition."
+      "Perform multi-point field walkthrough to check for nitrogen depletion, moisture stress, or weed competition.",
     );
   }
   if (recommendations.length === 0) {

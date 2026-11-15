@@ -20,7 +20,11 @@ interface EarthDataStatusProps {
   className?: string;
 }
 
-export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", className = "" }: EarthDataStatusProps) {
+export function EarthDataStatusSection({
+  powerData,
+  fieldId = "pilot-1",
+  className = "",
+}: EarthDataStatusProps) {
   const { lang, t } = useApp();
 
   if (!powerData) return null;
@@ -41,7 +45,9 @@ export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", classNa
 
   // Check data completeness & stale/missing status
   const missingCount = days.filter((d) => d.tMax == null || d.rain == null).length;
-  const isStale = prov.mode === "pilot" || (prov.observedAt ? (Date.now() - new Date(prov.observedAt).getTime()) > 7 * 86400000 : false);
+  const isStale =
+    prov.mode === "pilot" ||
+    (prov.observedAt ? Date.now() - new Date(prov.observedAt).getTime() > 7 * 86400000 : false);
   const isMissing = days.length === 0 || days.every((d) => d.tMax == null && d.rain == null);
 
   const statusBadge = isMissing ? (
@@ -62,7 +68,9 @@ export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", classNa
   );
 
   return (
-    <div className={`rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 ${className}`}>
+    <div
+      className={`rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 ${className}`}
+    >
       {/* Header Info Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
@@ -74,7 +82,8 @@ export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", classNa
             {statusBadge}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            NASA POWER Agroclimatology Point Ingestion · Field: <span className="font-mono font-bold text-foreground">{fieldId}</span>
+            NASA POWER Agroclimatology Point Ingestion · Field:{" "}
+            <span className="font-mono font-bold text-foreground">{fieldId}</span>
           </p>
         </div>
 
@@ -101,7 +110,9 @@ export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", classNa
             <span className="font-semibold">Latest Retrieval</span>
           </div>
           <p className="text-sm font-black text-foreground">{retrievalFormatted}</p>
-          <span className="text-[10px] text-muted-foreground">{prov.mode === "live" ? "Direct API Sync" : "Cached / Fallback"}</span>
+          <span className="text-[10px] text-muted-foreground">
+            {prov.mode === "live" ? "Direct API Sync" : "Cached / Fallback"}
+          </span>
         </div>
 
         <div className="rounded-xl bg-secondary/40 p-3 border border-border/50">
@@ -160,7 +171,8 @@ export function EarthDataStatusSection({ powerData, fieldId = "pilot-1", classNa
       <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <HelpCircle className="h-3.5 w-3.5" />
-          No fabricated values — gaps and missing observations reflect authentic NASA fill values (-999).
+          No fabricated values — gaps and missing observations reflect authentic NASA fill values
+          (-999).
         </span>
         <DataProvenance data={prov} />
       </div>

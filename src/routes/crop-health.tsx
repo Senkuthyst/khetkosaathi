@@ -14,7 +14,7 @@ export const Route = createFileRoute("/crop-health")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Crop Health & Phenology",
-      "Explore satellite vegetation trends (NDVI/EVI), uncertainty bounds, pilot field polygons, and field inspection records."
+      "Explore satellite vegetation trends (NDVI/EVI), uncertainty bounds, pilot field polygons, and field inspection records.",
     ),
   component: CropHealth,
 });
@@ -47,9 +47,7 @@ function CropHealth() {
         <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
           {t("cropHealth")}
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          {fieldLocationLabel}
-        </p>
+        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{fieldLocationLabel}</p>
       </div>
 
       {/* Map Card */}
@@ -61,7 +59,10 @@ function CropHealth() {
             height={320}
             polygons={[
               {
-                positions: selectedField?.boundary && selectedField.boundary.length > 0 ? selectedField.boundary : (field?.boundary ?? pilotField.boundary),
+                positions:
+                  selectedField?.boundary && selectedField.boundary.length > 0
+                    ? selectedField.boundary
+                    : (field?.boundary ?? pilotField.boundary),
                 color: "var(--veg-low)",
                 label: selectedField?.fieldName ?? t("vegLow"),
               },
@@ -90,7 +91,11 @@ function CropHealth() {
       </DataCard>
 
       {/* Satellite Sensor Confidence & Metadata */}
-      <DataCard title={t("changeAlert")} {...meta} icon={<AlertTriangle className="h-5 w-5 text-satellite" />}>
+      <DataCard
+        title={t("changeAlert")}
+        {...meta}
+        icon={<AlertTriangle className="h-5 w-5 text-satellite" />}
+      >
         <div className="rounded-xl bg-secondary/50 border border-primary/20 p-3.5">
           <p className="text-xs sm:text-sm font-bold text-foreground">
             {t(vegBelow ? "changeText" : "vegGood")}

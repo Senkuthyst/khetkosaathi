@@ -81,11 +81,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "KHETKOSAATHI — खेतको साथी | NASA Earth Intelligence for Nepal's Farms" },
-      { name: "description", content: "KHETKOSAATHI: Nepal-focused Agricultural Intelligence Platform powered by NASA Earth observation data (NASA POWER, SMAP, GPM IMERG, MODIS)." },
+      {
+        name: "description",
+        content:
+          "KHETKOSAATHI: Nepal-focused Agricultural Intelligence Platform powered by NASA Earth observation data (NASA POWER, SMAP, GPM IMERG, MODIS).",
+      },
       { name: "theme-color", content: "#123B2A" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "KHETKOSAATHI — Your Intelligent Agricultural Companion" },
-      { property: "og:description", content: "Bringing NASA Earth Intelligence closer to Nepal's farmers." },
+      {
+        property: "og:description",
+        content: "Bringing NASA Earth Intelligence closer to Nepal's farmers.",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@khetkosaathi" },
     ],
@@ -99,7 +106,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/icon-512.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,

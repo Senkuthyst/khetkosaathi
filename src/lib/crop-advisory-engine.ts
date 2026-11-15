@@ -102,7 +102,7 @@ export function computeHarvestAdvice(
     recentAvgTempC: number | null;
     recentRainSumMm: number | null;
     soilMoisturePct: number | null;
-  }
+  },
 ): ExistingCropHarvestAdvice {
   const normCropType = (field.cropType || "").toLowerCase().trim();
   const agronomy = CROP_HARVEST_AGRONOMY_CATALOG[normCropType];
@@ -141,7 +141,8 @@ export function computeHarvestAdvice(
           indicatorNe: "दानाको कडापन वा पातको पहेँलोपन अवलोकन गर्नुहोस्।",
         },
       ],
-      expertAssessmentNote: "Contact your local agricultural extension service (कृषि ज्ञान केन्द्र) for crop-specific guidance.",
+      expertAssessmentNote:
+        "Contact your local agricultural extension service (कृषि ज्ञान केन्द्र) for crop-specific guidance.",
       citation: {
         sourceTitle: "General Crop Production Manual",
         publishingInstitution: "Department of Agriculture, Nepal",
@@ -176,10 +177,14 @@ export function computeHarvestAdvice(
   const isOverdue = diffDays > maxDays;
 
   // Environmental Risk Analysis
-  const riskFactors: { factor: string; level: "low" | "medium" | "high"; description: string }[] = [];
+  const riskFactors: { factor: string; level: "low" | "medium" | "high"; description: string }[] =
+    [];
 
   // Precipitation & Waterlogging Risk
-  if (env.recentRainSumMm !== null && env.recentRainSumMm > agronomy.excessiveRainRiskThresholdMmDay) {
+  if (
+    env.recentRainSumMm !== null &&
+    env.recentRainSumMm > agronomy.excessiveRainRiskThresholdMmDay
+  ) {
     riskFactors.push({
       factor: "Excessive Rainfall / Waterlogging",
       level: "high",
@@ -251,14 +256,15 @@ export function evaluateNextCrops(
     recentMinTempC: number | null;
     recentRainSumMm: number | null;
     soilMoisturePct: number | null;
-  }
+  },
 ): NextCropSuitabilityScore[] {
   const currentMonth = new Date().getMonth() + 1; // 1-12
   const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
   const followingMonth = nextMonth === 12 ? 1 : nextMonth + 1;
   const targetWindowMonths = [currentMonth, nextMonth, followingMonth];
 
-  const currentCropAgronomy = CROP_HARVEST_AGRONOMY_CATALOG[(field.cropType || "").toLowerCase().trim()];
+  const currentCropAgronomy =
+    CROP_HARVEST_AGRONOMY_CATALOG[(field.cropType || "").toLowerCase().trim()];
   const currentFamily = currentCropAgronomy?.family;
 
   const results: NextCropSuitabilityScore[] = [];
@@ -269,11 +275,17 @@ export function evaluateNextCrops(
     const missingInfo: string[] = [];
 
     // Factor 1: Seasonal Window Compatibility
-    const isSeasonMatch = candidate.suitablePlantingMonths.some((m) => targetWindowMonths.includes(m));
+    const isSeasonMatch = candidate.suitablePlantingMonths.some((m) =>
+      targetWindowMonths.includes(m),
+    );
     if (isSeasonMatch) {
-      compReasons.push(`Optimal planting window coincides with upcoming seasonal calendar (Months: ${candidate.suitablePlantingMonths.join(", ")}).`);
+      compReasons.push(
+        `Optimal planting window coincides with upcoming seasonal calendar (Months: ${candidate.suitablePlantingMonths.join(", ")}).`,
+      );
     } else {
-      incompReasons.push(`Current season is outside optimal planting window (Requires sowing in Months: ${candidate.suitablePlantingMonths.join(", ")}).`);
+      incompReasons.push(
+        `Current season is outside optimal planting window (Requires sowing in Months: ${candidate.suitablePlantingMonths.join(", ")}).`,
+      );
     }
 
     // Factor 2: Temperature Compatibility
@@ -282,14 +294,20 @@ export function evaluateNextCrops(
         env.recentAvgTempC >= candidate.optimalTempRangeC[0] &&
         env.recentAvgTempC <= candidate.optimalTempRangeC[1]
       ) {
-        compReasons.push(`Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is directly in the optimal vegetative development range (${candidate.optimalTempRangeC[0]}–${candidate.optimalTempRangeC[1]}°C).`);
+        compReasons.push(
+          `Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is directly in the optimal vegetative development range (${candidate.optimalTempRangeC[0]}–${candidate.optimalTempRangeC[1]}°C).`,
+        );
       } else if (
         env.recentAvgTempC >= candidate.tempRangeC[0] &&
         env.recentAvgTempC <= candidate.tempRangeC[1]
       ) {
-        compReasons.push(`Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is tolerable, though slightly outside optimal range.`);
+        compReasons.push(
+          `Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is tolerable, though slightly outside optimal range.`,
+        );
       } else {
-        incompReasons.push(`Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is outside acceptable survival/growth limits (${candidate.tempRangeC[0]}–${candidate.tempRangeC[1]}°C).`);
+        incompReasons.push(
+          `Observed temperature (${env.recentAvgTempC.toFixed(1)}°C) is outside acceptable survival/growth limits (${candidate.tempRangeC[0]}–${candidate.tempRangeC[1]}°C).`,
+        );
       }
     } else {
       missingInfo.push("Satellite surface temperature observations are currently unavailable.");
@@ -298,19 +316,33 @@ export function evaluateNextCrops(
     // Factor 3: Crop Rotation & Family Compatibility
     if (currentFamily) {
       if (candidate.incompatiblePrecedingFamilies.includes(currentFamily)) {
-        incompReasons.push(`Rotation Risk: Planting ${candidate.nameEn} immediately after ${field.cropType} (${currentFamily} family) promotes shared soil-borne pathogen and pest accumulation.`);
+        incompReasons.push(
+          `Rotation Risk: Planting ${candidate.nameEn} immediately after ${field.cropType} (${currentFamily} family) promotes shared soil-borne pathogen and pest accumulation.`,
+        );
       } else if (candidate.beneficialPrecedingFamilies.includes(currentFamily)) {
-        compReasons.push(`Beneficial Rotation: Highly synergistic following ${field.cropType}. Efficiently absorbs residual nutrients and breaks monoculture pathogen cycles.`);
+        compReasons.push(
+          `Beneficial Rotation: Highly synergistic following ${field.cropType}. Efficiently absorbs residual nutrients and breaks monoculture pathogen cycles.`,
+        );
       } else {
-        compReasons.push(`Compatible rotational sequence: ${candidate.family} family is botanically distinct from ${currentFamily}.`);
+        compReasons.push(
+          `Compatible rotational sequence: ${candidate.family} family is botanically distinct from ${currentFamily}.`,
+        );
       }
     }
 
     // Factor 4: Irrigation and Water Requirements
     if (candidate.irrigationNeeded && field.irrigationType === "rainfed") {
-      incompReasons.push(`Requires assured irrigation (${candidate.waterRequirementMm[0]}-${candidate.waterRequirementMm[1]} mm), but field is registered as rainfed.`);
-    } else if (candidate.irrigationNeeded && field.irrigationType && field.irrigationType !== "rainfed") {
-      compReasons.push(`Water requirement (${candidate.waterRequirementMm[0]}–${candidate.waterRequirementMm[1]} mm) matches field's ${field.irrigationType} irrigation access.`);
+      incompReasons.push(
+        `Requires assured irrigation (${candidate.waterRequirementMm[0]}-${candidate.waterRequirementMm[1]} mm), but field is registered as rainfed.`,
+      );
+    } else if (
+      candidate.irrigationNeeded &&
+      field.irrigationType &&
+      field.irrigationType !== "rainfed"
+    ) {
+      compReasons.push(
+        `Water requirement (${candidate.waterRequirementMm[0]}–${candidate.waterRequirementMm[1]} mm) matches field's ${field.irrigationType} irrigation access.`,
+      );
     }
 
     // Factor 5: Soil Type Verification
@@ -318,12 +350,16 @@ export function evaluateNextCrops(
       const normSoil = field.soilType.toLowerCase();
       const soilMatch = candidate.compatibleSoilTextures.some((txt) => normSoil.includes(txt));
       if (soilMatch) {
-        compReasons.push(`Soil texture '${field.soilType}' matches recommended root aeration and drainage needs.`);
+        compReasons.push(
+          `Soil texture '${field.soilType}' matches recommended root aeration and drainage needs.`,
+        );
       } else if (!candidate.toleratesHeavyClay && normSoil.includes("clay")) {
         incompReasons.push(`Does not tolerate poorly-drained or heavy clay soils.`);
       }
     } else {
-      missingInfo.push("Plot-specific laboratory soil texture & pH unknown (not inferred from satellite).");
+      missingInfo.push(
+        "Plot-specific laboratory soil texture & pH unknown (not inferred from satellite).",
+      );
     }
 
     // Compute Overall Suitability Classification
@@ -339,8 +375,23 @@ export function evaluateNextCrops(
       confidence = "high";
     }
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const plantingWindowStr = candidate.suitablePlantingMonths.map((m) => monthNames[m - 1]).join(" – ");
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const plantingWindowStr = candidate.suitablePlantingMonths
+      .map((m) => monthNames[m - 1])
+      .join(" – ");
 
     results.push({
       cropId: candidate.cropId,
@@ -359,7 +410,10 @@ export function evaluateNextCrops(
       citation: candidate.citation,
       confidence,
       environmentalEvidence: {
-        tempCompatibility: env.recentAvgTempC !== null ? `${env.recentAvgTempC.toFixed(1)}°C (Req: ${candidate.optimalTempRangeC[0]}-${candidate.optimalTempRangeC[1]}°C)` : "Unknown",
+        tempCompatibility:
+          env.recentAvgTempC !== null
+            ? `${env.recentAvgTempC.toFixed(1)}°C (Req: ${candidate.optimalTempRangeC[0]}-${candidate.optimalTempRangeC[1]}°C)`
+            : "Unknown",
         waterCompatibility: `${candidate.waterRequirementMm[0]}-${candidate.waterRequirementMm[1]} mm (${candidate.irrigationNeeded ? "Irrigation required" : "Low water / drought tolerant"})`,
         soilCompatibility: candidate.compatibleSoilTextures.join(", "),
       },
@@ -376,7 +430,7 @@ export function evaluateNextCrops(
  */
 export function buildRotationTimeline(
   harvestAdvice: ExistingCropHarvestAdvice,
-  topNextCrop: NextCropSuitabilityScore | null
+  topNextCrop: NextCropSuitabilityScore | null,
 ): RotationTimelineItem[] {
   const items: RotationTimelineItem[] = [];
 
@@ -398,9 +452,14 @@ export function buildRotationTimeline(
     stage: "harvest_window",
     title: `Estimated Harvest Window (${harvestAdvice.cropName})`,
     dateRange: `${harvestAdvice.estimatedHarvestStart} to ${harvestAdvice.estimatedHarvestEnd}`,
-    durationDays: harvestAdvice.expectedDurationRangeDays[1] - harvestAdvice.expectedDurationRangeDays[0],
+    durationDays:
+      harvestAdvice.expectedDurationRangeDays[1] - harvestAdvice.expectedDurationRangeDays[0],
     description: `Target harvesting operations during dry soil conditions. Follow the in-field skin-set and maturity confirmation checklist.`,
-    status: harvestAdvice.isHarvestWindowActive ? "active" : harvestAdvice.isOverdue ? "completed" : "upcoming",
+    status: harvestAdvice.isHarvestWindowActive
+      ? "active"
+      : harvestAdvice.isOverdue
+        ? "completed"
+        : "upcoming",
   });
 
   // 3. Field Preparation & Residue Management
@@ -411,7 +470,8 @@ export function buildRotationTimeline(
     title: "Field Preparation & Solarization Window",
     dateRange: `${prepStart.toISOString().slice(0, 10)} to ${prepEnd.toISOString().slice(0, 10)}`,
     durationDays: 10,
-    description: "Allow 7-10 days for crop residue incorporation, harrowing, weed flush termination, and soil moisture adjustment prior to seedbed opening.",
+    description:
+      "Allow 7-10 days for crop residue incorporation, harrowing, weed flush termination, and soil moisture adjustment prior to seedbed opening.",
     status: "upcoming",
   });
 
@@ -429,8 +489,12 @@ export function buildRotationTimeline(
     });
 
     // 5. Expected Next Harvest
-    const nextHarvestStart = new Date(plantStart.getTime() + topNextCrop.growthDurationDays[0] * 86400000);
-    const nextHarvestEnd = new Date(plantStart.getTime() + topNextCrop.growthDurationDays[1] * 86400000);
+    const nextHarvestStart = new Date(
+      plantStart.getTime() + topNextCrop.growthDurationDays[0] * 86400000,
+    );
+    const nextHarvestEnd = new Date(
+      plantStart.getTime() + topNextCrop.growthDurationDays[1] * 86400000,
+    );
     items.push({
       stage: "next_harvest",
       title: `Projected Next Harvest: ${topNextCrop.nameEn}`,

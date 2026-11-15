@@ -2,19 +2,12 @@
 // Compliant with NASA Earth Observation standards & Field Observation Schema
 
 export type EarthObservationSource =
-  | "nasa_power"
-  | "nasa_smap"
-  | "nasa_gpm"
-  | "nasa_modis"
-  | "station_in_situ";
+  "nasa_power" | "nasa_smap" | "nasa_gpm" | "nasa_modis" | "station_in_situ";
 
 export type EarthQualityStatus = "good" | "marginal" | "missing" | "pilotQuality";
 
 export type SpatialExtractionMethod =
-  | "point_nearest_grid"
-  | "polygon_centroid"
-  | "polygon_areal_mean"
-  | "in_situ_station";
+  "point_nearest_grid" | "polygon_centroid" | "polygon_areal_mean" | "in_situ_station";
 
 export interface EarthProvenance {
   dataset: string;

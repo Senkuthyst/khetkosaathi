@@ -20,8 +20,14 @@ const modisQuerySchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   fieldAreaM2: z.number().positive().optional().default(4046),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   force: z.boolean().default(false),
 });
 
@@ -102,14 +108,18 @@ export const fetchModisVegetationServerFn = createServerFn({ method: "POST" })
       clearTimeout(timeout);
 
       if (!ornlRes.ok) {
-        throw new Error(`ORNL DAAC MODIS Web Service HTTP ${ornlRes.status}: ${ornlRes.statusText}`);
+        throw new Error(
+          `ORNL DAAC MODIS Web Service HTTP ${ornlRes.status}: ${ornlRes.statusText}`,
+        );
       }
 
       const ornlData: OrnlResponse = await ornlRes.json();
       const subsetItems = ornlData.subset || [];
 
       if (subsetItems.length === 0) {
-        throw new Error("ORNL DAAC returned empty subset — no MODIS data for this location/date range.");
+        throw new Error(
+          "ORNL DAAC returned empty subset — no MODIS data for this location/date range.",
+        );
       }
 
       // 2. Extract NDVI, EVI, and QA bands by calendar_date
@@ -180,15 +190,17 @@ export const fetchModisVegetationServerFn = createServerFn({ method: "POST" })
       });
 
       // Mark provenance
-      const hasData = rawSamples.some(s => s.ndviRaw !== null);
+      const hasData = rawSamples.some((s) => s.ndviRaw !== null);
       summary.provenance.mode = "live";
       summary.provenance.quality = hasData ? "good" : "marginal";
-      summary.provenance.qualityFlags = ["ORNL_DAAC_MODIS_WEB_SERVICE", "MOD13Q1_V061", "250m_16DAY"];
+      summary.provenance.qualityFlags = [
+        "ORNL_DAAC_MODIS_WEB_SERVICE",
+        "MOD13Q1_V061",
+        "250m_16DAY",
+      ];
       summary.provenance.observedAt =
-        rawSamples
-          .filter(s => s.ndviRaw !== null)
-          .sort((a, b) => b.date.localeCompare(a.date))[0]?.date ??
-        retrievalTimestamp.slice(0, 10);
+        rawSamples.filter((s) => s.ndviRaw !== null).sort((a, b) => b.date.localeCompare(a.date))[0]
+          ?.date ?? retrievalTimestamp.slice(0, 10);
 
       return summary;
     } catch (err) {

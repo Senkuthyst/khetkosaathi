@@ -17,7 +17,13 @@ export function polygonAreaM2(pts: LatLng[]): number {
 /** At least 3 distinct points, non-zero area, no self-intersecting edges. */
 export function isValidPolygon(pts: LatLng[]): boolean {
   if (pts.length < 3) return false;
-  if (pts.some(([lat, lng]) => !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180)) return false;
+  if (
+    pts.some(
+      ([lat, lng]) =>
+        !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180,
+    )
+  )
+    return false;
   if (new Set(pts.map((p) => p.join(","))).size !== pts.length) return false;
   if (polygonAreaM2(pts) <= 0) return false;
   return kinks(geometry(pts)).features.length === 0;
@@ -36,7 +42,15 @@ export function toFeature(name: string, pts: LatLng[]): FarmFeature {
   const ring = pts.map(([lat, lng]) => [lng, lat] as [number, number]);
   const first = ring[0];
   if (first) ring.push([...first]);
-  return { type: "Feature", properties: { name, area_hectares: Math.round((area / 10000) * 10000) / 10000, area_m2: Math.round(area) }, geometry: { type: "Polygon", coordinates: [ring] } };
+  return {
+    type: "Feature",
+    properties: {
+      name,
+      area_hectares: Math.round((area / 10000) * 10000) / 10000,
+      area_m2: Math.round(area),
+    },
+    geometry: { type: "Polygon", coordinates: [ring] },
+  };
 }
 export function fromFeature(f: FarmFeature): LatLng[] {
   const ring = f.geometry.coordinates[0] ?? [];
@@ -57,14 +71,24 @@ export function isFarmFeature(value: unknown): value is FarmFeature {
   if (feature.type !== "Feature" || feature.geometry?.type !== "Polygon") return false;
   const { name, area_hectares, area_m2 } = feature.properties ?? {};
   if (typeof name !== "string" || !name.trim() || name.length > 100) return false;
-  if (typeof area_hectares !== "number" || !Number.isFinite(area_hectares) || area_hectares < 0) return false;
+  if (typeof area_hectares !== "number" || !Number.isFinite(area_hectares) || area_hectares < 0)
+    return false;
   if (typeof area_m2 !== "number" || !Number.isFinite(area_m2) || area_m2 <= 0) return false;
 
   const coordinates = feature.geometry.coordinates;
   if (!Array.isArray(coordinates) || coordinates.length === 0) return false;
   const ring = coordinates[0];
   if (!Array.isArray(ring) || ring.length < 4) return false;
-  if (ring.some((point) => !Array.isArray(point) || point.length !== 2 || !Number.isFinite(point[0]) || !Number.isFinite(point[1]))) return false;
+  if (
+    ring.some(
+      (point) =>
+        !Array.isArray(point) ||
+        point.length !== 2 ||
+        !Number.isFinite(point[0]) ||
+        !Number.isFinite(point[1]),
+    )
+  )
+    return false;
 
   const first = ring[0] as [number, number];
   const last = ring[ring.length - 1] as [number, number];

@@ -39,12 +39,21 @@ export function DataProvenance({ data }: { data: Provenance }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Btn variant="ghost" className="mt-2 w-full justify-start px-0 text-xs font-semibold" aria-label={`${t("provenance")}: ${data.dataset}`}>
+        <Btn
+          variant="ghost"
+          className="mt-2 w-full justify-start px-0 text-xs font-semibold"
+          aria-label={`${t("provenance")}: ${data.dataset}`}
+        >
           <Info className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-          <span>{t("provenance")} · {t(data.mode)}</span>
+          <span>
+            {t("provenance")} · {t(data.mode)}
+          </span>
         </Btn>
       </PopoverTrigger>
-      <PopoverContent align="start" className="max-w-[calc(100vw-2rem)] w-96 rounded-2xl p-4 text-xs shadow-xl border-border">
+      <PopoverContent
+        align="start"
+        className="max-w-[calc(100vw-2rem)] w-96 rounded-2xl p-4 text-xs shadow-xl border-border"
+      >
         <div className="flex items-center gap-2 border-b pb-2 mb-3">
           <Info className="h-4 w-4 text-primary" />
           <h3 className="font-extrabold text-sm text-foreground">{t("provenance")}</h3>
@@ -64,7 +73,10 @@ export function DataProvenance({ data }: { data: Provenance }) {
             [t("quality"), t(data.quality)],
             [t("date"), t(data.mode)],
           ].map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-2 border-b border-border/40 pb-1.5 last:border-0">
+            <div
+              key={label}
+              className="flex justify-between gap-2 border-b border-border/40 pb-1.5 last:border-0"
+            >
               <dt className="text-muted-foreground">{label}:</dt>
               <dd className="font-bold text-foreground text-right">{value}</dd>
             </div>
@@ -90,7 +102,7 @@ export function SourceTag({ source }: { source: Source }) {
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-bold",
-        isSat(source) ? "bg-satellite-soft text-satellite" : "bg-primary/10 text-primary"
+        isSat(source) ? "bg-satellite-soft text-satellite" : "bg-primary/10 text-primary",
       )}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden />
@@ -123,7 +135,7 @@ export function DataCard({
     <section
       className={cn(
         "rounded-2xl border border-border bg-card p-5 shadow-sm transition-all",
-        sat ? "border-l-4 border-l-satellite border-dashed" : "border-l-4 border-l-primary"
+        sat ? "border-l-4 border-l-satellite border-dashed" : "border-l-4 border-l-primary",
       )}
     >
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -158,11 +170,19 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("rounded-2xl border border-border bg-card p-5 shadow-sm", className)}>{children}</section>;
+  return (
+    <section className={cn("rounded-2xl border border-border bg-card p-5 shadow-sm", className)}>
+      {children}
+    </section>
+  );
 }
 
 export function PageTitle({ children }: { children: ReactNode }) {
-  return <h1 className="mb-3 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{children}</h1>;
+  return (
+    <h1 className="mb-3 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+      {children}
+    </h1>
+  );
 }
 
 export function Btn({
@@ -181,7 +201,7 @@ export function Btn({
       className={cn(
         "tap inline-flex items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition-all disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40",
         v,
-        className
+        className,
       )}
     />
   );
@@ -200,7 +220,9 @@ export function ReportButton({ cardId }: { cardId: string }) {
     if (!details.trim()) return;
     setState("saving");
     try {
-      const { error } = await supabase.from("information_reports").insert({ card_id: cardId.slice(0, 150), details: details.trim() });
+      const { error } = await supabase
+        .from("information_reports")
+        .insert({ card_id: cardId.slice(0, 150), details: details.trim() });
       if (error) throw error;
       setState("saved");
     } catch {
@@ -223,10 +245,15 @@ export function ReportButton({ cardId }: { cardId: string }) {
       </Btn>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-[calc(100%-2rem)] max-w-md rounded-2xl p-6">
-          <DialogTitle className="text-base font-extrabold text-foreground">{t("report")}</DialogTitle>
+          <DialogTitle className="text-base font-extrabold text-foreground">
+            {t("report")}
+          </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">{cardId}</DialogDescription>
           {state === "saved" ? (
-            <p role="status" className="flex items-center gap-2 text-primary font-bold text-sm py-2">
+            <p
+              role="status"
+              className="flex items-center gap-2 text-primary font-bold text-sm py-2"
+            >
               <Check className="h-5 w-5 text-fresh" />
               {t("reported")}
             </p>
@@ -248,7 +275,11 @@ export function ReportButton({ cardId }: { cardId: string }) {
                   {t("saveError")}
                 </p>
               )}
-              <Btn type="submit" className="w-full py-2.5" disabled={state === "saving" || !details.trim()}>
+              <Btn
+                type="submit"
+                className="w-full py-2.5"
+                disabled={state === "saving" || !details.trim()}
+              >
                 {t(state === "saving" ? "saving" : "sendReport")}
               </Btn>
             </form>

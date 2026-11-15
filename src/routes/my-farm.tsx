@@ -30,7 +30,7 @@ export const Route = createFileRoute("/my-farm")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Farmer Profile & Multi-Plot Management",
-      "Manage your personalized farmer profile, registered agricultural plots, cadastral boundaries, and GPS locations."
+      "Manage your personalized farmer profile, registered agricultural plots, cadastral boundaries, and GPS locations.",
     ),
   component: MyFarm,
 });
@@ -146,12 +146,16 @@ function MyFarm() {
               Farmer Profile & Registered Plots
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-              Manage your personal identity, current geographic coordinates, cadastral boundaries, and crop inventory.
+              Manage your personal identity, current geographic coordinates, cadastral boundaries,
+              and crop inventory.
             </p>
           </div>
 
           {!user && (
-            <Btn onClick={() => setAuthModalOpen(true)} className="self-start sm:self-auto font-bold text-xs">
+            <Btn
+              onClick={() => setAuthModalOpen(true)}
+              className="self-start sm:self-auto font-bold text-xs"
+            >
               Sign In to Save Plots
             </Btn>
           )}
@@ -234,7 +238,12 @@ function MyFarm() {
                     />
                   </div>
                 </div>
-                <Btn type="submit" size="sm" disabled={savingProfile} className="w-full font-bold mt-2">
+                <Btn
+                  type="submit"
+                  size="sm"
+                  disabled={savingProfile}
+                  className="w-full font-bold mt-2"
+                >
                   {savingProfile ? "Saving..." : "Save Profile Details"}
                 </Btn>
               </form>
@@ -242,7 +251,9 @@ function MyFarm() {
               <dl className="space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-border/50">
                   <dt className="text-muted-foreground">Email:</dt>
-                  <dd className="font-semibold text-foreground">{user?.email ?? "Not logged in"}</dd>
+                  <dd className="font-semibold text-foreground">
+                    {user?.email ?? "Not logged in"}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-border/50">
                   <dt className="text-muted-foreground">Phone:</dt>
@@ -251,7 +262,9 @@ function MyFarm() {
                 <div className="flex justify-between py-1 border-b border-border/50">
                   <dt className="text-muted-foreground">Location:</dt>
                   <dd className="font-semibold text-foreground">
-                    {[profile?.municipality, profile?.district, profile?.country].filter(Boolean).join(", ") || "Not set"}
+                    {[profile?.municipality, profile?.district, profile?.country]
+                      .filter(Boolean)
+                      .join(", ") || "Not set"}
                   </dd>
                 </div>
                 <div className="flex justify-between py-1">
@@ -290,8 +303,12 @@ function MyFarm() {
           <Card className="p-5 space-y-3">
             <div className="flex items-center justify-between border-b pb-2">
               <div>
-                <h3 className="text-sm font-extrabold text-foreground">Registered Plots ({farmFields.length})</h3>
-                <p className="text-[11px] text-muted-foreground">Switch or manage your farmland parcels</p>
+                <h3 className="text-sm font-extrabold text-foreground">
+                  Registered Plots ({farmFields.length})
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Switch or manage your farmland parcels
+                </p>
               </div>
               <Link
                 to="/onboarding"
@@ -307,7 +324,10 @@ function MyFarm() {
                 <AlertCircle className="h-6 w-6 text-muted-foreground mx-auto" />
                 <p className="font-semibold">No farm registered yet.</p>
                 <p>Add your first agricultural plot to enable personalized monitoring.</p>
-                <Link to="/onboarding" className="inline-block text-primary font-bold hover:underline pt-1">
+                <Link
+                  to="/onboarding"
+                  className="inline-block text-primary font-bold hover:underline pt-1"
+                >
                   Start Registration →
                 </Link>
               </div>
@@ -385,7 +405,9 @@ function MyFarm() {
                 Cadastral Parcel Map
               </h3>
               <span className="text-xs text-muted-foreground">
-                {selectedField ? `Viewing: ${selectedField.fieldName} (${selectedField.areaM2} m²)` : "No active parcel selected"}
+                {selectedField
+                  ? `Viewing: ${selectedField.fieldName} (${selectedField.areaM2} m²)`
+                  : "No active parcel selected"}
               </span>
             </div>
             {selectedField && (

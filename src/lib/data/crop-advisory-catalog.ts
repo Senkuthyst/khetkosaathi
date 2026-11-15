@@ -70,12 +70,16 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
     typicalDurationDaysMin: 90,
     typicalDurationDaysMax: 120,
     varietyDurations: {
-      "kufri jyoti": { minDays: 100, maxDays: 120, notes: "Late blight tolerant, medium-late maturity" },
-      "cardinal": { minDays: 90, maxDays: 105, notes: "Medium maturity, red skin" },
+      "kufri jyoti": {
+        minDays: 100,
+        maxDays: 120,
+        notes: "Late blight tolerant, medium-late maturity",
+      },
+      cardinal: { minDays: 90, maxDays: 105, notes: "Medium maturity, red skin" },
       "janak dev": { minDays: 110, maxDays: 125, notes: "NARC released, high yielding hill/terai" },
       "khumal rato": { minDays: 105, maxDays: 120, notes: "NARC mid-hill variety" },
       "khumal seto": { minDays: 95, maxDays: 110, notes: "Early to medium maturity" },
-      "deshi": { minDays: 85, maxDays: 100, notes: "Local early variety" },
+      deshi: { minDays: 85, maxDays: 100, notes: "Local early variety" },
     },
     gddBaseTempC: 7.0,
     optimalHarvestSoilMoistureMinPct: 15,
@@ -91,7 +95,8 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
         indicatorNe: "बोक्रा परीक्षण: बुढी औंलाले कडासँग रगड्दा आलुको बोक्रा नउखेलिनु।",
       },
       {
-        indicatorEn: "Stolon separation: Tubers detach easily from underground roots without tearing flesh.",
+        indicatorEn:
+          "Stolon separation: Tubers detach easily from underground roots without tearing flesh.",
         indicatorNe: "जराबाट सजिलै आलुका दानाहरू अलग हुनु।",
       },
       {
@@ -99,10 +104,12 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
         indicatorNe: "खन्नु भन्दा १०-१४ दिन अगाडि बोटको माथिल्लो भाग (झार) काटिएको हुनुपर्छ।",
       },
     ],
-    expertAssessmentTrigger: "If persistent waterlogging occurs within 10 days of planned harvest or tuber rotting is detected, consult local Krishi Sakha/NARC technician immediately.",
+    expertAssessmentTrigger:
+      "If persistent waterlogging occurs within 10 days of planned harvest or tuber rotting is detected, consult local Krishi Sakha/NARC technician immediately.",
     citation: {
       sourceTitle: "Potato Production Technology in Nepal (Technical Bulletin)",
-      publishingInstitution: "Nepal Agricultural Research Council (NARC) - National Potato Research Program (NPRP), Khumaltar",
+      publishingInstitution:
+        "Nepal Agricultural Research Council (NARC) - National Potato Research Program (NPRP), Khumaltar",
       referenceUrl: "https://narc.gov.np/",
       publicationYear: 2021,
     },
@@ -115,7 +122,7 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
     typicalDurationDaysMin: 115,
     typicalDurationDaysMax: 145,
     varietyDurations: {
-      "sabitri": { minDays: 135, maxDays: 145, notes: "Medium late maturity, Terai staple" },
+      sabitri: { minDays: 135, maxDays: 145, notes: "Medium late maturity, Terai staple" },
       "radha-4": { minDays: 120, maxDays: 130, notes: "Drought tolerant, early-medium" },
       "khumal-4": { minDays: 130, maxDays: 140, notes: "Mid-hills recommended" },
       "makwanpur-1": { minDays: 140, maxDays: 150, notes: "Late maturity, submergence tolerant" },
@@ -127,11 +134,13 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
     excessiveRainRiskThresholdMmDay: 25,
     visibleMaturityIndicators: [
       {
-        indicatorEn: "Panicles turn golden-yellow across >85% of canopy while base stems remain lightly green.",
+        indicatorEn:
+          "Panicles turn golden-yellow across >85% of canopy while base stems remain lightly green.",
         indicatorNe: "बालाको ८५% भन्दा बढी भाग सुनौलो पहेँलो रङमा परिणत हुनु।",
       },
       {
-        indicatorEn: "Grain moisture content reaches approximately 20-22% (firm kernel when crushed with teeth).",
+        indicatorEn:
+          "Grain moisture content reaches approximately 20-22% (firm kernel when crushed with teeth).",
         indicatorNe: "दाँतले टोक्दा दाना कडा भई फुट्नु (२०-२२% चिस्यान)।",
       },
       {
@@ -139,7 +148,8 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
         indicatorNe: "काट्नुभन्दा १०-१२ दिन अघि खेतको पानी पूर्ण रूपमा निकास गरिएको हुनुपर्छ।",
       },
     ],
-    expertAssessmentTrigger: "Assess lodging risk if heavy precipitation is forecast within 5 days of physiological maturity.",
+    expertAssessmentTrigger:
+      "Assess lodging risk if heavy precipitation is forecast within 5 days of physiological maturity.",
     citation: {
       sourceTitle: "Package of Practices for Rice Cultivation in Nepal",
       publishingInstitution: "National Rice Research Program (NRRP), NARC, Hardinath, Nepal",
@@ -164,11 +174,13 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
         indicatorNe: "घोगाको खोस्टा सुकेर खैरो-पहेँलो हुनु।",
       },
       {
-        indicatorEn: "Black layer formation visible at the tip of kernels where attached to the cob.",
+        indicatorEn:
+          "Black layer formation visible at the tip of kernels where attached to the cob.",
         indicatorNe: "दानामा कालो तह (black layer) प्रष्ट देखिनु।",
       },
     ],
-    expertAssessmentTrigger: "Inspect for ear rot or mycotoxin risk if prolonged unseasonal rains occur during cob drying.",
+    expertAssessmentTrigger:
+      "Inspect for ear rot or mycotoxin risk if prolonged unseasonal rains occur during cob drying.",
     citation: {
       sourceTitle: "Maize Production Technologies in Nepal",
       publishingInstitution: "National Maize Research Program (NMRP), Rampur, Chitwan, NARC",
@@ -193,11 +205,13 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
         indicatorNe: "बालामुनिको डाँठ पूर्णतया सुकेर सुनौलो हुनु।",
       },
       {
-        indicatorEn: "Grain kernel cannot be indented with thumbnail (hard dough stage, <14% moisture).",
+        indicatorEn:
+          "Grain kernel cannot be indented with thumbnail (hard dough stage, <14% moisture).",
         indicatorNe: "औंलाको नङले दाना थिच्दा नथिचिने हुनु।",
       },
     ],
-    expertAssessmentTrigger: "High temperature terminal heat stress (>32°C) can cause premature grain shriveling.",
+    expertAssessmentTrigger:
+      "High temperature terminal heat stress (>32°C) can cause premature grain shriveling.",
     citation: {
       sourceTitle: "Wheat Production Guidelines for Nepal",
       publishingInstitution: "National Wheat Research Program (NWRP), Bhairahawa, NARC",
@@ -218,11 +232,13 @@ export const CROP_HARVEST_AGRONOMY_CATALOG: Record<string, CropHarvestAgronomy> 
     excessiveRainRiskThresholdMmDay: 15,
     visibleMaturityIndicators: [
       {
-        indicatorEn: "Fruit color transition from breaker to turning/pink stage depending on market distance.",
+        indicatorEn:
+          "Fruit color transition from breaker to turning/pink stage depending on market distance.",
         indicatorNe: "फलको रङ हरियोबाट हल्का गुलाबी/रातोमा परिवर्तन हुनु (breaker stage)।",
       },
     ],
-    expertAssessmentTrigger: "Inspect for late blight or fruit borer in high relative humidity (>80%) conditions.",
+    expertAssessmentTrigger:
+      "Inspect for late blight or fruit borer in high relative humidity (>80%) conditions.",
     citation: {
       sourceTitle: "Commercial Tomato Production in Tunnel and Open Field",
       publishingInstitution: "Horticulture Research Division, NARC, Khumaltar",
@@ -251,15 +267,21 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: false, // Low water need, highly drought resilient
     incompatiblePrecedingFamilies: ["Fabaceae"], // Avoid continuous legumes
     beneficialPrecedingFamilies: ["Solanaceae", "Poaceae"], // Excellent after Potato or Rice/Wheat
-    rotationBenefitsEn: "Biological nitrogen fixation (+35 to +50 kg N/ha via Rhizobium symbiosis). Short 60-70 day window easily fits between winter potato/wheat and monsoon paddy.",
-    rotationBenefitsNe: "माटोमा जैविक नाइट्रोजन (३५-५० के.जी./हेक्टर) थप्दछ। आलु वा गहुँपछि बर्खे धान रोप्नु अघिको खाली समयमा ६०-७० दिनमै पाक्छ।",
-    rotationRisksEn: "Vulnerable to heavy pre-monsoon waterlogging. Soil must have good internal drainage.",
+    rotationBenefitsEn:
+      "Biological nitrogen fixation (+35 to +50 kg N/ha via Rhizobium symbiosis). Short 60-70 day window easily fits between winter potato/wheat and monsoon paddy.",
+    rotationBenefitsNe:
+      "माटोमा जैविक नाइट्रोजन (३५-५० के.जी./हेक्टर) थप्दछ। आलु वा गहुँपछि बर्खे धान रोप्नु अघिको खाली समयमा ६०-७० दिनमै पाक्छ।",
+    rotationRisksEn:
+      "Vulnerable to heavy pre-monsoon waterlogging. Soil must have good internal drainage.",
     rotationRisksNe: "खेतमा पानी जम्ने समस्या भएमा जरा कुहिने जोखिम रहन्छ।",
-    agronomicRequirementsEn: "Requires warm seedbed (>20°C soil temperature) for rapid emergence. 1-2 light irrigations if winter residual moisture is depleted.",
-    agronomicRequirementsNe: "बिउ उम्रिन कम्तीमा २०°C तापक्रम चाहिन्छ। माटोमा चिस्यान कम भएमा १-२ पटक हल्का सिँचाइ आवश्यक पर्छ।",
+    agronomicRequirementsEn:
+      "Requires warm seedbed (>20°C soil temperature) for rapid emergence. 1-2 light irrigations if winter residual moisture is depleted.",
+    agronomicRequirementsNe:
+      "बिउ उम्रिन कम्तीमा २०°C तापक्रम चाहिन्छ। माटोमा चिस्यान कम भएमा १-२ पटक हल्का सिँचाइ आवश्यक पर्छ।",
     citation: {
       sourceTitle: "Spring Mungbean Production Technology in Cereal-Based Systems",
-      publishingInstitution: "National Grain Legumes Research Program (NGLRP), Rampur, Chitwan, NARC",
+      publishingInstitution:
+        "National Grain Legumes Research Program (NGLRP), Rampur, Chitwan, NARC",
       referenceUrl: "https://narc.gov.np/",
       publicationYear: 2022,
     },
@@ -279,12 +301,18 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: true,
     incompatiblePrecedingFamilies: ["Poaceae"], // Moderate concern if following wheat/rice continuously
     beneficialPrecedingFamilies: ["Fabaceae", "Solanaceae"], // Great after potato (utilizes residual fertilizer)
-    rotationBenefitsEn: "Deep root system utilizes residual fertilizers left behind from heavy-feeding potato crops. Breaks root-knot nematode cycles.",
-    rotationBenefitsNe: "आलु खेतीमा हालिएको बाँकी रासायनिक तथा प्राङ्गारिक मलको उच्चतम सदुपयोग गर्दछ।",
-    rotationRisksEn: "High water requirement during silking and tasseling; requires 3-4 assured irrigations before monsoon.",
-    rotationRisksNe: "जुँगा हाल्ने र घोगा लाग्ने बेलामा खडेरी परेमा ३-४ पटक सिँचाइको भरपर्दो व्यवस्था चाहिन्छ।",
-    agronomicRequirementsEn: "Optimal sowing when soil temperature reaches 15°C. Recommended varieties: Rampur Composite, Arun-2, Poshelo Makai-1.",
-    agronomicRequirementsNe: "उचित रोपाईं समय फागुन-चैत। सिफारिस जातहरू: रामपुर कम्पोजिट, अरुण-२, पोषिलो मकै-१।",
+    rotationBenefitsEn:
+      "Deep root system utilizes residual fertilizers left behind from heavy-feeding potato crops. Breaks root-knot nematode cycles.",
+    rotationBenefitsNe:
+      "आलु खेतीमा हालिएको बाँकी रासायनिक तथा प्राङ्गारिक मलको उच्चतम सदुपयोग गर्दछ।",
+    rotationRisksEn:
+      "High water requirement during silking and tasseling; requires 3-4 assured irrigations before monsoon.",
+    rotationRisksNe:
+      "जुँगा हाल्ने र घोगा लाग्ने बेलामा खडेरी परेमा ३-४ पटक सिँचाइको भरपर्दो व्यवस्था चाहिन्छ।",
+    agronomicRequirementsEn:
+      "Optimal sowing when soil temperature reaches 15°C. Recommended varieties: Rampur Composite, Arun-2, Poshelo Makai-1.",
+    agronomicRequirementsNe:
+      "उचित रोपाईं समय फागुन-चैत। सिफारिस जातहरू: रामपुर कम्पोजिट, अरुण-२, पोषिलो मकै-१।",
     citation: {
       sourceTitle: "Spring Maize Production Package for Terai and Inner-Terai",
       publishingInstitution: "National Maize Research Program (NMRP), Rampur, NARC",
@@ -307,12 +335,18 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: false,
     incompatiblePrecedingFamilies: [],
     beneficialPrecedingFamilies: ["Solanaceae", "Poaceae"],
-    rotationBenefitsEn: "Produces 15-25 tons/ha of succulent green biomass adding 80-100 kg organic N/ha when plowed in at 45-50 days before monsoon paddy.",
-    rotationBenefitsNe: "रोपेको ४५-५० दिनमा माटोमा जोतेर मिलाउँदा प्रति हेक्टर ८०-१०० के.जी. नाइट्रोजन र प्राङ्गारिक पदार्थ थप गर्दछ।",
-    rotationRisksEn: "Produces minimal direct cash yield; value is purely soil organic matter restoration.",
-    rotationRisksNe: "यसबाट प्रत्यक्ष नगद आम्दानी हुँदैन, तर माटोको उर्वरशक्ति पुनर्स्थापनामा अतुलनीय छ।",
-    agronomicRequirementsEn: "Broadcast seed at 40-50 kg/ha with pre-monsoon showers. Incorporate into mud 10 days before paddy transplanting.",
-    agronomicRequirementsNe: "प्रति हेक्टर ४०-५० के.जी. बिउ छर्नुपर्छ। धान रोप्नु १०-१२ दिन अगाडि हिल्याएर माटोमा मिलाउनुपर्छ।",
+    rotationBenefitsEn:
+      "Produces 15-25 tons/ha of succulent green biomass adding 80-100 kg organic N/ha when plowed in at 45-50 days before monsoon paddy.",
+    rotationBenefitsNe:
+      "रोपेको ४५-५० दिनमा माटोमा जोतेर मिलाउँदा प्रति हेक्टर ८०-१०० के.जी. नाइट्रोजन र प्राङ्गारिक पदार्थ थप गर्दछ।",
+    rotationRisksEn:
+      "Produces minimal direct cash yield; value is purely soil organic matter restoration.",
+    rotationRisksNe:
+      "यसबाट प्रत्यक्ष नगद आम्दानी हुँदैन, तर माटोको उर्वरशक्ति पुनर्स्थापनामा अतुलनीय छ।",
+    agronomicRequirementsEn:
+      "Broadcast seed at 40-50 kg/ha with pre-monsoon showers. Incorporate into mud 10 days before paddy transplanting.",
+    agronomicRequirementsNe:
+      "प्रति हेक्टर ४०-५० के.जी. बिउ छर्नुपर्छ। धान रोप्नु १०-१२ दिन अगाडि हिल्याएर माटोमा मिलाउनुपर्छ।",
     citation: {
       sourceTitle: "Green Manuring Techniques for Soil Fertility Management",
       publishingInstitution: "Soil Science Division, NARC, Khumaltar, Lalitpur",
@@ -335,12 +369,17 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: true,
     incompatiblePrecedingFamilies: ["Malvaceae"], // Avoid continuous cotton/okra
     beneficialPrecedingFamilies: ["Poaceae", "Fabaceae", "Solanaceae"],
-    rotationBenefitsEn: "High-value commercial cash vegetable with staggered harvest starting in 50-55 days. Unrelated botanical family to potato or cereals.",
-    rotationBenefitsNe: "५०-५५ दिनमै टिप्न सुरु हुने उच्च मूल्य नगदे तरकारी। आलु र धान भन्दा फरक वनस्पतीय परिवार।",
-    rotationRisksEn: "Sensitive to soil damping-off in cold or soggy soils. Susceptible to Yellow Vein Mosaic Virus (YVMV) in late summer.",
+    rotationBenefitsEn:
+      "High-value commercial cash vegetable with staggered harvest starting in 50-55 days. Unrelated botanical family to potato or cereals.",
+    rotationBenefitsNe:
+      "५०-५५ दिनमै टिप्न सुरु हुने उच्च मूल्य नगदे तरकारी। आलु र धान भन्दा फरक वनस्पतीय परिवार।",
+    rotationRisksEn:
+      "Sensitive to soil damping-off in cold or soggy soils. Susceptible to Yellow Vein Mosaic Virus (YVMV) in late summer.",
     rotationRisksNe: "चिसो वा अत्यधिक चिसो माटोमा बिउ कुहिने जोखिम।",
-    agronomicRequirementsEn: "Soak seed for 12 hours before sowing. Recommended varieties: Arka Anamika, Parbhani Kranti.",
-    agronomicRequirementsNe: "बिउ छर्नुअघि १२ घण्टा पानीमा भिजाउनुपर्छ। सिफारिस जातहरू: अर्का अनामिका, परभनी क्रान्ति।",
+    agronomicRequirementsEn:
+      "Soak seed for 12 hours before sowing. Recommended varieties: Arka Anamika, Parbhani Kranti.",
+    agronomicRequirementsNe:
+      "बिउ छर्नुअघि १२ घण्टा पानीमा भिजाउनुपर्छ। सिफारिस जातहरू: अर्का अनामिका, परभनी क्रान्ति।",
     citation: {
       sourceTitle: "Commercial Vegetable Production Manual",
       publishingInstitution: "Vegetable Development Directorate, Ministry of Agriculture, Nepal",
@@ -363,11 +402,14 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: false,
     incompatiblePrecedingFamilies: ["Fabaceae"],
     beneficialPrecedingFamilies: ["Solanaceae", "Poaceae"],
-    rotationBenefitsEn: "Simultaneously provides edible green pods for fresh market income and leaves nitrogen-rich biomass (+40 kg N/ha).",
-    rotationBenefitsNe: "ताजा हरियो कोसा बजारमा बेचेर आम्दानी हुनुका साथै माटोमा नाइट्रोजन र प्राङ्गारिक पदार्थ थपिन्छ।",
+    rotationBenefitsEn:
+      "Simultaneously provides edible green pods for fresh market income and leaves nitrogen-rich biomass (+40 kg N/ha).",
+    rotationBenefitsNe:
+      "ताजा हरियो कोसा बजारमा बेचेर आम्दानी हुनुका साथै माटोमा नाइट्रोजन र प्राङ्गारिक पदार्थ थपिन्छ।",
     rotationRisksEn: "Aphid infestation during warm dry spells; scout field perimeters regularly.",
     rotationRisksNe: "सुख्खा मौसममा लाही कीरा (aphids) को प्रकोप हुन सक्छ।",
-    agronomicRequirementsEn: "Tolerates moderate drought. Recommended varieties: Malepatan-1, Prakash, Kohalpur Local.",
+    agronomicRequirementsEn:
+      "Tolerates moderate drought. Recommended varieties: Malepatan-1, Prakash, Kohalpur Local.",
     agronomicRequirementsNe: "सिफारिस जातहरू: मालेपाटन-१, प्रकाश, कोहलपुर लोकल।",
     citation: {
       sourceTitle: "Grain Legumes and Vegetable Cowpea Cultivation",
@@ -391,7 +433,8 @@ export const NEXT_CROP_SUITABILITY_CATALOG: NextCropSuitabilityRule[] = [
     irrigationNeeded: false,
     incompatiblePrecedingFamilies: ["Pedaliaceae"],
     beneficialPrecedingFamilies: ["Solanaceae", "Poaceae"],
-    rotationBenefitsEn: "Low input, high value oilseed crop that thrives in post-winter residual moisture and high solar radiation.",
+    rotationBenefitsEn:
+      "Low input, high value oilseed crop that thrives in post-winter residual moisture and high solar radiation.",
     rotationBenefitsNe: "कम खर्चमा बढी आम्दानी दिने तेलहन बाली, जसलाई धेरै सिँचाइ चाहिँदैन।",
     rotationRisksEn: "Highly sensitive to water stagnation at germination and seedling stages.",
     rotationRisksNe: "उम्रिने बेलामा पानी जमेमा तुरुन्तै कुहिने जोखिम।",

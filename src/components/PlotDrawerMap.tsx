@@ -176,7 +176,7 @@ export default function PlotDrawerMap({
 }: PlotDrawerMapProps) {
   const [map, setMap] = useState<LMap | null>(null);
   const [activeMode, setActiveMode] = useState<"idle" | "drawing" | "editing">(
-    confirmedPlot ? "editing" : "idle"
+    confirmedPlot ? "editing" : "idle",
   );
   const [currentPoints, setCurrentPoints] = useState<LatLng[]>(confirmedPlot ?? []);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -310,7 +310,9 @@ export default function PlotDrawerMap({
             <strong className="text-foreground">{areaHa} ha</strong>
             <span className="text-muted-foreground">({areaM2.toLocaleString()} m²)</span>
             <span className="text-muted-foreground hidden sm:inline">·</span>
-            <span className="text-muted-foreground hidden sm:inline">{areaBigha} Bigha / {areaRopani} Ropani</span>
+            <span className="text-muted-foreground hidden sm:inline">
+              {areaBigha} Bigha / {areaRopani} Ropani
+            </span>
           </div>
         )}
       </div>
@@ -349,10 +351,7 @@ export default function PlotDrawerMap({
           )}
 
           {activeMode === "editing" && currentPoints.length >= 3 && (
-            <EditableBoundaryLayer
-              points={currentPoints}
-              onChange={handlePolygonEdited}
-            />
+            <EditableBoundaryLayer points={currentPoints} onChange={handlePolygonEdited} />
           )}
         </MapContainer>
 
@@ -361,7 +360,8 @@ export default function PlotDrawerMap({
           <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:max-w-md bg-card/95 backdrop-blur-xs p-2.5 rounded-xl border border-border shadow-lg text-[11px] text-muted-foreground flex items-center gap-2 z-[500]">
             <Info className="h-4 w-4 text-primary shrink-0" />
             <span>
-              <strong>Edit vertices:</strong> Drag white circles to adjust parcel boundaries. Click a vertex marker to delete it.
+              <strong>Edit vertices:</strong> Drag white circles to adjust parcel boundaries. Click
+              a vertex marker to delete it.
             </span>
           </div>
         )}

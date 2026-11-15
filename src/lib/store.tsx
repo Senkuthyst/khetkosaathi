@@ -100,20 +100,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUser(data.session?.user ?? null);
     });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        if (newSession?.user) {
-          await refreshProfileForUser(newSession.user.id);
-          await reloadFarmFields();
-        } else {
-          setProfile(null);
-          setFarmFields([]);
-          setSelectedFieldState(null);
-        }
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+      if (newSession?.user) {
+        await refreshProfileForUser(newSession.user.id);
+        await reloadFarmFields();
+      } else {
+        setProfile(null);
+        setFarmFields([]);
+        setSelectedFieldState(null);
       }
-    );
+    });
 
     return () => {
       authListener.subscription.unsubscribe();
@@ -152,7 +150,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (fields.length > 0) {
       // Restore saved selection or pick primary / first
       const savedId = localStorage.getItem("naip.selected_field_id");
-      const matched = fields.find((f) => f.id === savedId) ?? fields.find((f) => f.isPrimary) ?? fields[0];
+      const matched =
+        fields.find((f) => f.id === savedId) ?? fields.find((f) => f.isPrimary) ?? fields[0];
       setSelectedFieldState(matched ?? null);
     } else {
       // NO CHITWAN DEFAULT - Honest empty state when user has no registered farm!

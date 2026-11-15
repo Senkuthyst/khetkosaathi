@@ -22,7 +22,7 @@ export interface GeocodedLocationName {
  * Request real user location from browser navigator.geolocation.
  */
 export async function getCurrentBrowserCoordinates(
-  options: PositionOptions = { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+  options: PositionOptions = { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
 ): Promise<GeolocationResult> {
   if (typeof window === "undefined" || !("geolocation" in navigator)) {
     throw new Error("Geolocation is not supported by your browser or environment.");
@@ -41,19 +41,27 @@ export async function getCurrentBrowserCoordinates(
       (err) => {
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            reject(new Error("Location permission was denied. Please select your location manually."));
+            reject(
+              new Error("Location permission was denied. Please select your location manually."),
+            );
             break;
           case err.POSITION_UNAVAILABLE:
-            reject(new Error("Location information is currently unavailable from your device GPS."));
+            reject(
+              new Error("Location information is currently unavailable from your device GPS."),
+            );
             break;
           case err.TIMEOUT:
-            reject(new Error("Location request timed out. Please check GPS settings or select manually."));
+            reject(
+              new Error(
+                "Location request timed out. Please check GPS settings or select manually.",
+              ),
+            );
             break;
           default:
             reject(new Error(`Location error: ${err.message}`));
         }
       },
-      options
+      options,
     );
   });
 }
@@ -64,7 +72,7 @@ export async function getCurrentBrowserCoordinates(
  */
 export async function reverseGeocodeCoordinates(
   lat: number,
-  lon: number
+  lon: number,
 ): Promise<GeocodedLocationName> {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`;
@@ -88,7 +96,8 @@ export async function reverseGeocodeCoordinates(
     const country = addr.country || "Nepal";
 
     const parts = [cityOrTown, district, country].filter(Boolean);
-    const displayName = parts.length > 0 ? parts.join(", ") : `${lat.toFixed(3)}°, ${lon.toFixed(3)}°`;
+    const displayName =
+      parts.length > 0 ? parts.join(", ") : `${lat.toFixed(3)}°, ${lon.toFixed(3)}°`;
 
     return {
       displayName,
