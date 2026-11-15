@@ -1,19 +1,18 @@
 // Client-safe invocation helpers for NASA Server Functions
-// Facilitates fetching real NASA POWER, FIRMS, GPM, SMAP, and MODIS observations
+// Facilitates fetching real NASA POWER, FIRMS, GPM, SMAP, MODIS, and HLS observations
 // without exposing backend credentials or importing server-only packages in browser.
 
 import { fetchFirmsHotspotsServerFn } from "@/lib/server-functions/firms.server";
 import { fetchGpmPrecipitationServerFn } from "@/lib/server-functions/gpm.server";
 import { fetchModisVegetationServerFn } from "@/lib/server-functions/modis.server";
-import {
-  fetchSmapSoilMoistureServerFn,
-  type SmapObservationSummary,
-} from "@/lib/server-functions/smap.server";
+import { fetchSmapSoilMoistureServerFn, type SmapObservationSummary } from "@/lib/server-functions/smap.server";
+import { fetchHlsVegetationServerFn } from "@/lib/server-functions/hls.server";
 import type { FirmsSummary } from "./firms-service";
 import type { GpmPrecipitationSummary } from "./gpm-service";
 import type { ModisFieldSummary } from "./modis-service";
+import type { HlsVegetationSummary } from "./hls-service";
 
-export type { SmapObservationSummary };
+export type { SmapObservationSummary, HlsVegetationSummary };
 
 export async function fetchLiveFirmsHotspots(options: {
   latitude: number;
@@ -81,6 +80,29 @@ export async function fetchLiveModisVegetation(options: {
     return res;
   } catch (err) {
     console.warn("fetchLiveModisVegetation error:", (err as Error).message);
+    return null;
+  }
+}
+
+export async function fetchLiveHlsVegetation(options: {
+  fieldId: string;
+  latitude: number;
+  longitude: number;
+  windowDays?: number;
+}): Promise<HlsVegetationSummary | null> {
+  try {
+    const res = await (fetchHlsVegetationServerFn as any)({
+      data: {
+        fieldId: options.fieldId,
+        latitude: options.latitude,
+        longitude: options.longitude,
+        windowDays: options.windowDays ?? 30,
+        force: false,
+      },
+    });
+    return res;
+  } catch (err) {
+    console.warn("fetchLiveHlsVegetation error:", (err as Error).message);
     return null;
   }
 }

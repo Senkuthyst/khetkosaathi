@@ -74,10 +74,12 @@ interface OrnlResponse {
  * Server Function: Ingest and process NASA MODIS MOD13Q1 250m 16-day composites.
  * Uses ORNL DAAC MODIS Web Service for real point extraction — no Earthdata auth required.
  */
-export const fetchModisVegetationServerFn = createServerFn({ method: "POST" })
-  .validator((data: unknown) => modisQuerySchema.parse(data))
-  .handler(async ({ data }): Promise<ModisFieldSummary> => {
-    const { fieldId, latitude, longitude, fieldAreaM2 } = data;
+/**
+ * Core query function for NASA MODIS MOD13Q1 250m 16-day composites.
+ * Can be called directly by internal server services (e.g. HLS fallback) or test runners.
+ */
+export async function queryModisVegetation(data: ModisQueryInput): Promise<ModisFieldSummary> {
+  const { fieldId, latitude, longitude, fieldAreaM2 } = data;
     const retrievalTimestamp = new Date().toISOString();
 
     // --- Date window: past 48 days covers 3 MODIS 16-day composites ---
@@ -261,4 +263,14 @@ export const fetchModisVegetationServerFn = createServerFn({ method: "POST" })
       summary.provenance.qualityFlags = [(err as Error).message.slice(0, 200)];
       return summary;
     }
+  }
+
+/**
+ * Server Function: Ingest and process NASA MODIS MOD13Q1 250m 16-day composites.
+ * Uses ORNL DAAC MODIS Web Service for real point extraction — no Earthdata auth required.
+ */
+export const fetchModisVegetationServerFn = createServerFn({ method: "POST" })
+  .validator((data: unknown) => modisQuerySchema.parse(data))
+  .handler(async ({ data }): Promise<ModisFieldSummary> => {
+    return queryModisVegetation(data);
   });

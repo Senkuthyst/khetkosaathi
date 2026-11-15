@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as CropHealthRouteImport } from './routes/crop-health'
 import { Route as EarthIntelligenceRouteImport } from './routes/earth-intelligence'
+import { Route as FarmCheckRouteImport } from './routes/farm-check'
 import { Route as GuidanceRouteImport } from './routes/guidance'
 import { Route as MyFarmRouteImport } from './routes/my-farm'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -36,6 +37,11 @@ const CropHealthRoute = CropHealthRouteImport.update({
 const EarthIntelligenceRoute = EarthIntelligenceRouteImport.update({
   id: '/earth-intelligence',
   path: '/earth-intelligence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmCheckRoute = FarmCheckRouteImport.update({
+  id: '/farm-check',
+  path: '/farm-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuidanceRoute = GuidanceRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/crop-health': typeof CropHealthRoute
   '/earth-intelligence': typeof EarthIntelligenceRoute
+  '/farm-check': typeof FarmCheckRoute
   '/guidance': typeof GuidanceRoute
   '/my-farm': typeof MyFarmRoute
   '/onboarding': typeof OnboardingRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/crop-health': typeof CropHealthRoute
   '/earth-intelligence': typeof EarthIntelligenceRoute
+  '/farm-check': typeof FarmCheckRoute
   '/guidance': typeof GuidanceRoute
   '/my-farm': typeof MyFarmRoute
   '/onboarding': typeof OnboardingRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/crop-health': typeof CropHealthRoute
   '/earth-intelligence': typeof EarthIntelligenceRoute
+  '/farm-check': typeof FarmCheckRoute
   '/guidance': typeof GuidanceRoute
   '/my-farm': typeof MyFarmRoute
   '/onboarding': typeof OnboardingRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/crop-health'
     | '/earth-intelligence'
+    | '/farm-check'
     | '/guidance'
     | '/my-farm'
     | '/onboarding'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/crop-health'
     | '/earth-intelligence'
+    | '/farm-check'
     | '/guidance'
     | '/my-farm'
     | '/onboarding'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/crop-health'
     | '/earth-intelligence'
+    | '/farm-check'
     | '/guidance'
     | '/my-farm'
     | '/onboarding'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   CropHealthRoute: typeof CropHealthRoute
   EarthIntelligenceRoute: typeof EarthIntelligenceRoute
+  FarmCheckRoute: typeof FarmCheckRoute
   GuidanceRoute: typeof GuidanceRoute
   MyFarmRoute: typeof MyFarmRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/earth-intelligence'
       fullPath: '/earth-intelligence'
       preLoaderRoute: typeof EarthIntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farm-check': {
+      id: '/farm-check'
+      path: '/farm-check'
+      fullPath: '/farm-check'
+      preLoaderRoute: typeof FarmCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guidance': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   CropHealthRoute: CropHealthRoute,
   EarthIntelligenceRoute: EarthIntelligenceRoute,
+  FarmCheckRoute: FarmCheckRoute,
   GuidanceRoute: GuidanceRoute,
   MyFarmRoute: MyFarmRoute,
   OnboardingRoute: OnboardingRoute,

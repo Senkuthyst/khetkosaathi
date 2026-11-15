@@ -128,6 +128,11 @@ export function Shell({ children }: { children: ReactNode }) {
       Icon: MapPin,
     },
     {
+      to: "/farm-check",
+      label: lang === "ne" ? "खेत जाँच" : "Farm Check",
+      Icon: Compass,
+    },
+    {
       to: "/alerts",
       label: lang === "ne" ? "प्रतिवेदन तथा सूचना" : "Reports & Alerts",
       Icon: Bell,
