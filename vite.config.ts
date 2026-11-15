@@ -7,7 +7,8 @@ export default defineConfig({
       entry: "server",
     },
   },
-  nitro: {
-    preset: "vercel",
-  },
+ nitro: {
+  preset: "vercel",
+  noExternals: true,
+},
 });
