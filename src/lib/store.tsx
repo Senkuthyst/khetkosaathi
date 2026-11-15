@@ -1,17 +1,18 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
 import { translate, type Lang, type TKey } from "./i18n";
 import type { Field } from "./data";
 import {
   loadUserFarmFields,
   type FarmField,
-  createFarmField,
-  deleteFarmField,
 } from "./farm-fields-service";
-import type { Tables } from "@/integrations/supabase/types";
+import {
+  loadDemoProfile,
+  saveDemoProfile,
+  resetDemoData as clearDemoData,
+  type DemoProfile,
+} from "./demo-profile";
 
-export type UserProfile = Tables<"user_profiles">;
+export type { DemoProfile };
 
 export interface Thresholds {
   minRain7: number;
@@ -29,12 +30,10 @@ export interface Inspection {
 }
 
 interface State {
-  // Authentication & Profile
-  user: User | null;
-  session: Session | null;
-  profile: UserProfile | null;
-  refreshProfile: () => Promise<void>;
-  signOut: () => Promise<void>;
+  // Demo Account (replaces Supabase auth)
+  demoProfile: DemoProfile;
+  updateDemoProfile: (p: DemoProfile) => void;
+  resetDemoData: () => void;
 
   // Dynamic Current Location (GPS)
   currentGpsLocationName: string | null;
@@ -79,9 +78,7 @@ function load<T>(k: string, fb: T): T {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [demoProfile, setDemoProfileState] = useState<DemoProfile>(() => loadDemoProfile());
   const [currentGpsLocationName, setCurrentGpsLocationName] = useState<string | null>(null);
 
   const [farmFields, setFarmFields] = useState<FarmField[]>([]);
@@ -93,79 +90,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [activeView, setActiveViewS] = useState<"dashboard" | "landing">("dashboard");
 
-  // Sync Supabase Auth Session
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-    });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      if (newSession?.user) {
-        await refreshProfileForUser(newSession.user.id);
-        await reloadFarmFields();
-      } else {
-        setProfile(null);
-        setFarmFields([]);
-        setSelectedFieldState(null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const refreshProfileForUser = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (!error && data) {
-        setProfile(data);
-        if (data.preferred_language === "ne" || data.preferred_language === "en") {
-          setLangS(data.preferred_language);
-        }
-        if (data.current_location_name) {
-          setCurrentGpsLocationName(data.current_location_name);
-        }
-      }
-    } catch (err) {
-      console.warn("Could not load user profile:", err);
-    }
-  };
-
-  const refreshProfile = async () => {
-    if (user) await refreshProfileForUser(user.id);
-  };
-
   const reloadFarmFields = async () => {
     const fields = await loadUserFarmFields();
     setFarmFields(fields);
     if (fields.length > 0) {
-      // Restore saved selection or pick primary / first
-      const savedId = localStorage.getItem("naip.selected_field_id");
+      const savedId =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("naip.selected_field_id")
+          : null;
       const matched =
         fields.find((f) => f.id === savedId) ?? fields.find((f) => f.isPrimary) ?? fields[0];
       setSelectedFieldState(matched ?? null);
     } else {
-      // NO CHITWAN DEFAULT - Honest empty state when user has no registered farm!
       setSelectedFieldState(null);
     }
   };
 
+  // Load settings and farm fields on mount
   useEffect(() => {
     setLangS(load("naip.lang", "en"));
     setThS(load("naip.th", defaults));
     setInsp(load("naip.insp", []));
     setActiveViewS(load("naip.view", "dashboard"));
     setCurrentGpsLocationName(load("naip.gps_loc", null));
-    setReady(true);
+    reloadFarmFields().finally(() => setReady(true));
   }, []);
 
   useEffect(() => {
@@ -187,18 +135,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (f) {
       save("naip.selected_field_id", f.id);
     } else {
-      localStorage.removeItem("naip.selected_field_id");
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("naip.selected_field_id");
+      }
     }
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
+  const updateDemoProfile = (p: DemoProfile) => {
+    setDemoProfileState(p);
+    saveDemoProfile(p);
+  };
+
+  const resetDemoData = () => {
+    clearDemoData();
+    setDemoProfileState(loadDemoProfile());
     setFarmFields([]);
     setSelectedFieldState(null);
-    localStorage.removeItem("naip.selected_field_id");
+    setThS(defaults);
+    setInsp([]);
+    setLangS("en");
   };
 
   // Bridge selectedField to legacy Field shape
@@ -223,11 +178,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const value: State = {
-    user,
-    session,
-    profile,
-    refreshProfile,
-    signOut,
+    demoProfile,
+    updateDemoProfile,
+    resetDemoData,
     currentGpsLocationName,
     setCurrentGpsLocationName: (n) => {
       setCurrentGpsLocationName(n);
@@ -243,9 +196,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setLang: (l) => {
       setLangS(l);
       save("naip.lang", l);
-      if (user) {
-        supabase.from("user_profiles").update({ preferred_language: l }).eq("id", user.id).then();
-      }
     },
     t: (k) => translate(lang, k),
     thresholds,

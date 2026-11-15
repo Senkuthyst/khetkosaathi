@@ -1,12 +1,15 @@
-// Farm Fields Management Client
-// Handles multi-plot persistence, retrieval, updating and primary-field selection
-// Directly bound to Supabase auth with full RLS protection.
+// Farm Fields Management — localStorage-backed guest storage
+// Replaces the previous Supabase-authenticated implementation.
+// All five public function signatures are preserved so the rest of the app
+// (store.tsx, my-farm.tsx, onboarding.tsx, farm-check.tsx) requires zero call-site changes.
+// Supabase client, types, and migrations are intentionally untouched.
 
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, Json } from "@/integrations/supabase/types";
 import type { LatLng } from "./data";
 import { fromFeature, toFeature, isFarmFeature, type FarmFeature } from "./farm-plot";
+import { DEMO_USER_ID, FARM_FIELDS_KEY } from "./demo-profile";
 
+// Keep FarmFieldRow type alias for any code that still references it.
 export type FarmFieldRow = Tables<"farm_fields">;
 
 export interface FarmField {
@@ -33,6 +36,37 @@ export interface FarmField {
   createdAt: string;
 }
 
+// ---------------------------------------------------------------------------
+// Internal localStorage helpers
+// ---------------------------------------------------------------------------
+
+function isBrowser(): boolean {
+  return typeof window !== "undefined" && typeof localStorage !== "undefined";
+}
+
+function readAll(): FarmField[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = localStorage.getItem(FARM_FIELDS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as FarmField[];
+  } catch {
+    return [];
+  }
+}
+
+function writeAll(fields: FarmField[]): void {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(FARM_FIELDS_KEY, JSON.stringify(fields));
+  } catch {
+    /* quota protection */
+  }
+}
+
+// ---------------------------------------------------------------------------
+// rowToFarmField — kept for type compatibility; not used by localStorage path
+// ---------------------------------------------------------------------------
 export function rowToFarmField(row: FarmFieldRow): FarmField {
   const boundaryJson = row.boundary;
   let pts: LatLng[] = [];
@@ -42,7 +76,6 @@ export function rowToFarmField(row: FarmFieldRow): FarmField {
     boundaryFeature = boundaryJson;
     pts = fromFeature(boundaryJson);
   } else {
-    // Fallback if legacy or raw GeoJSON feature
     boundaryFeature = toFeature(row.field_name, [[row.latitude, row.longitude]]);
   }
 
@@ -71,32 +104,24 @@ export function rowToFarmField(row: FarmFieldRow): FarmField {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Public API — same signatures as before
+// ---------------------------------------------------------------------------
+
 /**
- * Load all registered agricultural plots for the currently authenticated user.
+ * Load all registered agricultural plots for the demo account from localStorage.
  */
 export async function loadUserFarmFields(): Promise<FarmField[]> {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session?.session?.user) {
-    // Return empty array for unauthenticated / anonymous state (no Chitwan default!)
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("farm_fields")
-    .select("*")
-    .order("is_primary", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.warn("Could not load user farm fields:", error.message);
-    return [];
-  }
-
-  return (data ?? []).map(rowToFarmField);
+  const fields = readAll();
+  // Return primary first, then by creation date descending — mirrors the old Supabase ORDER BY
+  return [...fields].sort((a, b) => {
+    if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
 }
 
 /**
- * Create a new farm field for the authenticated user.
+ * Create a new farm field and persist it to localStorage.
  */
 export async function createFarmField(params: {
   fieldName: string;
@@ -112,86 +137,93 @@ export async function createFarmField(params: {
   wardNumber?: string;
   isPrimary?: boolean;
 }): Promise<FarmField> {
-  const { data: session } = await supabase.auth.getSession();
-  const user = session?.session?.user;
-  if (!user) throw new Error("Authentication required to register farm field.");
-
   const feature = toFeature(params.fieldName, params.boundary);
-  // Calculate centroid
-  const latSum = params.boundary.reduce((sum, p) => sum + p[0], 0);
-  const lonSum = params.boundary.reduce((sum, p) => sum + p[1], 0);
-  const centerLat = latSum / params.boundary.length;
-  const centerLon = lonSum / params.boundary.length;
+  const latSum = params.boundary.reduce((s, p) => s + p[0], 0);
+  const lonSum = params.boundary.reduce((s, p) => s + p[1], 0);
+  const centerLat = Math.round((latSum / params.boundary.length) * 10000) / 10000;
+  const centerLon = Math.round((lonSum / params.boundary.length) * 10000) / 10000;
 
-  const insertPayload: TablesInsert<"farm_fields"> = {
-    user_id: user.id,
-    field_name: params.fieldName.trim(),
-    latitude: Math.round(centerLat * 10000) / 10000,
-    longitude: Math.round(centerLon * 10000) / 10000,
-    boundary: feature as unknown as Json,
-    area_m2: feature.properties.area_m2,
-    area_unit: "m2",
-    crop_type: params.cropType,
-    crop_variety: params.cropVariety ?? null,
-    planting_date: params.plantingDate,
-    irrigation_type: params.irrigationType ?? "rainfed",
-    soil_type: params.soilType ?? null,
-    municipality: params.municipality ?? null,
-    district: params.district ?? null,
-    province: params.province ?? null,
-    ward_number: params.wardNumber ?? null,
-    is_primary: params.isPrimary ?? false,
+  const newField: FarmField = {
+    id: crypto.randomUUID(),
+    userId: DEMO_USER_ID,
+    fieldName: params.fieldName.trim() || "My Farm Plot",
+    province: params.province,
+    district: params.district,
+    municipality: params.municipality,
+    wardNumber: params.wardNumber,
+    latitude: centerLat,
+    longitude: centerLon,
+    boundary: params.boundary,
+    boundaryFeature: feature,
+    areaM2: feature.properties.area_m2,
+    areaUnit: "m2",
+    cropType: params.cropType,
+    cropVariety: params.cropVariety,
+    plantingDate: params.plantingDate,
+    irrigationType: params.irrigationType ?? "rainfed",
+    soilType: params.soilType,
+    isPrimary: params.isPrimary ?? false,
+    createdAt: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
-    .from("farm_fields")
-    .insert(insertPayload)
-    .select()
-    .single();
+  const existing = readAll();
 
-  if (error) {
-    if (error.code === "PGRST205" || error.message?.includes("schema cache")) {
-      throw new Error(
-        "The 'farm_fields' table is not yet created in your Lovable Cloud database. Please run the SQL migration (0004_auth_and_farm_fields.sql) in your Lovable Cloud SQL Editor.",
-      );
-    }
-    throw error;
-  }
-  return rowToFarmField(data);
+  // If this is marked primary, unset others first
+  let updated = params.isPrimary
+    ? existing.map((f) => ({ ...f, isPrimary: false }))
+    : existing;
+
+  updated = [newField, ...updated];
+  writeAll(updated);
+  return newField;
 }
 
 /**
- * Update an existing field.
+ * Update an existing field. Accepts a partial TablesInsert for column-name compatibility.
  */
 export async function updateFarmField(
   fieldId: string,
   updates: Partial<TablesInsert<"farm_fields">>,
 ): Promise<FarmField> {
-  const { data, error } = await supabase
-    .from("farm_fields")
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq("id", fieldId)
-    .select()
-    .single();
+  const fields = readAll();
+  const idx = fields.findIndex((f) => f.id === fieldId);
+  if (idx === -1) throw new Error(`Farm field ${fieldId} not found in local storage.`);
 
-  if (error) throw error;
-  return rowToFarmField(data);
+  // Map snake_case column names → camelCase FarmField properties
+  const f = fields[idx];
+  const merged: FarmField = {
+    ...f,
+    fieldName: (updates.field_name as string | undefined) ?? f.fieldName,
+    cropType: (updates.crop_type as string | undefined) ?? f.cropType,
+    cropVariety: (updates.crop_variety as string | undefined) ?? f.cropVariety,
+    plantingDate: (updates.planting_date as string | undefined) ?? f.plantingDate,
+    irrigationType: (updates.irrigation_type as string | undefined) ?? f.irrigationType,
+    soilType: (updates.soil_type as string | undefined) ?? f.soilType,
+    isPrimary: updates.is_primary !== undefined ? Boolean(updates.is_primary) : f.isPrimary,
+    province: (updates.province as string | undefined) ?? f.province,
+    district: (updates.district as string | undefined) ?? f.district,
+    municipality: (updates.municipality as string | undefined) ?? f.municipality,
+    wardNumber: (updates.ward_number as string | undefined) ?? f.wardNumber,
+  };
+
+  fields[idx] = merged;
+  writeAll(fields);
+  return merged;
 }
 
 /**
- * Delete a farm field.
+ * Delete a farm field from localStorage.
  */
 export async function deleteFarmField(fieldId: string): Promise<void> {
-  const { error } = await supabase.from("farm_fields").delete().eq("id", fieldId);
-  if (error) throw error;
+  const fields = readAll().filter((f) => f.id !== fieldId);
+  writeAll(fields);
 }
 
 /**
- * Set a field as primary for the user.
+ * Set a field as primary for the demo account.
+ * The userId param is kept for signature compatibility but ignored.
  */
-export async function setPrimaryFarmField(fieldId: string, userId: string): Promise<void> {
-  // First unset other primaries
-  await supabase.from("farm_fields").update({ is_primary: false }).eq("user_id", userId);
-  // Set target primary
-  await supabase.from("farm_fields").update({ is_primary: true }).eq("id", fieldId);
+export async function setPrimaryFarmField(fieldId: string, _userId?: string): Promise<void> {
+  const fields = readAll().map((f) => ({ ...f, isPrimary: f.id === fieldId }));
+  writeAll(fields);
 }
