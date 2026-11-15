@@ -18,14 +18,25 @@ describe("Smart Crop Rotation & Harvest Advisor Engine", () => {
     longitude: 87.279,
     boundary: [
       [26.667, 87.278],
-      [26.667, 87.280],
-      [26.665, 87.280],
+      [26.667, 87.28],
+      [26.665, 87.28],
       [26.665, 87.278],
     ],
     boundaryFeature: {
       type: "Feature",
       properties: { name: "Uttardhoka", area_hectares: 0.45, area_m2: 4500 },
-      geometry: { type: "Polygon", coordinates: [[[87.278, 26.667], [87.280, 26.667], [87.280, 26.665], [87.278, 26.665], [87.278, 26.667]]] },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [87.278, 26.667],
+            [87.28, 26.667],
+            [87.28, 26.665],
+            [87.278, 26.665],
+            [87.278, 26.667],
+          ],
+        ],
+      },
     },
     areaM2: 4500,
     areaUnit: "m2",

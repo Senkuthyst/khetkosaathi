@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Radio, Battery, Thermometer, Droplets, CloudRain, Activity, SlidersHorizontal, Info } from "lucide-react";
+import {
+  Radio,
+  Battery,
+  Thermometer,
+  Droplets,
+  CloudRain,
+  Activity,
+  SlidersHorizontal,
+  Info,
+} from "lucide-react";
 import { PageTitle, DataCard, SourceTag } from "@/components/kit";
 import { TrendChart } from "@/components/Charts";
 import { ThresholdEditor } from "@/components/ThresholdEditor";
@@ -20,7 +29,7 @@ export const Route = createFileRoute("/weather")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Weather & Microclimate Station",
-      "Pilot weather station telemetry, daily microclimate patterns, sensor health diagnostics, and NASA POWER comparisons."
+      "Pilot weather station telemetry, daily microclimate patterns, sensor health diagnostics, and NASA POWER comparisons.",
     ),
   component: Weather,
 });
@@ -62,16 +71,44 @@ function Weather() {
       {/* Real-time Telemetry Dashboard Card */}
       <DataCard title={t("current")} {...meta} icon={<Radio className="h-5 w-5 text-station" />}>
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-          <span>Station Node: <strong>{stationMeta.id}</strong></span>
-          <span>{num(lang, 12)} {t("minAgo")}</span>
+          <span>
+            Station Node: <strong>{stationMeta.id}</strong>
+          </span>
+          <span>
+            {num(lang, 12)} {t("minAgo")}
+          </span>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { key: "temperature" as const, value: stationCurrent.temp, unit: "°C", Icon: Thermometer, color: "text-primary" },
-            { key: "humidity" as const, value: stationCurrent.humidity, unit: "%", Icon: Droplets, color: "text-satellite" },
-            { key: "rainToday" as const, value: stationCurrent.rainToday, unit: "mm", Icon: CloudRain, color: "text-primary" },
-            { key: "soilMoisture" as const, value: stationCurrent.soil, unit: "%", Icon: Droplets, color: "text-primary" },
+            {
+              key: "temperature" as const,
+              value: stationCurrent.temp,
+              unit: "°C",
+              Icon: Thermometer,
+              color: "text-primary",
+            },
+            {
+              key: "humidity" as const,
+              value: stationCurrent.humidity,
+              unit: "%",
+              Icon: Droplets,
+              color: "text-satellite",
+            },
+            {
+              key: "rainToday" as const,
+              value: stationCurrent.rainToday,
+              unit: "mm",
+              Icon: CloudRain,
+              color: "text-primary",
+            },
+            {
+              key: "soilMoisture" as const,
+              value: stationCurrent.soil,
+              unit: "%",
+              Icon: Droplets,
+              color: "text-primary",
+            },
           ].map((m) => (
             <div key={m.key} className="rounded-xl border border-border bg-muted/20 p-4">
               <p className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
@@ -124,11 +161,7 @@ function Weather() {
         </div>
 
         <DataCard title={`${t("humidity")} · ${t("trends")}`} {...meta}>
-          <TrendChart
-            data={daily}
-            series={[{ key: "humidity", label: t("humidity") }]}
-            unit="%"
-          />
+          <TrendChart data={daily} series={[{ key: "humidity", label: t("humidity") }]} unit="%" />
         </DataCard>
       </div>
 
@@ -152,10 +185,18 @@ function Weather() {
                   <th scope="row" className="py-2.5 px-3 text-left font-semibold text-foreground">
                     {fmtDate(lang, d.date)}
                   </th>
-                  <td className="py-2.5 px-3 font-mono">{d.tMax == null ? "—" : num(lang, d.tMax)}</td>
-                  <td className="py-2.5 px-3 font-mono">{d.tMin == null ? "—" : num(lang, d.tMin)}</td>
-                  <td className="py-2.5 px-3 font-mono">{d.rain == null ? "—" : num(lang, d.rain)}</td>
-                  <td className="py-2.5 px-3 font-mono">{d.soil == null ? "—" : num(lang, d.soil)}</td>
+                  <td className="py-2.5 px-3 font-mono">
+                    {d.tMax == null ? "—" : num(lang, d.tMax)}
+                  </td>
+                  <td className="py-2.5 px-3 font-mono">
+                    {d.tMin == null ? "—" : num(lang, d.tMin)}
+                  </td>
+                  <td className="py-2.5 px-3 font-mono">
+                    {d.rain == null ? "—" : num(lang, d.rain)}
+                  </td>
+                  <td className="py-2.5 px-3 font-mono">
+                    {d.soil == null ? "—" : num(lang, d.soil)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -165,10 +206,17 @@ function Weather() {
       </DataCard>
 
       {/* Sensor Health Diagnostics */}
-      <DataCard title={t("sensorHealth")} {...meta} icon={<Battery className="h-5 w-5 text-primary" />}>
+      <DataCard
+        title={t("sensorHealth")}
+        {...meta}
+        icon={<Battery className="h-5 w-5 text-primary" />}
+      >
         <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           {[
-            { label: t("lastSeen"), value: `${fmtDate(lang, sensorHealth.lastSeen)} · ${num(lang, 12)} ${t("minAgo")}` },
+            {
+              label: t("lastSeen"),
+              value: `${fmtDate(lang, sensorHealth.lastSeen)} · ${num(lang, 12)} ${t("minAgo")}`,
+            },
             { label: t("uptime"), value: `${num(lang, sensorHealth.uptime)}%` },
             { label: t("battery"), value: `${num(lang, sensorHealth.battery)}%` },
             { label: t("signal"), value: `${num(lang, sensorHealth.signal)} dBm` },
@@ -219,7 +267,10 @@ function Weather() {
       </DataCard>
 
       {/* Thresholds Settings Section */}
-      <section id="thresholds" className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+      <section
+        id="thresholds"
+        className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
+      >
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <SlidersHorizontal className="h-5 w-5 text-primary" />
           <div>

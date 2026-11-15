@@ -56,7 +56,9 @@ export const fetchFirmsHotspotsServerFn = createServerFn({ method: "POST" })
     };
 
     if (!mapKey) {
-      console.info("MAP_API_KEY / NASA_FIRMS_MAP_KEY not configured. Reporting empty thermal anomaly list with credential notice.");
+      console.info(
+        "MAP_API_KEY / NASA_FIRMS_MAP_KEY not configured. Reporting empty thermal anomaly list with credential notice.",
+      );
       provenance.mode = "live";
       provenance.quality = "missing";
 
@@ -88,7 +90,7 @@ export const fetchFirmsHotspotsServerFn = createServerFn({ method: "POST" })
       const csv = await res.text();
       const detections = parseFirmsCsv(csv);
       const highConfidenceCount = detections.filter(
-        (d) => d.confidence === "high" || d.confidence === "h" || parseFloat(d.confidence) >= 80
+        (d) => d.confidence === "high" || d.confidence === "h" || parseFloat(d.confidence) >= 80,
       ).length;
 
       return {

@@ -20,7 +20,13 @@ import {
 import { useApp } from "@/lib/store";
 import { num } from "@/lib/i18n";
 import type { LatLng } from "@/lib/data";
-import { fromFeature, isFarmFeature, isValidPolygon, polygonAreaM2, toFeature } from "@/lib/farm-plot";
+import {
+  fromFeature,
+  isFarmFeature,
+  isValidPolygon,
+  polygonAreaM2,
+  toFeature,
+} from "@/lib/farm-plot";
 import { loadFarmPlot, saveFarmPlot } from "@/lib/farm-plot-storage";
 
 const NEPAL_CENTER: LatLng = [28.3949, 84.124];
@@ -29,7 +35,12 @@ const NOMINATIM_MIN_INTERVAL_MS = 1100;
 
 type Mode = "view" | "draw" | "edit" | "confirm";
 type Loc = { lat: number; lng: number; acc: number };
-type Place = { name: string; lat: number; lng: number; bounds: [[number, number], [number, number]] | null };
+type Place = {
+  name: string;
+  lat: number;
+  lng: number;
+  bounds: [[number, number], [number, number]] | null;
+};
 type Notice = { text: string; kind: "info" | "error" | "ok" };
 
 /** Larger uncertainty should be shown at a wider map zoom, not a false street-level zoom. */
@@ -44,7 +55,10 @@ function zoomForAccuracy(accuracy: number) {
 }
 
 function samePoints(a: LatLng[], b: LatLng[]) {
-  return a.length === b.length && a.every((point, index) => point[0] === b[index]?.[0] && point[1] === b[index]?.[1]);
+  return (
+    a.length === b.length &&
+    a.every((point, index) => point[0] === b[index]?.[0] && point[1] === b[index]?.[1])
+  );
 }
 
 function readRing(layer: L.Polygon): LatLng[] {
@@ -58,7 +72,13 @@ function readRing(layer: L.Polygon): LatLng[] {
  * Geoman owns polygon creation. The temporary layer is removed as soon as it is
  * finished so React remains the single source of truth for the saved boundary.
  */
-function GeomanDraw({ onCreated, onCancel }: { onCreated: (pts: LatLng[]) => void; onCancel: () => void }) {
+function GeomanDraw({
+  onCreated,
+  onCancel,
+}: {
+  onCreated: (pts: LatLng[]) => void;
+  onCancel: () => void;
+}) {
   const map = useMap();
   const createdRef = useRef(onCreated);
   const cancelRef = useRef(onCancel);
@@ -90,7 +110,12 @@ function GeomanDraw({ onCreated, onCancel }: { onCreated: (pts: LatLng[]) => voi
     map.pm.enableDraw("Polygon", {
       allowSelfIntersection: false,
       finishOnEnter: true,
-      pathOptions: { color: "var(--primary)", fillColor: "var(--primary)", fillOpacity: 0.2, weight: 3 },
+      pathOptions: {
+        color: "var(--primary)",
+        fillColor: "var(--primary)",
+        fillOpacity: 0.2,
+        weight: 3,
+      },
       templineStyle: { color: "var(--primary)", weight: 3 },
       hintlineStyle: { color: "var(--primary)", dashArray: "6 6", weight: 2 },
     });
@@ -126,7 +151,14 @@ function EditableBoundary({ pts, onChange }: { pts: LatLng[]; onChange: (pts: La
       onChangeRef.current(ring.map((point) => [point.lat, point.lng] as LatLng));
     };
 
-    const events = ["pm:markerdrag", "pm:markerdragend", "pm:update", "pm:edit", "pm:vertexadded", "pm:vertexremoved"] as const;
+    const events = [
+      "pm:markerdrag",
+      "pm:markerdragend",
+      "pm:update",
+      "pm:edit",
+      "pm:vertexadded",
+      "pm:vertexremoved",
+    ] as const;
     events.forEach((event) => layer.on(event, sync));
     layer.pm.enable({
       allowSelfIntersection: false,
@@ -145,7 +177,12 @@ function EditableBoundary({ pts, onChange }: { pts: LatLng[]; onChange: (pts: La
     <Polygon
       ref={ref}
       positions={pts}
-      pathOptions={{ color: "var(--primary)", fillColor: "var(--primary)", fillOpacity: 0.2, weight: 3 }}
+      pathOptions={{
+        color: "var(--primary)",
+        fillColor: "var(--primary)",
+        fillOpacity: 0.2,
+        weight: 3,
+      }}
     />
   );
 }
@@ -325,7 +362,10 @@ export default function MyFarmMap() {
           const box = row.boundingbox?.map(Number);
           const bounds =
             box?.length === 4 && box.every(Number.isFinite)
-              ? ([[box[0]!, box[2]!], [box[1]!, box[3]!]] as [[number, number], [number, number]])
+              ? ([
+                  [box[0]!, box[2]!],
+                  [box[1]!, box[3]!],
+                ] as [[number, number], [number, number]])
               : null;
           return { name: row.display_name, lat: Number(row.lat), lng: Number(row.lon), bounds };
         }),
@@ -464,12 +504,22 @@ export default function MyFarmMap() {
             <Circle
               center={[loc.lat, loc.lng]}
               radius={Math.max(loc.acc, 3)}
-              pathOptions={{ color: "var(--location)", fillColor: "var(--location)", fillOpacity: 0.12, weight: 1 }}
+              pathOptions={{
+                color: "var(--location)",
+                fillColor: "var(--location)",
+                fillOpacity: 0.12,
+                weight: 1,
+              }}
             />
             <CircleMarker
               center={[loc.lat, loc.lng]}
               radius={8}
-              pathOptions={{ color: "var(--card)", weight: 3, fillColor: "var(--location)", fillOpacity: 1 }}
+              pathOptions={{
+                color: "var(--card)",
+                weight: 3,
+                fillColor: "var(--location)",
+                fillOpacity: 1,
+              }}
             />
           </>
         )}
@@ -477,14 +527,35 @@ export default function MyFarmMap() {
           <CircleMarker
             center={[searchPin.lat, searchPin.lng]}
             radius={9}
-            pathOptions={{ color: "var(--card)", weight: 3, fillColor: "var(--satellite)", fillOpacity: 1 }}
+            pathOptions={{
+              color: "var(--card)",
+              weight: 3,
+              fillColor: "var(--satellite)",
+              fillOpacity: 1,
+            }}
           />
         )}
         {mode === "view" && pts.length > 2 && (
-          <Polygon positions={pts} pathOptions={{ color: "var(--primary)", fillColor: "var(--primary)", fillOpacity: 0.3, weight: 3 }} />
+          <Polygon
+            positions={pts}
+            pathOptions={{
+              color: "var(--primary)",
+              fillColor: "var(--primary)",
+              fillOpacity: 0.3,
+              weight: 3,
+            }}
+          />
         )}
         {mode === "confirm" && pts.length > 2 && (
-          <Polygon positions={pts} pathOptions={{ color: "var(--primary)", fillColor: "var(--primary)", fillOpacity: 0.3, weight: 3 }} />
+          <Polygon
+            positions={pts}
+            pathOptions={{
+              color: "var(--primary)",
+              fillColor: "var(--primary)",
+              fillOpacity: 0.3,
+              weight: 3,
+            }}
+          />
         )}
         {mode === "edit" && pts.length > 2 && <EditableBoundary pts={pts} onChange={setPts} />}
         {mode === "draw" && <GeomanDraw key={drawKey} onCreated={created} onCancel={resetDraft} />}
@@ -492,7 +563,10 @@ export default function MyFarmMap() {
 
       {/* Search */}
       <div className="absolute inset-x-3 top-3 z-[500]">
-        <form onSubmit={search} className="flex items-center gap-2 rounded-full border bg-card px-4 shadow-lg">
+        <form
+          onSubmit={search}
+          className="flex items-center gap-2 rounded-full border bg-card px-4 shadow-lg"
+        >
           <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
           <input
             value={q}
@@ -521,7 +595,12 @@ export default function MyFarmMap() {
               <X className="h-4 w-4" />
             </button>
           )}
-          <Btn type="submit" variant="ghost" className="shrink-0 px-1 text-sm" disabled={searching || !q.trim()}>
+          <Btn
+            type="submit"
+            variant="ghost"
+            className="shrink-0 px-1 text-sm"
+            disabled={searching || !q.trim()}
+          >
             {searching ? t("searching") : t("search")}
           </Btn>
         </form>
@@ -560,10 +639,22 @@ export default function MyFarmMap() {
 
       {/* Zoom + locate */}
       <div className="absolute right-3 top-20 z-[500] flex flex-col gap-2">
-        <Btn variant="outline" className={fab} onClick={() => map?.zoomIn()} aria-label={t("zoomIn")} title={t("zoomIn")}>
+        <Btn
+          variant="outline"
+          className={fab}
+          onClick={() => map?.zoomIn()}
+          aria-label={t("zoomIn")}
+          title={t("zoomIn")}
+        >
           <Plus className="h-5 w-5" />
         </Btn>
-        <Btn variant="outline" className={fab} onClick={() => map?.zoomOut()} aria-label={t("zoomOut")} title={t("zoomOut")}>
+        <Btn
+          variant="outline"
+          className={fab}
+          onClick={() => map?.zoomOut()}
+          aria-label={t("zoomOut")}
+          title={t("zoomOut")}
+        >
           <Minus className="h-5 w-5" />
         </Btn>
       </div>
@@ -581,11 +672,20 @@ export default function MyFarmMap() {
 
       {/* Bottom panel */}
       <div className="absolute inset-x-3 bottom-6 z-[500] max-h-[60%] space-y-2 overflow-auto rounded-lg border bg-card/95 p-3 shadow-lg backdrop-blur-sm">
-        {loading && <p role="status" className="text-sm text-muted-foreground">{t("plotLoading")}</p>}
+        {loading && (
+          <p role="status" className="text-sm text-muted-foreground">
+            {t("plotLoading")}
+          </p>
+        )}
         {loadError && (
-          <div role="alert" className="flex items-center justify-between gap-2 text-sm text-destructive">
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-2 text-sm text-destructive"
+          >
             <span>{t("plotLoadFail")}</span>
-            <Btn variant="ghost" onClick={load}>{t("retry")}</Btn>
+            <Btn variant="ghost" onClick={load}>
+              {t("retry")}
+            </Btn>
           </div>
         )}
         {tileErr && (
@@ -609,43 +709,69 @@ export default function MyFarmMap() {
           </p>
         )}
 
-        {editing && <p className="text-xs font-semibold text-muted-foreground">{mode === "draw" ? t("stepDraw") : t("stepAdjust")}</p>}
-        {mode === "confirm" && <p className="text-xs font-semibold text-muted-foreground">{t("stepSave")}</p>}
+        {editing && (
+          <p className="text-xs font-semibold text-muted-foreground">
+            {mode === "draw" ? t("stepDraw") : t("stepAdjust")}
+          </p>
+        )}
+        {mode === "confirm" && (
+          <p className="text-xs font-semibold text-muted-foreground">{t("stepSave")}</p>
+        )}
 
         {pts.length > 2 && (
           <p className="text-sm font-semibold">
-            {t("area")}: {valid ? `${num(lang, Math.round(area))} ${t("sqm")} · ${num(lang, +(area / 10000).toFixed(3))} ${t("hectares")}` : "—"}{" "}
-            <span className="font-normal text-muted-foreground">({num(lang, pts.length)} {t("points")})</span>
+            {t("area")}:{" "}
+            {valid
+              ? `${num(lang, Math.round(area))} ${t("sqm")} · ${num(lang, +(area / 10000).toFixed(3))} ${t("hectares")}`
+              : "—"}{" "}
+            <span className="font-normal text-muted-foreground">
+              ({num(lang, pts.length)} {t("points")})
+            </span>
           </p>
         )}
         {editing && pts.length > 0 && !valid && (
-          <p role="alert" className="text-xs font-semibold text-destructive">{t("invalidPoly")}</p>
+          <p role="alert" className="text-xs font-semibold text-destructive">
+            {t("invalidPoly")}
+          </p>
         )}
 
-        {mode === "view" && !loading && (
-          pts.length > 2 ? (
+        {mode === "view" &&
+          !loading &&
+          (pts.length > 2 ? (
             <div className="flex gap-2">
               <Btn variant="outline" className="min-w-0 flex-1 px-2 text-sm" onClick={editBoundary}>
                 <Pencil className="h-4 w-4 shrink-0" />
                 {t("editBoundary")}
               </Btn>
-              <Btn className="min-w-0 flex-1 px-2 text-sm" onClick={beginDraw}>{t("drawBoundary")}</Btn>
+              <Btn className="min-w-0 flex-1 px-2 text-sm" onClick={beginDraw}>
+                {t("drawBoundary")}
+              </Btn>
             </div>
           ) : (
-            <Btn className="tap w-full rounded-xl bg-primary font-bold text-primary-foreground" onClick={beginDraw}>
+            <Btn
+              className="tap w-full rounded-xl bg-primary font-bold text-primary-foreground"
+              onClick={beginDraw}
+            >
               <Pencil className="mr-2 inline h-5 w-5" />
               {t("drawBoundary")}
             </Btn>
-          )
-        )}
+          ))}
 
         {mode === "draw" && (
           <div className="grid grid-cols-2 gap-2">
-            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" onClick={resetDraft}>
+            <Btn
+              variant="outline"
+              className="flex-col gap-1 px-1 py-1 text-xs"
+              onClick={resetDraft}
+            >
               <X className="h-4 w-4" />
               {t("cancel")}
             </Btn>
-            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" onClick={clearBoundary}>
+            <Btn
+              variant="outline"
+              className="flex-col gap-1 px-1 py-1 text-xs"
+              onClick={clearBoundary}
+            >
               <RotateCcw className="h-4 w-4" />
               {t("clear")}
             </Btn>
@@ -654,15 +780,29 @@ export default function MyFarmMap() {
 
         {mode === "edit" && (
           <div className="grid grid-cols-4 gap-2">
-            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" onClick={resetDraft}>
+            <Btn
+              variant="outline"
+              className="flex-col gap-1 px-1 py-1 text-xs"
+              onClick={resetDraft}
+            >
               <X className="h-4 w-4" />
               {t("cancel")}
             </Btn>
-            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" disabled={!pts.length} onClick={undo}>
+            <Btn
+              variant="outline"
+              className="flex-col gap-1 px-1 py-1 text-xs"
+              disabled={!pts.length}
+              onClick={undo}
+            >
               <Undo2 className="h-4 w-4" />
               {t("undo")}
             </Btn>
-            <Btn variant="outline" className="flex-col gap-1 px-1 py-1 text-xs" disabled={!pts.length} onClick={clearBoundary}>
+            <Btn
+              variant="outline"
+              className="flex-col gap-1 px-1 py-1 text-xs"
+              disabled={!pts.length}
+              onClick={clearBoundary}
+            >
               <Trash2 className="h-4 w-4" />
               {t("clear")}
             </Btn>
@@ -674,7 +814,11 @@ export default function MyFarmMap() {
         )}
 
         {editing && canRestore && (
-          <Btn variant="ghost" className="h-auto px-0 py-1 text-sm font-semibold text-primary underline" onClick={restore}>
+          <Btn
+            variant="ghost"
+            className="h-auto px-0 py-1 text-sm font-semibold text-primary underline"
+            onClick={restore}
+          >
             {t("restorePrevious")}
           </Btn>
         )}
@@ -693,7 +837,10 @@ export default function MyFarmMap() {
             </label>
             <p className="text-xs text-muted-foreground">{t("resolutionNote")}</p>
             <div className="flex gap-2">
-              <Btn className="tap flex-1 rounded-xl border-2 font-semibold" onClick={() => setMode("edit")}>
+              <Btn
+                className="tap flex-1 rounded-xl border-2 font-semibold"
+                onClick={() => setMode("edit")}
+              >
                 {t("back")}
               </Btn>
               <Btn

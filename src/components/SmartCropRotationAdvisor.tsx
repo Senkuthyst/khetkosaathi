@@ -81,7 +81,9 @@ export function SmartCropRotationAdvisor() {
           const validTMax = days.map((o) => o.tMax).filter((v): v is number => v !== null);
           const validRain = days.map((o) => o.rain).filter((v): v is number => v !== null);
 
-          const avgMax = validTMax.length ? validTMax.reduce((a, b) => a + b, 0) / validTMax.length : null;
+          const avgMax = validTMax.length
+            ? validTMax.reduce((a, b) => a + b, 0) / validTMax.length
+            : null;
           const sumRain = validRain.length ? validRain.reduce((a, b) => a + b, 0) : null;
 
           setEnvMetrics((prev) => ({
@@ -138,7 +140,12 @@ export function SmartCropRotationAdvisor() {
     soilMoisturePct: envMetrics.soilMoisture,
   });
 
-  const topNextCrop = nextCrops.find((c) => c.suitabilityStatus === "highly_suitable" || c.suitabilityStatus === "suitable") ?? nextCrops[0] ?? null;
+  const topNextCrop =
+    nextCrops.find(
+      (c) => c.suitabilityStatus === "highly_suitable" || c.suitabilityStatus === "suitable",
+    ) ??
+    nextCrops[0] ??
+    null;
   const timeline = buildRotationTimeline(harvestAdvice, topNextCrop);
 
   return (
@@ -154,7 +161,9 @@ export function SmartCropRotationAdvisor() {
                 Smart Crop Rotation & Planting Advisor
               </span>
               <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground">NARC & NASA Earth Science Fusion</span>
+              <span className="text-xs text-muted-foreground">
+                NARC & NASA Earth Science Fusion
+              </span>
             </div>
 
             <h2 className="mt-2 text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
@@ -172,15 +181,22 @@ export function SmartCropRotationAdvisor() {
               </span>
               <span>•</span>
               <span>
-                Planting Date: <strong className="text-foreground font-mono">{harvestAdvice.plantingDate}</strong>
+                Planting Date:{" "}
+                <strong className="text-foreground font-mono">{harvestAdvice.plantingDate}</strong>
               </span>
               <span>•</span>
               <span>
-                Age: <strong className="text-foreground">{num(lang, harvestAdvice.cropAgeDays)} days</strong>
+                Age:{" "}
+                <strong className="text-foreground">
+                  {num(lang, harvestAdvice.cropAgeDays)} days
+                </strong>
               </span>
               <span>•</span>
               <span>
-                Irrigation: <strong className="text-foreground capitalize">{selectedField.irrigationType}</strong>
+                Irrigation:{" "}
+                <strong className="text-foreground capitalize">
+                  {selectedField.irrigationType}
+                </strong>
               </span>
             </div>
           </div>
@@ -189,7 +205,8 @@ export function SmartCropRotationAdvisor() {
             <div className="px-3 py-2 rounded-xl bg-card border border-border text-right text-xs">
               <span className="text-muted-foreground block text-[10px]">Estimated Duration</span>
               <strong className="text-foreground">
-                {harvestAdvice.expectedDurationRangeDays[0]} – {harvestAdvice.expectedDurationRangeDays[1]} days
+                {harvestAdvice.expectedDurationRangeDays[0]} –{" "}
+                {harvestAdvice.expectedDurationRangeDays[1]} days
               </strong>
             </div>
           </div>
@@ -199,9 +216,10 @@ export function SmartCropRotationAdvisor() {
         <div className="mt-4 pt-3 border-t border-border flex items-start gap-2 text-xs text-muted-foreground">
           <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <span>
-            <strong>Scientific Advisory Notice:</strong> Satellite observations (NASA POWER, SMAP, GPM) provide regional
-            agro-climatic conditions and growth duration estimates. Satellite sensors cannot confirm subterranean tuber
-            ripeness or physical grain hardness. Always confirm maturity using the in-field inspection checklist below.
+            <strong>Scientific Advisory Notice:</strong> Satellite observations (NASA POWER, SMAP,
+            GPM) provide regional agro-climatic conditions and growth duration estimates. Satellite
+            sensors cannot confirm subterranean tuber ripeness or physical grain hardness. Always
+            confirm maturity using the in-field inspection checklist below.
           </span>
         </div>
       </div>
@@ -242,7 +260,9 @@ export function SmartCropRotationAdvisor() {
             {/* Target Dates Banner */}
             <div className="rounded-2xl border border-primary/20 bg-secondary/30 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
-                <span className="text-muted-foreground block text-[11px]">Recommended Harvest Start:</span>
+                <span className="text-muted-foreground block text-[11px]">
+                  Recommended Harvest Start:
+                </span>
                 <strong className="text-base font-extrabold text-foreground font-mono">
                   {harvestAdvice.estimatedHarvestStart}
                 </strong>
@@ -252,12 +272,15 @@ export function SmartCropRotationAdvisor() {
               </div>
 
               <div>
-                <span className="text-muted-foreground block text-[11px]">Recommended Harvest Close:</span>
+                <span className="text-muted-foreground block text-[11px]">
+                  Recommended Harvest Close:
+                </span>
                 <strong className="text-base font-extrabold text-foreground font-mono">
                   {harvestAdvice.estimatedHarvestEnd}
                 </strong>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Latest safe window to avoid field deterioration (Day {harvestAdvice.expectedDurationRangeDays[1]})
+                  Latest safe window to avoid field deterioration (Day{" "}
+                  {harvestAdvice.expectedDurationRangeDays[1]})
                 </p>
               </div>
             </div>
@@ -278,8 +301,8 @@ export function SmartCropRotationAdvisor() {
                       rf.level === "high"
                         ? "bg-destructive/10 border-destructive/20 text-destructive"
                         : rf.level === "medium"
-                        ? "bg-amber-50 border-amber-200 text-amber-900"
-                        : "bg-muted/30 border-border text-foreground"
+                          ? "bg-amber-50 border-amber-200 text-amber-900"
+                          : "bg-muted/30 border-border text-foreground",
                     )}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -337,7 +360,7 @@ export function SmartCropRotationAdvisor() {
                       "p-3 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2.5",
                       checked
                         ? "bg-emerald-50/70 border-emerald-300 text-emerald-900"
-                        : "bg-card border-border hover:bg-muted/40 text-foreground"
+                        : "bg-card border-border hover:bg-muted/40 text-foreground",
                     )}
                   >
                     <input
@@ -356,7 +379,9 @@ export function SmartCropRotationAdvisor() {
             </div>
 
             <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground">
-              <strong className="block text-foreground mb-0.5">When to seek extension assistance:</strong>
+              <strong className="block text-foreground mb-0.5">
+                When to seek extension assistance:
+              </strong>
               <span>{harvestAdvice.expertAssessmentNote}</span>
             </div>
           </Card>
@@ -374,7 +399,8 @@ export function SmartCropRotationAdvisor() {
               What Should I Plant Next? (Evidence-Based Suitability)
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Evaluated against observed temperature, upcoming planting calendar, rotational synergy, and irrigation access.
+              Evaluated against observed temperature, upcoming planting calendar, rotational
+              synergy, and irrigation access.
             </p>
           </div>
 
@@ -401,10 +427,10 @@ export function SmartCropRotationAdvisor() {
                 crop.suitabilityStatus === "highly_suitable"
                   ? "border-emerald-300 bg-emerald-50/20"
                   : crop.suitabilityStatus === "suitable"
-                  ? "border-primary/20 bg-card"
-                  : crop.suitabilityStatus === "caution"
-                  ? "border-amber-200 bg-amber-50/20"
-                  : "border-border bg-muted/20 opacity-70"
+                    ? "border-primary/20 bg-card"
+                    : crop.suitabilityStatus === "caution"
+                      ? "border-amber-200 bg-amber-50/20"
+                      : "border-border bg-muted/20 opacity-70",
               )}
             >
               <div className="space-y-3">
@@ -423,10 +449,10 @@ export function SmartCropRotationAdvisor() {
                       crop.suitabilityStatus === "highly_suitable"
                         ? "bg-emerald-100 text-emerald-800"
                         : crop.suitabilityStatus === "suitable"
-                        ? "bg-primary/10 text-primary"
-                        : crop.suitabilityStatus === "caution"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-muted text-muted-foreground"
+                          ? "bg-primary/10 text-primary"
+                          : crop.suitabilityStatus === "caution"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-muted text-muted-foreground",
                     )}
                   >
                     {crop.suitabilityStatus.replace("_", " ")}
@@ -436,11 +462,15 @@ export function SmartCropRotationAdvisor() {
                 {/* Key Metrics Pill */}
                 <div className="grid grid-cols-2 gap-2 text-[11px] p-2.5 rounded-xl bg-card border border-border">
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">Planting Window:</span>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Planting Window:
+                    </span>
                     <strong className="text-foreground">{crop.recommendedPlantingWindow}</strong>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">Growing Duration:</span>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Growing Duration:
+                    </span>
                     <strong className="text-foreground">
                       {crop.growthDurationDays[0]} – {crop.growthDurationDays[1]} days
                     </strong>
@@ -449,16 +479,24 @@ export function SmartCropRotationAdvisor() {
 
                 {/* Compatibility Reasons */}
                 <div className="space-y-1.5 text-xs">
-                  <strong className="text-[11px] font-bold text-foreground block">Why this crop:</strong>
+                  <strong className="text-[11px] font-bold text-foreground block">
+                    Why this crop:
+                  </strong>
                   {crop.compatibilityReasons.map((reason, rIdx) => (
-                    <div key={rIdx} className="flex items-start gap-1.5 text-muted-foreground text-[11px]">
+                    <div
+                      key={rIdx}
+                      className="flex items-start gap-1.5 text-muted-foreground text-[11px]"
+                    >
                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{reason}</span>
                     </div>
                   ))}
 
                   {crop.incompatibilityReasons.map((risk, rIdx) => (
-                    <div key={rIdx} className="flex items-start gap-1.5 text-destructive text-[11px]">
+                    <div
+                      key={rIdx}
+                      className="flex items-start gap-1.5 text-destructive text-[11px]"
+                    >
                       <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
                       <span>{risk}</span>
                     </div>
@@ -502,7 +540,8 @@ export function SmartCropRotationAdvisor() {
             Seasonal Crop Rotation & Transition Calendar
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Planning sequence incorporating mandatory field solarization, residue management, and optimal next planting
+            Planning sequence incorporating mandatory field solarization, residue management, and
+            optimal next planting
           </p>
         </div>
 
@@ -516,15 +555,19 @@ export function SmartCropRotationAdvisor() {
                   step.status === "active"
                     ? "bg-primary ring-4 ring-primary/20"
                     : step.status === "completed"
-                    ? "bg-muted-foreground"
-                    : "bg-border"
+                      ? "bg-muted-foreground"
+                      : "bg-border",
                 )}
               />
 
               <div className="p-3.5 rounded-2xl border border-border bg-card shadow-2xs space-y-1">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <h4 className="text-xs sm:text-sm font-extrabold text-foreground">{step.title}</h4>
-                  <span className="text-[11px] font-mono text-primary font-bold">{step.dateRange}</span>
+                  <h4 className="text-xs sm:text-sm font-extrabold text-foreground">
+                    {step.title}
+                  </h4>
+                  <span className="text-[11px] font-mono text-primary font-bold">
+                    {step.dateRange}
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
@@ -543,7 +586,8 @@ export function SmartCropRotationAdvisor() {
             Observational Provenance & Environmental Data Transparency
           </h4>
           <span className="text-[10px] text-muted-foreground">
-            Coordinates: {selectedField.latitude.toFixed(4)}° N, {selectedField.longitude.toFixed(4)}° E
+            Coordinates: {selectedField.latitude.toFixed(4)}° N,{" "}
+            {selectedField.longitude.toFixed(4)}° E
           </span>
         </div>
 
@@ -573,9 +617,13 @@ export function SmartCropRotationAdvisor() {
           </div>
 
           <div className="p-3 rounded-xl bg-muted/20 border border-border">
-            <span className="text-muted-foreground block text-[10px]">Scientific Agronomy Standard</span>
+            <span className="text-muted-foreground block text-[10px]">
+              Scientific Agronomy Standard
+            </span>
             <strong className="text-foreground">NARC & FAO Cropping</strong>
-            <span className="block text-[10px] text-muted-foreground mt-0.5">Peer-reviewed extension bulletin</span>
+            <span className="block text-[10px] text-muted-foreground mt-0.5">
+              Peer-reviewed extension bulletin
+            </span>
           </div>
         </div>
       </Card>

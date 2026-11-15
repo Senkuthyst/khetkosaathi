@@ -26,7 +26,7 @@ function deviceToken(): string {
  */
 export async function loadEarthObservations(
   fieldId: string,
-  sourceName?: string
+  sourceName?: string,
 ): Promise<EarthObservationRecord[]> {
   try {
     const { data, error } = await supabase.rpc("get_earth_observations", {
@@ -71,7 +71,7 @@ export async function loadEarthObservations(
  */
 export async function saveEarthObservations(
   fieldId: string,
-  records: EarthObservationRecord[]
+  records: EarthObservationRecord[],
 ): Promise<number> {
   if (!records.length) return 0;
 
@@ -126,7 +126,8 @@ export function reconstructPowerDailySets(records: EarthObservationRecord[]): Na
     }
 
     if (r.qualityStatus === "missing") curr.qualityStatus = "missing";
-    else if (r.qualityStatus === "marginal" && curr.qualityStatus !== "missing") curr.qualityStatus = "marginal";
+    else if (r.qualityStatus === "marginal" && curr.qualityStatus !== "missing")
+      curr.qualityStatus = "marginal";
 
     byDate.set(date, curr);
   }

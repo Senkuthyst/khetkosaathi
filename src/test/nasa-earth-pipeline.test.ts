@@ -4,10 +4,7 @@ import {
   normalizeModisObservations,
   MODIS_SCALE_FACTOR,
 } from "@/lib/data/modis-service";
-import {
-  normalizeGpmImergObservations,
-  calculateRainfallAnomaly,
-} from "@/lib/data/gpm-service";
+import { normalizeGpmImergObservations, calculateRainfallAnomaly } from "@/lib/data/gpm-service";
 import { parseFirmsCsv } from "@/lib/data/firms-service";
 import { computeScientificAnomalies } from "@/lib/data/scientific-anomaly-engine";
 
@@ -128,8 +125,8 @@ describe("Stage 2-8 NASA Scientific Data Pipeline Tests", () => {
       expect(report.fieldInspectionRecommendations.length).toBeGreaterThan(0);
       expect(
         report.fieldInspectionRecommendations.some((r) =>
-          r.toLowerCase().includes("soil moisture")
-        )
+          r.toLowerCase().includes("soil moisture"),
+        ),
       ).toBe(true);
     });
   });

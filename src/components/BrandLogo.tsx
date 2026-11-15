@@ -69,10 +69,7 @@ export function BrandLogo({
             d="M15 33C14 26 18 17 29 13C29 23 23 31 15 33Z"
             fill={theme === "dark" ? "#69A96B" : "#123B2A"}
           />
-          <path
-            d="M17 33C24 33 32 28 35 18C28 17 21 21 17 33Z"
-            fill="#237A50"
-          />
+          <path d="M17 33C24 33 32 28 35 18C28 17 21 21 17 33Z" fill="#237A50" />
           {/* Inner Leaf Vein */}
           <path
             d="M17 31C21 27 25 22 28 16"
@@ -98,7 +95,7 @@ export function BrandLogo({
               className={cn(
                 "font-extrabold tracking-tight font-sans transition-colors",
                 textColor,
-                variant === "hero" ? "text-2xl sm:text-3xl" : "text-base sm:text-lg"
+                variant === "hero" ? "text-2xl sm:text-3xl" : "text-base sm:text-lg",
               )}
             >
               KHETKOSAATHI
@@ -109,7 +106,7 @@ export function BrandLogo({
                   "font-medium text-xs px-1.5 py-0.5 rounded-md transition-colors",
                   theme === "dark"
                     ? "bg-white/10 text-[#B8D987]"
-                    : "bg-[#237A50]/10 text-[#237A50]"
+                    : "bg-[#237A50]/10 text-[#237A50]",
                 )}
                 title="खेतको साथी (Nepali)"
               >
@@ -123,7 +120,7 @@ export function BrandLogo({
               className={cn(
                 "mt-0.5 font-medium tracking-tight truncate",
                 subtextColor,
-                variant === "hero" ? "text-xs sm:text-sm" : "text-[11px]"
+                variant === "hero" ? "text-xs sm:text-sm" : "text-[11px]",
               )}
             >
               {lang === "ne"

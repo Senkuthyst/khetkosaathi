@@ -15,11 +15,36 @@ const wave = (i: number, a: number, p: number, s = 0) => Math.sin((i + s) / p) *
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
 export const municipalities = [
-  { id: "bharatpur", ne: "भरतपुर महानगरपालिका, चितवन", en: "Bharatpur Metropolitan, Chitwan", center: [27.6766, 84.4335] as [number, number] },
-  { id: "ratnanagar", ne: "रत्ननगर नगरपालिका, चितवन", en: "Ratnanagar Municipality, Chitwan", center: [27.618, 84.505] as [number, number] },
-  { id: "tilottama", ne: "तिलोत्तमा नगरपालिका, रुपन्देही", en: "Tilottama Municipality, Rupandehi", center: [27.633, 83.475] as [number, number] },
-  { id: "banepa", ne: "बनेपा नगरपालिका, काभ्रे", en: "Banepa Municipality, Kavre", center: [27.632, 85.521] as [number, number] },
-  { id: "dhangadhi", ne: "धनगढी उपमहानगरपालिका, कैलाली", en: "Dhangadhi Sub-Metropolitan, Kailali", center: [28.698, 80.594] as [number, number] },
+  {
+    id: "bharatpur",
+    ne: "भरतपुर महानगरपालिका, चितवन",
+    en: "Bharatpur Metropolitan, Chitwan",
+    center: [27.6766, 84.4335] as [number, number],
+  },
+  {
+    id: "ratnanagar",
+    ne: "रत्ननगर नगरपालिका, चितवन",
+    en: "Ratnanagar Municipality, Chitwan",
+    center: [27.618, 84.505] as [number, number],
+  },
+  {
+    id: "tilottama",
+    ne: "तिलोत्तमा नगरपालिका, रुपन्देही",
+    en: "Tilottama Municipality, Rupandehi",
+    center: [27.633, 83.475] as [number, number],
+  },
+  {
+    id: "banepa",
+    ne: "बनेपा नगरपालिका, काभ्रे",
+    en: "Banepa Municipality, Kavre",
+    center: [27.632, 85.521] as [number, number],
+  },
+  {
+    id: "dhangadhi",
+    ne: "धनगढी उपमहानगरपालिका, कैलाली",
+    en: "Dhangadhi Sub-Metropolitan, Kailali",
+    center: [28.698, 80.594] as [number, number],
+  },
 ];
 
 export const pilotField: Field = {
@@ -36,9 +61,31 @@ export const pilotField: Field = {
   ],
 };
 
-export const neighbourFields: { name: string; status: "good" | "watch" | "low"; boundary: [number, number][] }[] = [
-  { name: "A", status: "good", boundary: [[27.6792, 84.4322], [27.6795, 84.434], [27.6787, 84.4342], [27.6785, 84.4321]] },
-  { name: "B", status: "watch", boundary: [[27.676, 84.435], [27.6762, 84.4368], [27.675, 84.437], [27.6749, 84.4352]] },
+export const neighbourFields: {
+  name: string;
+  status: "good" | "watch" | "low";
+  boundary: [number, number][];
+}[] = [
+  {
+    name: "A",
+    status: "good",
+    boundary: [
+      [27.6792, 84.4322],
+      [27.6795, 84.434],
+      [27.6787, 84.4342],
+      [27.6785, 84.4321],
+    ],
+  },
+  {
+    name: "B",
+    status: "watch",
+    boundary: [
+      [27.676, 84.435],
+      [27.6762, 84.4368],
+      [27.675, 84.437],
+      [27.6749, 84.4352],
+    ],
+  },
 ];
 
 // ---------- Weather station (farm, point) ----------
@@ -87,7 +134,11 @@ export function getNasaPowerDaily(days = 14) {
     };
   });
 }
-export const nasaPowerMeta: Meta = { source: "nasa_power", observedAt: iso(daysAgo(2)), scale: "~0.5° (~50 km)" };
+export const nasaPowerMeta: Meta = {
+  source: "nasa_power",
+  observedAt: iso(daysAgo(2)),
+  scale: "~0.5° (~50 km)",
+};
 
 // ---------- Satellite vegetation (AppEEARS) ----------
 export function getVegSeries(): VegPoint[] {
@@ -124,17 +175,109 @@ export function freshness(observedAt: string | null, staleAfterHours: number): F
 }
 
 export const calendar = [
-  { id: "c1", crops: ["rice"], inDays: 3, ne: "धानको बाला पहेँलो हुँदै छ — खेतको पानी निकास जाँच्नुहोस्", en: "Rice panicles turning yellow — check field drainage" },
-  { id: "c2", crops: ["rice"], inDays: 12, ne: "कटानीको तयारी: औजार र भण्डारण ठाउँ तयार गर्नुहोस्", en: "Prepare for harvest: tools and storage space" },
-  { id: "c3", crops: ["wheat"], inDays: 20, ne: "गहुँ बीउ छर्ने उपयुक्त समय सुरु", en: "Suitable wheat sowing window begins" },
-  { id: "c4", crops: ["potato", "tomato"], inDays: 6, ne: "चिसो रातमा बिरुवा निरीक्षण गर्नुहोस्", en: "Inspect plants after cold nights" },
-  { id: "c5", crops: ["maize"], inDays: 9, ne: "मकै भण्डारण अघि राम्ररी सुकाउनुहोस्", en: "Dry maize well before storage" },
+  {
+    id: "c1",
+    crops: ["rice"],
+    inDays: 3,
+    ne: "धानको बाला पहेँलो हुँदै छ — खेतको पानी निकास जाँच्नुहोस्",
+    en: "Rice panicles turning yellow — check field drainage",
+  },
+  {
+    id: "c2",
+    crops: ["rice"],
+    inDays: 12,
+    ne: "कटानीको तयारी: औजार र भण्डारण ठाउँ तयार गर्नुहोस्",
+    en: "Prepare for harvest: tools and storage space",
+  },
+  {
+    id: "c3",
+    crops: ["wheat"],
+    inDays: 20,
+    ne: "गहुँ बीउ छर्ने उपयुक्त समय सुरु",
+    en: "Suitable wheat sowing window begins",
+  },
+  {
+    id: "c4",
+    crops: ["potato", "tomato"],
+    inDays: 6,
+    ne: "चिसो रातमा बिरुवा निरीक्षण गर्नुहोस्",
+    en: "Inspect plants after cold nights",
+  },
+  {
+    id: "c5",
+    crops: ["maize"],
+    inDays: 9,
+    ne: "मकै भण्डारण अघि राम्ररी सुकाउनुहोस्",
+    en: "Dry maize well before storage",
+  },
 ];
 
 export const guidance = [
-  { id: "g1", crops: ["rice"], ne: { t: "धान खेतमा पानी व्यवस्थापन", b: "बाला निस्केपछि खेतमा २–५ से.मि. पानी राख्नुहोस्; कटानीभन्दा १०–१५ दिन अगाडि पानी निकाल्नुहोस्।" }, en: { t: "Water management in rice", b: "Keep 2–5 cm of water after heading; drain the field 10–15 days before harvest." }, reviewer: "NARC – National Rice Research Program", url: "https://narc.gov.np" },
-  { id: "g2", crops: ["rice", "maize", "wheat", "potato", "tomato"], ne: { t: "खेत निरीक्षण कसरी गर्ने", b: "खेतको कम्तीमा ५ ठाउँमा हिँडेर हेर्नुहोस्। पात, डाँठ र माटोको फोटो खिच्नुहोस् र टिपोट राख्नुहोस्।" }, en: { t: "How to inspect a field", b: "Walk to at least 5 spots in the field. Photograph leaves, stems and soil, and keep notes." }, reviewer: "Ministry of Agriculture & Livestock Development", url: "https://moald.gov.np" },
-  { id: "g3", crops: ["maize"], ne: { t: "मकैको भण्डारण", b: "दाना १३% भन्दा कम चिस्यान हुने गरी सुकाएर हावा चल्ने ठाउँमा राख्नुहोस्।" }, en: { t: "Storing maize", b: "Dry grain below 13% moisture and store in a ventilated place." }, reviewer: "NARC – National Maize Research Program", url: "https://narc.gov.np" },
-  { id: "g4", crops: ["potato", "tomato"], ne: { t: "तुसारो र चिसोबाट बचाउ", b: "चिसो रात आउनु अघि हल्का सिँचाइ र छापो (मल्च) ले माटोको तापक्रम जोगाउन मद्दत गर्छ।" }, en: { t: "Protecting from frost and cold", b: "Light irrigation and mulch before cold nights help keep soil warmer." }, reviewer: "Agriculture Knowledge Centre, Kavre", url: "https://moald.gov.np" },
-  { id: "g5", crops: ["wheat"], ne: { t: "गहुँ छर्ने समय", b: "तराईमा कात्तिक अन्त्यदेखि मंसिर मध्यसम्म छर्दा राम्रो हुन्छ। स्थानीय कृषि प्राविधिकसँग सल्लाह लिनुहोस्।" }, en: { t: "Wheat sowing time", b: "In the Terai, late Kartik to mid-Mangsir is usually best. Consult your local agriculture technician." }, reviewer: "NARC – National Wheat Research Program", url: "https://narc.gov.np" },
+  {
+    id: "g1",
+    crops: ["rice"],
+    ne: {
+      t: "धान खेतमा पानी व्यवस्थापन",
+      b: "बाला निस्केपछि खेतमा २–५ से.मि. पानी राख्नुहोस्; कटानीभन्दा १०–१५ दिन अगाडि पानी निकाल्नुहोस्।",
+    },
+    en: {
+      t: "Water management in rice",
+      b: "Keep 2–5 cm of water after heading; drain the field 10–15 days before harvest.",
+    },
+    reviewer: "NARC – National Rice Research Program",
+    url: "https://narc.gov.np",
+  },
+  {
+    id: "g2",
+    crops: ["rice", "maize", "wheat", "potato", "tomato"],
+    ne: {
+      t: "खेत निरीक्षण कसरी गर्ने",
+      b: "खेतको कम्तीमा ५ ठाउँमा हिँडेर हेर्नुहोस्। पात, डाँठ र माटोको फोटो खिच्नुहोस् र टिपोट राख्नुहोस्।",
+    },
+    en: {
+      t: "How to inspect a field",
+      b: "Walk to at least 5 spots in the field. Photograph leaves, stems and soil, and keep notes.",
+    },
+    reviewer: "Ministry of Agriculture & Livestock Development",
+    url: "https://moald.gov.np",
+  },
+  {
+    id: "g3",
+    crops: ["maize"],
+    ne: {
+      t: "मकैको भण्डारण",
+      b: "दाना १३% भन्दा कम चिस्यान हुने गरी सुकाएर हावा चल्ने ठाउँमा राख्नुहोस्।",
+    },
+    en: { t: "Storing maize", b: "Dry grain below 13% moisture and store in a ventilated place." },
+    reviewer: "NARC – National Maize Research Program",
+    url: "https://narc.gov.np",
+  },
+  {
+    id: "g4",
+    crops: ["potato", "tomato"],
+    ne: {
+      t: "तुसारो र चिसोबाट बचाउ",
+      b: "चिसो रात आउनु अघि हल्का सिँचाइ र छापो (मल्च) ले माटोको तापक्रम जोगाउन मद्दत गर्छ।",
+    },
+    en: {
+      t: "Protecting from frost and cold",
+      b: "Light irrigation and mulch before cold nights help keep soil warmer.",
+    },
+    reviewer: "Agriculture Knowledge Centre, Kavre",
+    url: "https://moald.gov.np",
+  },
+  {
+    id: "g5",
+    crops: ["wheat"],
+    ne: {
+      t: "गहुँ छर्ने समय",
+      b: "तराईमा कात्तिक अन्त्यदेखि मंसिर मध्यसम्म छर्दा राम्रो हुन्छ। स्थानीय कृषि प्राविधिकसँग सल्लाह लिनुहोस्।",
+    },
+    en: {
+      t: "Wheat sowing time",
+      b: "In the Terai, late Kartik to mid-Mangsir is usually best. Consult your local agriculture technician.",
+    },
+    reviewer: "NARC – National Wheat Research Program",
+    url: "https://narc.gov.np",
+  },
 ];

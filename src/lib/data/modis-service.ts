@@ -173,11 +173,7 @@ export function normalizeModisObservations(options: {
     });
 
     const qualityStatus: EarthQualityStatus =
-      ndvi === null
-        ? "missing"
-        : qa.qualityLevel === "good"
-          ? "good"
-          : "marginal";
+      ndvi === null ? "missing" : qa.qualityLevel === "good" ? "good" : "marginal";
 
     // Standard Observation Record for NDVI
     records.push({
@@ -196,7 +192,9 @@ export function normalizeModisObservations(options: {
       spatialExtractionMethod: "polygon_centroid",
       qualityStatus,
       qualityFlags: [qa.qualityLevel, qa.cloudState],
-      validSpatialCoverage: isFieldTooSmallForModis ? "Sub-pixel Field (Area < 250m Grid)" : "Adequate Grid Coverage",
+      validSpatialCoverage: isFieldTooSmallForModis
+        ? "Sub-pixel Field (Area < 250m Grid)"
+        : "Adequate Grid Coverage",
       processingVersion: "MODIS Collection 6.1",
       provenanceMetadata: {
         rawQA: sample.qaRaw,
@@ -226,7 +224,9 @@ export function normalizeModisObservations(options: {
       spatialExtractionMethod: "polygon_centroid",
       qualityStatus,
       qualityFlags: [qa.qualityLevel, qa.cloudState],
-      validSpatialCoverage: isFieldTooSmallForModis ? "Sub-pixel Field (Area < 250m Grid)" : "Adequate Grid Coverage",
+      validSpatialCoverage: isFieldTooSmallForModis
+        ? "Sub-pixel Field (Area < 250m Grid)"
+        : "Adequate Grid Coverage",
       processingVersion: "MODIS Collection 6.1",
       provenanceMetadata: {
         rawQA: sample.qaRaw,

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/alerts")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Farm Alerts & Threshold Diagnostics",
-      "Rules-based farm anomaly alerts with severity rating, sensor observation dates, sources, and adjustable alert thresholds."
+      "Rules-based farm anomaly alerts with severity rating, sensor observation dates, sources, and adjustable alert thresholds.",
     ),
   component: Alerts,
 });
@@ -74,7 +74,8 @@ function Alerts() {
           </div>
           <h3 className="text-base font-bold text-foreground">{t("noAlerts")}</h3>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            All environmental indicators (rainfall, temperature, soil moisture, and vegetative indices) are within your configured bounds.
+            All environmental indicators (rainfall, temperature, soil moisture, and vegetative
+            indices) are within your configured bounds.
           </p>
         </div>
       )}
@@ -98,12 +99,15 @@ function Alerts() {
                   a.severity === "high"
                     ? "bg-red-100 text-red-800 border border-red-300"
                     : a.severity === "medium"
-                    ? "bg-amber-100 text-amber-800 border border-amber-300"
-                    : "bg-muted text-muted-foreground"
+                      ? "bg-amber-100 text-amber-800 border border-amber-300"
+                      : "bg-muted text-muted-foreground",
                 )}
               >
                 <AlertTriangle className="h-3.5 w-3.5" />
-                {t("severity")}: {t(a.severity === "high" ? "sevHigh" : a.severity === "medium" ? "sevMed" : "sevLow")}
+                {t("severity")}:{" "}
+                {t(
+                  a.severity === "high" ? "sevHigh" : a.severity === "medium" ? "sevMed" : "sevLow",
+                )}
               </span>
             </div>
 

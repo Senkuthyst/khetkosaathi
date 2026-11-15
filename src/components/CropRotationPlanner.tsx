@@ -40,21 +40,18 @@ export function CropRotationPlanner() {
 
   // Form State
   const [location, setLocation] = useState("chitwan");
-  const [soilType, setSoilType] = useState<"alluvial" | "clayLoam" | "sandyLoam" | "siltLoam">("alluvial");
+  const [soilType, setSoilType] = useState<"alluvial" | "clayLoam" | "sandyLoam" | "siltLoam">(
+    "alluvial",
+  );
   const [ph, setPh] = useState<number>(6.2);
   const [organicMatter, setOrganicMatter] = useState<number>(2.1);
   const [drainage, setDrainage] = useState<"well" | "moderate" | "poor">("moderate");
   const [irrigation, setIrrigation] = useState<"assured" | "seasonal" | "rainfed">("seasonal");
 
-  const [priorities, setPriorities] = useState<string[]>([
-    "soil_health",
-    "water_conservation",
-  ]);
+  const [priorities, setPriorities] = useState<string[]>(["soil_health", "water_conservation"]);
 
   const togglePriority = (id: string) => {
-    setPriorities((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
+    setPriorities((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
   };
 
   // Dynamic suitability calculations based on inputs
@@ -71,8 +68,8 @@ export function CropRotationPlanner() {
           (isSoilHealth ? 10 : 0) +
           (drainage === "moderate" ? 5 : 0) +
           (ph >= 6.0 && ph <= 7.2 ? 6 : -4) +
-          (isRainfed ? -15 : 2)
-      )
+          (isRainfed ? -15 : 2),
+      ),
     );
 
     const seqB_Score = Math.min(
@@ -82,8 +79,8 @@ export function CropRotationPlanner() {
         74 +
           (isWaterConserve ? 12 : 0) +
           (soilType === "sandyLoam" || soilType === "alluvial" ? 6 : 0) +
-          (isRainfed ? 5 : -2)
-      )
+          (isRainfed ? 5 : -2),
+      ),
     );
 
     const seqC_Score = Math.min(
@@ -93,8 +90,8 @@ export function CropRotationPlanner() {
         72 +
           (drainage === "well" ? 14 : drainage === "poor" ? -18 : 2) +
           (irrigation === "assured" ? 12 : -15) +
-          (organicMatter >= 2.5 ? 6 : 0)
-      )
+          (organicMatter >= 2.5 ? 6 : 0),
+      ),
     );
 
     return [
@@ -189,7 +186,9 @@ export function CropRotationPlanner() {
               {lang === "ne" ? "निर्णय सहयोग प्रणाली" : "Scientific Decision Support"}
             </div>
             <h2 className="mt-2 text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {lang === "ne" ? "बाली चक्र तथा माटो व्यवस्थापन योजनाकार" : "Crop Intelligence & Rotation Planner"}
+              {lang === "ne"
+                ? "बाली चक्र तथा माटो व्यवस्थापन योजनाकार"
+                : "Crop Intelligence & Rotation Planner"}
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-2xl">
               {lang === "ne"
@@ -208,7 +207,7 @@ export function CropRotationPlanner() {
                   "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
                   step === s
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {lang === "ne" ? `चरण ${num(lang, s)}` : `Step ${s}`}
@@ -226,7 +225,9 @@ export function CropRotationPlanner() {
               1
             </span>
             <h3 className="font-bold text-foreground">
-              {lang === "ne" ? "चरण १: खेतको भौगोलिक क्षेत्र चयन गर्नुहोस्" : "Step 1: Select Farm Location & Agro-Ecological Zone"}
+              {lang === "ne"
+                ? "चरण १: खेतको भौगोलिक क्षेत्र चयन गर्नुहोस्"
+                : "Step 1: Select Farm Location & Agro-Ecological Zone"}
             </h3>
           </div>
 
@@ -274,7 +275,7 @@ export function CropRotationPlanner() {
                   "cursor-pointer rounded-xl border-2 p-4 transition-all text-left",
                   location === loc.id
                     ? "border-primary bg-secondary/50 shadow-sm"
-                    : "border-border hover:border-primary/40 bg-card"
+                    : "border-border hover:border-primary/40 bg-card",
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -312,7 +313,9 @@ export function CropRotationPlanner() {
               2
             </span>
             <h3 className="font-bold text-foreground">
-              {lang === "ne" ? "चरण २: माटोको भौतिक तथा रासायनिक अवस्था" : "Step 2: Enter Soil Characteristics"}
+              {lang === "ne"
+                ? "चरण २: माटोको भौतिक तथा रासायनिक अवस्था"
+                : "Step 2: Enter Soil Characteristics"}
             </h3>
           </div>
 
@@ -337,7 +340,7 @@ export function CropRotationPlanner() {
                       "tap rounded-xl border-2 px-3 py-2 text-xs font-semibold transition-all text-left",
                       soilType === s.id
                         ? "border-primary bg-secondary text-primary"
-                        : "border-border text-foreground hover:bg-muted"
+                        : "border-border text-foreground hover:bg-muted",
                     )}
                   >
                     {s.label}
@@ -365,7 +368,7 @@ export function CropRotationPlanner() {
                       "tap rounded-xl border-2 px-2 py-2 text-xs font-semibold transition-all text-center",
                       drainage === d.id
                         ? "border-primary bg-secondary text-primary"
-                        : "border-border text-foreground hover:bg-muted"
+                        : "border-border text-foreground hover:bg-muted",
                     )}
                   >
                     {d.label}
@@ -381,7 +384,8 @@ export function CropRotationPlanner() {
                   {lang === "ne" ? "माटोको pH मान" : "Soil pH Level"}
                 </span>
                 <span className="font-extrabold text-sm text-primary">
-                  {num(lang, ph.toFixed(1))} ({ph < 5.8 ? "Acidic" : ph > 7.3 ? "Alkaline" : "Optimal Neutral"})
+                  {num(lang, ph.toFixed(1))} (
+                  {ph < 5.8 ? "Acidic" : ph > 7.3 ? "Alkaline" : "Optimal Neutral"})
                 </span>
               </div>
               <input
@@ -404,10 +408,13 @@ export function CropRotationPlanner() {
             <div className="rounded-xl border p-4 bg-muted/30">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground">
-                  {lang === "ne" ? "जैविक पदार्थ (Organic Matter %)" : "Soil Organic Matter (SOM %)"}
+                  {lang === "ne"
+                    ? "जैविक पदार्थ (Organic Matter %)"
+                    : "Soil Organic Matter (SOM %)"}
                 </span>
                 <span className="font-extrabold text-sm text-primary">
-                  {num(lang, organicMatter.toFixed(1))}% ({organicMatter < 1.5 ? "Low" : organicMatter < 3.0 ? "Moderate" : "Good"})
+                  {num(lang, organicMatter.toFixed(1))}% (
+                  {organicMatter < 1.5 ? "Low" : organicMatter < 3.0 ? "Moderate" : "Good"})
                 </span>
               </div>
               <input
@@ -429,13 +436,27 @@ export function CropRotationPlanner() {
             {/* Irrigation Availability */}
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-foreground mb-2">
-                {lang === "ne" ? "सिँचाइ सुविधा (Irrigation Infrastructure)" : "Farm Irrigation Infrastructure"}
+                {lang === "ne"
+                  ? "सिँचाइ सुविधा (Irrigation Infrastructure)"
+                  : "Farm Irrigation Infrastructure"}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {[
-                  { id: "assured", title: "Year-Round Canal / Borewell", desc: "कुलो वा बोरिङबाट बाह्रै महिना" },
-                  { id: "seasonal", title: "Seasonal Irrigation", desc: "मनसुन र हिउँदको सुरुमा मात्र" },
-                  { id: "rainfed", title: "Rainfed (आकासे पानी निर्भर)", desc: "कुनै स्थायी सिँचाइ संरचना नभएको" },
+                  {
+                    id: "assured",
+                    title: "Year-Round Canal / Borewell",
+                    desc: "कुलो वा बोरिङबाट बाह्रै महिना",
+                  },
+                  {
+                    id: "seasonal",
+                    title: "Seasonal Irrigation",
+                    desc: "मनसुन र हिउँदको सुरुमा मात्र",
+                  },
+                  {
+                    id: "rainfed",
+                    title: "Rainfed (आकासे पानी निर्भर)",
+                    desc: "कुनै स्थायी सिँचाइ संरचना नभएको",
+                  },
                 ].map((irr) => (
                   <button
                     key={irr.id}
@@ -445,7 +466,7 @@ export function CropRotationPlanner() {
                       "tap rounded-xl border-2 p-3 text-left transition-all",
                       irrigation === irr.id
                         ? "border-primary bg-secondary text-primary"
-                        : "border-border text-foreground hover:bg-muted"
+                        : "border-border text-foreground hover:bg-muted",
                     )}
                   >
                     <p className="font-bold text-xs">{irr.title}</p>
@@ -482,7 +503,9 @@ export function CropRotationPlanner() {
               3
             </span>
             <h3 className="font-bold text-foreground">
-              {lang === "ne" ? "चरण ३: कृषि तथा वातावरणीय प्राथमिकता छान्नुहोस्" : "Step 3: Select Farming Priorities & Goals"}
+              {lang === "ne"
+                ? "चरण ३: कृषि तथा वातावरणीय प्राथमिकता छान्नुहोस्"
+                : "Step 3: Select Farming Priorities & Goals"}
             </h3>
           </div>
 
@@ -528,13 +551,15 @@ export function CropRotationPlanner() {
                     "cursor-pointer rounded-xl border-2 p-4 transition-all flex items-start gap-3",
                     active
                       ? "border-primary bg-secondary/50 shadow-sm"
-                      : "border-border hover:border-primary/40 bg-card"
+                      : "border-border hover:border-primary/40 bg-card",
                   )}
                 >
                   <div
                     className={cn(
                       "p-2 rounded-lg shrink-0",
-                      active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     <p.Icon className="h-5 w-5" />
@@ -563,7 +588,9 @@ export function CropRotationPlanner() {
               disabled={priorities.length === 0}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50"
             >
-              {lang === "ne" ? "चरण ४: विकल्पहरूको विश्लेषण" : "Step 4: Analyze Rotation Alternatives"}
+              {lang === "ne"
+                ? "चरण ४: विकल्पहरूको विश्लेषण"
+                : "Step 4: Analyze Rotation Alternatives"}
               <Sparkles className="h-4 w-4 text-accent" />
             </button>
           </div>
@@ -578,25 +605,37 @@ export function CropRotationPlanner() {
               4
             </span>
             <h3 className="font-bold text-foreground">
-              {lang === "ne" ? "चरण ४: वैज्ञानिक मोडल विश्लेषण सारांश" : "Step 4: Agro-Ecological Analysis Summary"}
+              {lang === "ne"
+                ? "चरण ४: वैज्ञानिक मोडल विश्लेषण सारांश"
+                : "Step 4: Agro-Ecological Analysis Summary"}
             </h3>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl border p-3 bg-muted/40 text-center">
-              <span className="text-[11px] text-muted-foreground block">{lang === "ne" ? "स्थान" : "Location"}</span>
+              <span className="text-[11px] text-muted-foreground block">
+                {lang === "ne" ? "स्थान" : "Location"}
+              </span>
               <span className="text-sm font-bold text-foreground capitalize">{location}</span>
             </div>
             <div className="rounded-xl border p-3 bg-muted/40 text-center">
-              <span className="text-[11px] text-muted-foreground block">{lang === "ne" ? "माटो र pH" : "Texture & pH"}</span>
-              <span className="text-sm font-bold text-foreground capitalize">{soilType} · {ph.toFixed(1)}</span>
+              <span className="text-[11px] text-muted-foreground block">
+                {lang === "ne" ? "माटो र pH" : "Texture & pH"}
+              </span>
+              <span className="text-sm font-bold text-foreground capitalize">
+                {soilType} · {ph.toFixed(1)}
+              </span>
             </div>
             <div className="rounded-xl border p-3 bg-muted/40 text-center">
-              <span className="text-[11px] text-muted-foreground block">{lang === "ne" ? "सिँचाइ" : "Irrigation"}</span>
+              <span className="text-[11px] text-muted-foreground block">
+                {lang === "ne" ? "सिँचाइ" : "Irrigation"}
+              </span>
               <span className="text-sm font-bold text-foreground capitalize">{irrigation}</span>
             </div>
             <div className="rounded-xl border p-3 bg-muted/40 text-center">
-              <span className="text-[11px] text-muted-foreground block">{lang === "ne" ? "प्राथमिकताहरू" : "Priorities"}</span>
+              <span className="text-[11px] text-muted-foreground block">
+                {lang === "ne" ? "प्राथमिकताहरू" : "Priorities"}
+              </span>
               <span className="text-sm font-bold text-primary">{priorities.length} Selected</span>
             </div>
           </div>
@@ -605,11 +644,15 @@ export function CropRotationPlanner() {
           <div className="rounded-xl bg-secondary/50 border border-primary/20 p-5 space-y-3">
             <div className="flex items-center gap-2 text-primary font-bold text-sm">
               <TrendingUp className="h-4 w-4" />
-              {lang === "ne" ? "मोडल विश्लेषण नतिजा तयार छ" : "3 Suitable Multi-Cropping Sequences Evaluated"}
+              {lang === "ne"
+                ? "मोडल विश्लेषण नतिजा तयार छ"
+                : "3 Suitable Multi-Cropping Sequences Evaluated"}
             </div>
             <p className="text-xs text-foreground/80 leading-relaxed">
-              Based on your field's {soilType} texture, pH of {ph.toFixed(1)}, and {irrigation} status in {location},
-              the decision matrix weighted your {priorities.join(", ").replaceAll("_", " ")} goals against NARC long-term agronomic observations.
+              Based on your field's {soilType} texture, pH of {ph.toFixed(1)}, and {irrigation}{" "}
+              status in {location}, the decision matrix weighted your{" "}
+              {priorities.join(", ").replaceAll("_", " ")} goals against NARC long-term agronomic
+              observations.
             </p>
           </div>
 
@@ -624,7 +667,9 @@ export function CropRotationPlanner() {
               onClick={() => setStep(5)}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
             >
-              {lang === "ne" ? "चरण ५: तुलनात्मक तालिका हेर्नुहोस्" : "Step 5: View Detailed Comparison"}
+              {lang === "ne"
+                ? "चरण ५: तुलनात्मक तालिका हेर्नुहोस्"
+                : "Step 5: View Detailed Comparison"}
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -641,7 +686,9 @@ export function CropRotationPlanner() {
                   5
                 </span>
                 <h3 className="font-bold text-lg text-foreground">
-                  {lang === "ne" ? "चरण ५: बाली चक्र विकल्पहरूको तुलनात्मक प्रतिवेदन" : "Step 5: Crop Rotation Sequence Comparison"}
+                  {lang === "ne"
+                    ? "चरण ५: बाली चक्र विकल्पहरूको तुलनात्मक प्रतिवेदन"
+                    : "Step 5: Crop Rotation Sequence Comparison"}
                 </h3>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -666,7 +713,7 @@ export function CropRotationPlanner() {
                 key={seq.id}
                 className={cn(
                   "rounded-2xl border bg-card p-5 shadow-sm flex flex-col justify-between transition-all",
-                  idx === 0 ? "border-primary/60 ring-2 ring-primary/10" : "border-border"
+                  idx === 0 ? "border-primary/60 ring-2 ring-primary/10" : "border-border",
                 )}
               >
                 <div>
@@ -680,7 +727,9 @@ export function CropRotationPlanner() {
                         {num(lang, seq.suitabilityScore)}
                       </span>
                       <span className="text-xs text-muted-foreground">/100</span>
-                      <span className="block text-[10px] text-muted-foreground uppercase font-semibold">Suitability</span>
+                      <span className="block text-[10px] text-muted-foreground uppercase font-semibold">
+                        Suitability
+                      </span>
                     </div>
                   </div>
 
@@ -698,7 +747,9 @@ export function CropRotationPlanner() {
                       >
                         <Leaf className="h-3 w-3 text-leaf" />
                         {p}
-                        {pIdx < seq.pattern.length - 1 && <span className="text-muted-foreground">→</span>}
+                        {pIdx < seq.pattern.length - 1 && (
+                          <span className="text-muted-foreground">→</span>
+                        )}
                       </span>
                     ))}
                   </div>
@@ -706,11 +757,17 @@ export function CropRotationPlanner() {
                   {/* Key Metrics Grid */}
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs border-y py-3">
                     <div>
-                      <span className="text-[10px] text-muted-foreground block">{lang === "ne" ? "पानी आवश्यकता" : "Water Need"}</span>
-                      <span className="font-bold text-foreground">{seq.waterReqLevel} ({seq.waterReqMm})</span>
+                      <span className="text-[10px] text-muted-foreground block">
+                        {lang === "ne" ? "पानी आवश्यकता" : "Water Need"}
+                      </span>
+                      <span className="font-bold text-foreground">
+                        {seq.waterReqLevel} ({seq.waterReqMm})
+                      </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-muted-foreground block">{lang === "ne" ? "नाइट्रोजन प्रभाव" : "N Balance"}</span>
+                      <span className="text-[10px] text-muted-foreground block">
+                        {lang === "ne" ? "नाइट्रोजन प्रभाव" : "N Balance"}
+                      </span>
                       <span className="font-bold text-primary">{seq.nitrogenImpact}</span>
                     </div>
                   </div>
@@ -773,7 +830,9 @@ export function CropRotationPlanner() {
             <ShieldAlert className="h-4 w-4 text-primary shrink-0 mt-0.5" />
             <div>
               <span className="font-bold text-primary block">
-                {lang === "ne" ? "वैज्ञानिक शुद्धता तथा सिफारिस सीमा सूचना" : "Scientific Validation & Field Safety Disclaimer"}
+                {lang === "ne"
+                  ? "वैज्ञानिक शुद्धता तथा सिफारिस सीमा सूचना"
+                  : "Scientific Validation & Field Safety Disclaimer"}
               </span>
               <span>
                 {lang === "ne"

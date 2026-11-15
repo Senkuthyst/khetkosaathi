@@ -13,14 +13,70 @@ export interface GeoLocation {
 }
 
 export const PRESET_GLOBAL_LOCATIONS: GeoLocation[] = [
-  { id: "np-chitwan", name: "Chitwan (भरतपुर / रत्ननगर)", country: "Nepal", latitude: 27.6775, longitude: 84.4333, region: "Bagmati Province (Pilot Farm)" },
-  { id: "np-kavre", name: "Kavre (बनेपा / पनौती)", country: "Nepal", latitude: 27.632, longitude: 85.521, region: "Mid-Hills Agroecology" },
-  { id: "np-rupandehi", name: "Rupandehi (तिलोत्तमा / भैरहवा)", country: "Nepal", latitude: 27.633, longitude: 83.475, region: "Lumbini Terai Plain" },
-  { id: "np-kailali", name: "Kailali (धनगढी / अत्तरिया)", country: "Nepal", latitude: 28.698, longitude: 80.594, region: "Far-West Grain Belt" },
-  { id: "in-punjab", name: "Ludhiana, Punjab", country: "India", latitude: 30.9010, longitude: 75.8573, region: "Indo-Gangetic Plain" },
-  { id: "bd-rangpur", name: "Rangpur", country: "Bangladesh", latitude: 25.7439, longitude: 89.2752, region: "Brahmaputra Basin" },
-  { id: "us-iowa", name: "Ames, Iowa", country: "United States", latitude: 42.0308, longitude: -93.6319, region: "US Corn Belt" },
-  { id: "br-mato-grosso", name: "Sorriso, Mato Grosso", country: "Brazil", latitude: -12.5425, longitude: -55.7214, region: "Cerrado Agricultural Hub" },
+  {
+    id: "np-chitwan",
+    name: "Chitwan (भरतपुर / रत्ननगर)",
+    country: "Nepal",
+    latitude: 27.6775,
+    longitude: 84.4333,
+    region: "Bagmati Province (Pilot Farm)",
+  },
+  {
+    id: "np-kavre",
+    name: "Kavre (बनेपा / पनौती)",
+    country: "Nepal",
+    latitude: 27.632,
+    longitude: 85.521,
+    region: "Mid-Hills Agroecology",
+  },
+  {
+    id: "np-rupandehi",
+    name: "Rupandehi (तिलोत्तमा / भैरहवा)",
+    country: "Nepal",
+    latitude: 27.633,
+    longitude: 83.475,
+    region: "Lumbini Terai Plain",
+  },
+  {
+    id: "np-kailali",
+    name: "Kailali (धनगढी / अत्तरिया)",
+    country: "Nepal",
+    latitude: 28.698,
+    longitude: 80.594,
+    region: "Far-West Grain Belt",
+  },
+  {
+    id: "in-punjab",
+    name: "Ludhiana, Punjab",
+    country: "India",
+    latitude: 30.901,
+    longitude: 75.8573,
+    region: "Indo-Gangetic Plain",
+  },
+  {
+    id: "bd-rangpur",
+    name: "Rangpur",
+    country: "Bangladesh",
+    latitude: 25.7439,
+    longitude: 89.2752,
+    region: "Brahmaputra Basin",
+  },
+  {
+    id: "us-iowa",
+    name: "Ames, Iowa",
+    country: "United States",
+    latitude: 42.0308,
+    longitude: -93.6319,
+    region: "US Corn Belt",
+  },
+  {
+    id: "br-mato-grosso",
+    name: "Sorriso, Mato Grosso",
+    country: "Brazil",
+    latitude: -12.5425,
+    longitude: -55.7214,
+    region: "Cerrado Agricultural Hub",
+  },
 ];
 
 interface LocationSelectorProps {
@@ -45,7 +101,7 @@ export function GlobalLocationSelector({
     (loc) =>
       loc.name.toLowerCase().includes(query.toLowerCase()) ||
       loc.country.toLowerCase().includes(query.toLowerCase()) ||
-      (loc.region && loc.region.toLowerCase().includes(query.toLowerCase()))
+      (loc.region && loc.region.toLowerCase().includes(query.toLowerCase())),
   );
 
   const handleCustomCoordSubmit = (e: React.FormEvent) => {
@@ -53,7 +109,14 @@ export function GlobalLocationSelector({
     const lat = parseFloat(customLat);
     const lon = parseFloat(customLon);
 
-    if (Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+    if (
+      Number.isFinite(lat) &&
+      Number.isFinite(lon) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lon >= -180 &&
+      lon <= 180
+    ) {
       onSelectLocation({
         id: `custom-${lat.toFixed(3)}-${lon.toFixed(3)}`,
         name: `Custom [${lat.toFixed(3)}°, ${lon.toFixed(3)}°]`,

@@ -38,7 +38,12 @@ export const NASA_POWER_VARIABLE_METADATA: Record<
   T2M_MIN: { label: "Minimum Temperature at 2 Meters", unit: "°C", min: -90, max: 65 },
   RH2M: { label: "Relative Humidity at 2 Meters", unit: "%", min: 0, max: 100 },
   PRECTOTCORR: { label: "Corrected Precipitation", unit: "mm/day", min: 0, max: 2000 },
-  ALLSKY_SFC_SW_DWN: { label: "All Sky Insolation Incident on a Horizontal Surface", unit: "MJ/m²/day", min: 0, max: 100 },
+  ALLSKY_SFC_SW_DWN: {
+    label: "All Sky Insolation Incident on a Horizontal Surface",
+    unit: "MJ/m²/day",
+    min: 0,
+    max: 100,
+  },
   WS2M: { label: "Wind Speed at 2 Meters", unit: "m/s", min: 0, max: 150 },
 };
 
@@ -70,7 +75,14 @@ export function buildNasaPowerUrl(options: {
   parameters?: readonly string[];
   community?: string;
 }): string {
-  const { latitude, longitude, startDate, endDate, parameters = NASA_POWER_PARAMETERS, community = "AG" } = options;
+  const {
+    latitude,
+    longitude,
+    startDate,
+    endDate,
+    parameters = NASA_POWER_PARAMETERS,
+    community = "AG",
+  } = options;
 
   if (latitude < -90 || latitude > 90) {
     throw new Error(`Invalid latitude: ${latitude}. Must be between -90 and 90.`);
@@ -79,7 +91,9 @@ export function buildNasaPowerUrl(options: {
     throw new Error(`Invalid longitude: ${longitude}. Must be between -180 and 180.`);
   }
   if (!/^\d{8}$/.test(startDate) || !/^\d{8}$/.test(endDate)) {
-    throw new Error(`Invalid date format. Expected YYYYMMDD, got start=${startDate}, end=${endDate}`);
+    throw new Error(
+      `Invalid date format. Expected YYYYMMDD, got start=${startDate}, end=${endDate}`,
+    );
   }
   if (startDate > endDate) {
     throw new Error(`startDate (${startDate}) cannot be after endDate (${endDate})`);
@@ -113,7 +127,7 @@ export function normalizeNasaPowerResponse(
     latitude: number;
     longitude: number;
     retrievalTimestamp?: string;
-  }
+  },
 ): NasaPowerObservationResult {
   const parsed = rawResponseSchema.parse(rawJson);
   const p = parsed.properties.parameter;
@@ -122,11 +136,7 @@ export function normalizeNasaPowerResponse(
   const retrievalTimestamp = meta.retrievalTimestamp ?? new Date().toISOString();
 
   // Find all 8-digit date keys across parameters
-  const dates = [
-    ...new Set(
-      NASA_POWER_PARAMETERS.flatMap((k) => Object.keys(p[k] ?? {}))
-    ),
-  ]
+  const dates = [...new Set(NASA_POWER_PARAMETERS.flatMap((k) => Object.keys(p[k] ?? {})))]
     .filter((d) => /^\d{8}$/.test(d))
     .sort();
 

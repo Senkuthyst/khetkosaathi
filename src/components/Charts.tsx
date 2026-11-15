@@ -1,4 +1,15 @@
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Area, Bar } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ComposedChart,
+  Area,
+  Bar,
+} from "recharts";
 import { useApp } from "@/lib/store";
 import { fmtDate, num } from "@/lib/i18n";
 import type { VegPoint } from "@/lib/data";
@@ -76,7 +87,7 @@ export function TrendChart({
                 connectNulls={false}
                 isAnimationActive={false}
               />
-            )
+            ),
           )}
         </ComposedChart>
       </ResponsiveContainer>

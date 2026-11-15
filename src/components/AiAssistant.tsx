@@ -75,8 +75,14 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       contextData: selectedField
         ? [
-            { label: "Selected Farm", value: `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` },
-            { label: "Coordinates", value: `${selectedField.latitude.toFixed(4)}° N, ${selectedField.longitude.toFixed(4)}° E` },
+            {
+              label: "Selected Farm",
+              value: `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})`,
+            },
+            {
+              label: "Coordinates",
+              value: `${selectedField.latitude.toFixed(4)}° N, ${selectedField.longitude.toFixed(4)}° E`,
+            },
             { label: "Crop", value: `${selectedField.cropType}` },
           ]
         : [
@@ -101,7 +107,9 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
 
     // Soil moisture query
     if (q.includes("soil") || q.includes("चिस्यान") || q.includes("moisture")) {
-      const fieldDesc = selectedField ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` : "तपाईंको खेत";
+      const fieldDesc = selectedField
+        ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})`
+        : "तपाईंको खेत";
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
@@ -122,7 +130,12 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
     }
 
     // MODIS / NDVI / Vegetation query
-    if (q.includes("ndvi") || q.includes("modis") || q.includes("हरियाली") || q.includes("vegetation")) {
+    if (
+      q.includes("ndvi") ||
+      q.includes("modis") ||
+      q.includes("हरियाली") ||
+      q.includes("vegetation")
+    ) {
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
@@ -144,7 +157,13 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
     }
 
     // Rotation / Nitrogen query
-    if (q.includes("rotation") || q.includes("चक्र") || q.includes("nitrogen") || q.includes("नाइट्रोजन") || q.includes("crop")) {
+    if (
+      q.includes("rotation") ||
+      q.includes("चक्र") ||
+      q.includes("nitrogen") ||
+      q.includes("नाइट्रोजन") ||
+      q.includes("crop")
+    ) {
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
@@ -166,8 +185,17 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
     }
 
     // Weather / Rain / Temperature query
-    if (q.includes("weather") || q.includes("rain") || q.includes("तापक्रम") || q.includes("वर्षा") || q.includes("power") || q.includes("imerg")) {
-      const fieldDesc = selectedField ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})` : "तपाईंको खेत";
+    if (
+      q.includes("weather") ||
+      q.includes("rain") ||
+      q.includes("तापक्रम") ||
+      q.includes("वर्षा") ||
+      q.includes("power") ||
+      q.includes("imerg")
+    ) {
+      const fieldDesc = selectedField
+        ? `${selectedField.fieldName} (${selectedField.municipality || "Nepal"})`
+        : "तपाईंको खेत";
       return {
         id: `resp-${Date.now()}`,
         sender: "assistant",
@@ -275,10 +303,16 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
             </span>
             <span className="text-muted-foreground shrink-0">|</span>
             <span className="shrink-0 text-muted-foreground">
-              📍 Coords: <strong className="text-foreground">{selectedField ? `${selectedField.latitude.toFixed(2)}°N, ${selectedField.longitude.toFixed(2)}°E` : "Not set"}</strong>
+              📍 Coords:{" "}
+              <strong className="text-foreground">
+                {selectedField
+                  ? `${selectedField.latitude.toFixed(2)}°N, ${selectedField.longitude.toFixed(2)}°E`
+                  : "Not set"}
+              </strong>
             </span>
             <span className="shrink-0 text-muted-foreground">
-              🌾 Crop: <strong className="text-foreground">{selectedField?.cropType ?? "Rice"}</strong>
+              🌾 Crop:{" "}
+              <strong className="text-foreground">{selectedField?.cropType ?? "Rice"}</strong>
             </span>
             <span className="shrink-0 text-muted-foreground">
               🛰 NASA POWER: <strong className="text-foreground">Connected</strong>
@@ -293,7 +327,7 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
               key={m.id}
               className={cn(
                 "flex gap-3 max-w-[88%]",
-                m.sender === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
+                m.sender === "user" ? "ml-auto flex-row-reverse" : "mr-auto",
               )}
             >
               {m.sender === "assistant" && (
@@ -308,7 +342,7 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
                     "rounded-2xl p-3.5 text-xs sm:text-sm leading-relaxed shadow-xs",
                     m.sender === "user"
                       ? "bg-primary text-primary-foreground rounded-tr-xs"
-                      : "bg-muted/80 text-foreground border border-border/80 rounded-tl-xs"
+                      : "bg-muted/80 text-foreground border border-border/80 rounded-tl-xs",
                   )}
                 >
                   <p>{m.text}</p>
@@ -318,7 +352,9 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
                     <div className="mt-2.5 grid grid-cols-2 gap-1.5 pt-2 border-t border-border/60">
                       {m.contextData.map((cd, i) => (
                         <div key={i} className="rounded-lg bg-card/70 p-1.5 text-[11px]">
-                          <span className="text-muted-foreground block text-[10px]">{cd.label}</span>
+                          <span className="text-muted-foreground block text-[10px]">
+                            {cd.label}
+                          </span>
                           <span className="font-bold text-foreground">{cd.value}</span>
                         </div>
                       ))}
@@ -352,7 +388,7 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
                             >
                               {src.label}
                             </span>
-                          )
+                          ),
                         )}
                       </div>
                     </div>
@@ -362,7 +398,7 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
                 <div
                   className={cn(
                     "flex items-center text-[10px] text-muted-foreground px-1",
-                    m.sender === "user" ? "justify-end" : "justify-start"
+                    m.sender === "user" ? "justify-end" : "justify-start",
                   )}
                 >
                   <span>{m.timestamp}</span>
@@ -374,7 +410,11 @@ export function AiAssistant({ isOpen, onClose }: AiAssistantProps) {
           {loading && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground p-2">
               <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" />
-              <span>{lang === "ne" ? "NASA डाटा विश्लेषण हुँदै छ…" : "Synthesizing NASA observations & NARC principles…"}</span>
+              <span>
+                {lang === "ne"
+                  ? "NASA डाटा विश्लेषण हुँदै छ…"
+                  : "Synthesizing NASA observations & NARC principles…"}
+              </span>
             </div>
           )}
 

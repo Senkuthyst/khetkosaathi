@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ExternalLink, BookOpen, CalendarDays, RotateCcw, Sprout, ShieldAlert, Sparkles } from "lucide-react";
+import {
+  ExternalLink,
+  BookOpen,
+  CalendarDays,
+  RotateCcw,
+  Sprout,
+  ShieldAlert,
+  Sparkles,
+} from "lucide-react";
 import { PageTitle, Card, ReportButton, Btn } from "@/components/kit";
 import { CropRotationPlanner } from "@/components/CropRotationPlanner";
 import { SmartCropRotationAdvisor } from "@/components/SmartCropRotationAdvisor";
@@ -14,14 +22,16 @@ export const Route = createFileRoute("/guidance")({
   head: () =>
     pageHead(
       "KHETKOSAATHI — Smart Crop Rotation & Planting Advisor",
-      "Farm-specific crop harvest advisor, next crop suitability engine, and source-linked rotation planning for Nepal."
+      "Farm-specific crop harvest advisor, next crop suitability engine, and source-linked rotation planning for Nepal.",
     ),
   component: Guidance,
 });
 
 function Guidance() {
   const { t, lang, field } = useApp();
-  const [activeTab, setActiveTab] = useState<"smart_advisor" | "planner" | "guidance" | "calendar">("smart_advisor");
+  const [activeTab, setActiveTab] = useState<"smart_advisor" | "planner" | "guidance" | "calendar">(
+    "smart_advisor",
+  );
   const [crop, setCrop] = useState<CropId | "all">(field?.crop ?? "all");
 
   return (
@@ -35,7 +45,9 @@ function Guidance() {
               <span>NARC, FAO & NASA Earth Science Integration</span>
             </div>
             <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              {lang === "ne" ? "स्मार्ट बाली चक्र तथा कटानी सल्लाहकार" : "Smart Crop Rotation & Planting Advisor"}
+              {lang === "ne"
+                ? "स्मार्ट बाली चक्र तथा कटानी सल्लाहकार"
+                : "Smart Crop Rotation & Planting Advisor"}
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
               {lang === "ne"
@@ -52,7 +64,7 @@ function Guidance() {
                 "px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
                 activeTab === "smart_advisor"
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Sparkles className="h-3.5 w-3.5" />
@@ -64,7 +76,7 @@ function Guidance() {
                 "px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
                 activeTab === "planner"
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <RotateCcw className="h-3.5 w-3.5" />
@@ -76,7 +88,7 @@ function Guidance() {
                 "px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
                 activeTab === "guidance"
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <BookOpen className="h-3.5 w-3.5" />
@@ -88,7 +100,7 @@ function Guidance() {
                 "px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
                 activeTab === "calendar"
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <CalendarDays className="h-3.5 w-3.5" />
@@ -132,7 +144,7 @@ function Guidance() {
                   "rounded-xl border px-3.5 py-1.5 text-xs font-bold transition-all",
                   crop === c
                     ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                    : "border-border bg-card text-foreground hover:bg-secondary"
+                    : "border-border bg-card text-foreground hover:bg-secondary",
                 )}
               >
                 {t(c === "all" ? "allCrops" : c)}
@@ -160,7 +172,9 @@ function Guidance() {
 
                   <div className="pt-3 border-t border-border space-y-2">
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                      <span>{t("referenceInstitution")}: <strong>{g.reviewer}</strong></span>
+                      <span>
+                        {t("referenceInstitution")}: <strong>{g.reviewer}</strong>
+                      </span>
                       <a
                         href={g.url}
                         target="_blank"

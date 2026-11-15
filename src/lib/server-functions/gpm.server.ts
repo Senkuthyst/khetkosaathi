@@ -40,7 +40,7 @@ export const fetchGpmPrecipitationServerFn = createServerFn({ method: "POST" })
       const pyTimeout = setTimeout(() => pyController.abort(), 2000);
       const pyRes = await fetch(
         `${gpmServiceUrl}/api/earth/gpm/imerg?fieldId=${encodeURIComponent(fieldId)}&latitude=${latitude}&longitude=${longitude}&days=${days}`,
-        { signal: pyController.signal }
+        { signal: pyController.signal },
       );
       clearTimeout(pyTimeout);
 

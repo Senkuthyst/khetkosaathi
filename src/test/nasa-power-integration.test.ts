@@ -21,7 +21,9 @@ describe("NASA POWER Data Integration and Contracts", () => {
     expect(url).toContain("longitude=84.4333");
     expect(url).toContain("community=AG");
     expect(url).toContain("time-standard=UTC");
-    expect(url).toContain("parameters=T2M%2CT2M_MAX%2CT2M_MIN%2CRH2M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN");
+    expect(url).toContain(
+      "parameters=T2M%2CT2M_MAX%2CT2M_MIN%2CRH2M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN",
+    );
   });
 
   it("rejects invalid coordinates and out-of-order dates", () => {
@@ -31,7 +33,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
         longitude: 84.4333,
         startDate: "20261101",
         endDate: "20261107",
-      })
+      }),
     ).toThrow(/Invalid latitude/);
 
     expect(() =>
@@ -40,7 +42,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
         longitude: 190, // invalid
         startDate: "20261101",
         endDate: "20261107",
-      })
+      }),
     ).toThrow(/Invalid longitude/);
 
     expect(() =>
@@ -49,7 +51,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
         longitude: 84.4333,
         startDate: "20261110",
         endDate: "20261101", // reversed
-      })
+      }),
     ).toThrow(/startDate .* cannot be after endDate/);
   });
 
@@ -104,7 +106,7 @@ describe("NASA POWER Data Integration and Contracts", () => {
     // Granular typed observation records verification
     expect(normalized.records.length).toBe(14); // 2 days * 7 parameters
     const t2mDay2Record = normalized.records.find(
-      (r) => r.observationStart.startsWith("2026-11-02") && r.variableName === "T2M"
+      (r) => r.observationStart.startsWith("2026-11-02") && r.variableName === "T2M",
     );
     expect(t2mDay2Record).toBeDefined();
     expect(t2mDay2Record?.value).toBeNull();

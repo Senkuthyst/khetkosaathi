@@ -20,8 +20,14 @@ const globalFetchParamsSchema = z.object({
   fieldId: z.string().min(1).max(100),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
-  startDate: z.string().regex(/^\d{8}$/).optional(),
-  endDate: z.string().regex(/^\d{8}$/).optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{8}$/)
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{8}$/)
+    .optional(),
   days: z.number().int().min(1).max(365).default(7),
   force: z.boolean().default(false),
 });
@@ -103,7 +109,12 @@ export const fetchNasaPowerDailyServerFn = createServerFn({ method: "POST" })
         retrievalTimestamp: new Date().toISOString(),
       });
     } catch (err) {
-      console.warn(`NASA POWER fetch failed for [${latitude}, ${longitude}]:`, (err as Error).message);
-      throw new Error(`NASA POWER API is temporarily unavailable: ${(err as Error).message}. Please try again later.`);
+      console.warn(
+        `NASA POWER fetch failed for [${latitude}, ${longitude}]:`,
+        (err as Error).message,
+      );
+      throw new Error(
+        `NASA POWER API is temporarily unavailable: ${(err as Error).message}. Please try again later.`,
+      );
     }
   });
