@@ -53,6 +53,42 @@ function DashboardOverview() {
   const [trendTab, setTrendTab] = useState<"rainfall" | "temperature" | "soil">("rainfall");
   const [showRotationPlanner, setShowRotationPlanner] = useState(false);
   const [powerData, setPowerData] = useState<PowerData | null>(null);
+  const selectedFieldId = selectedField?.id;
+  const selectedFieldLatitude = selectedField?.latitude;
+  const selectedFieldLongitude = selectedField?.longitude;
+
+  useEffect(() => {
+    let active = true;
+
+    if (
+      !selectedFieldId ||
+      selectedFieldLatitude === undefined ||
+      selectedFieldLongitude === undefined
+    ) {
+      setPowerData(null);
+      return () => {
+        active = false;
+      };
+    }
+
+    fetchNasaPowerDaily(false, {
+      latitude: selectedFieldLatitude,
+      longitude: selectedFieldLongitude,
+      fieldId: selectedFieldId,
+    })
+      .then((data) => {
+        if (active) setPowerData(data);
+      })
+      .catch((err) => {
+        if (!active) return;
+        console.warn("NASA POWER fetch failed:", err);
+        setPowerData(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedFieldId, selectedFieldLatitude, selectedFieldLongitude]);
 
   // If user selected Landing view, show the full Landing Page
   if (activeView === "landing") {
@@ -86,22 +122,6 @@ function DashboardOverview() {
   }
 
   const currentField = selectedField!;
-
-  // Fetch real NASA POWER observations for the selected farm coordinates
-  useEffect(() => {
-    if (currentField) {
-      fetchNasaPowerDaily(false, {
-        latitude: currentField.latitude,
-        longitude: currentField.longitude,
-        fieldId: currentField.id,
-      })
-        .then(setPowerData)
-        .catch((err) => {
-          console.warn("NASA POWER fetch failed:", err);
-          setPowerData(null);
-        });
-    }
-  }, [currentField.id, currentField.latitude, currentField.longitude]);
 
   const s = summary();
   const f = freshness(stationCurrent.observedAt, 2);
@@ -427,7 +447,7 @@ function DashboardOverview() {
 
           <ul className="space-y-3">
             {calendar
-              .filter((c) => c.crops.includes((currentField.cropType as any) ?? "rice"))
+              .filter((c) => c.crops.includes(currentField.cropType ?? "rice"))
               .map((c) => (
                 <li
                   key={c.id}
