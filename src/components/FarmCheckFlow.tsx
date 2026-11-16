@@ -409,7 +409,14 @@ export function FarmCheckFlow({ className, onViewDashboard }: FarmCheckFlowProps
   const mapCenter: [number, number] = isValidCoords ? coords! : [27.6775, 84.4333];
 
   // Build map markers: one farm pin + up to 3 ranked crop pins on a ~40m ring
-  const topCrops = cropEval?.topCrops ?? [];
+  const topCrops = cropEval
+    ? Array.isArray(cropEval.topCrops)
+      ? cropEval.topCrops
+      : Object.values(cropEval.topCrops).filter(
+          (crop): crop is NextCropSuitabilityScore =>
+            typeof crop === "object" && crop !== null && "cropId" in crop,
+        )
+    : [];
   const markers: MapPointMarker[] = [];
   if (isValidCoords && coords !== null) {
     const farmLat = coords[0];

@@ -140,7 +140,12 @@ export function SmartCropRotationAdvisor() {
     soilMoisturePct: envMetrics.soilMoisture,
   });
 
-  const nextCrops = nextCropEval.topCrops;
+  const nextCrops = Array.isArray(nextCropEval.topCrops)
+    ? nextCropEval.topCrops
+    : Object.values(nextCropEval.topCrops).filter(
+        (crop): crop is NextCropSuitabilityScore =>
+          typeof crop === "object" && crop !== null && "cropId" in crop,
+      );
 
   const topNextCrop =
     nextCrops.find(
