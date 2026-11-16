@@ -1,10 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Inspection } from "./store";
 
+import { createId } from "./id";
+
 function deviceToken() {
   let token = localStorage.getItem("naip.device");
   if (!token) {
-    token = crypto.randomUUID();
+    token = createId();
     localStorage.setItem("naip.device", token);
   }
   return token;

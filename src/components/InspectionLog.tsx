@@ -3,6 +3,7 @@ import { Camera, Save, Trash2 } from "lucide-react";
 import { useApp, type Inspection } from "@/lib/store";
 import { loadInspections, saveInspection, compressPhoto } from "@/lib/inspection-storage";
 import { fmtDate } from "@/lib/i18n";
+import { createId } from "@/lib/id";
 import { Btn, inputCls, Skeleton, ReportButton } from "./kit";
 
 export function InspectionLog() {
@@ -48,7 +49,7 @@ export function InspectionLog() {
     setStatus("saving");
     try {
       const entry: Inspection = {
-        id: crypto.randomUUID(),
+        id: createId(),
         date: new Date().toISOString(),
         note: note.trim(),
         ...(photo ? { photo } : {}),

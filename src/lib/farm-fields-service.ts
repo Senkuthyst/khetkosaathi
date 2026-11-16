@@ -8,6 +8,7 @@ import type { Tables, TablesInsert, Json } from "@/integrations/supabase/types";
 import type { LatLng } from "./data";
 import { fromFeature, toFeature, isFarmFeature, type FarmFeature } from "./farm-plot";
 import { DEMO_USER_ID, FARM_FIELDS_KEY } from "./demo-profile";
+import { createId } from "./id";
 
 // Keep FarmFieldRow type alias for any code that still references it.
 export type FarmFieldRow = Tables<"farm_fields">;
@@ -144,7 +145,7 @@ export async function createFarmField(params: {
   const centerLon = Math.round((lonSum / params.boundary.length) * 10000) / 10000;
 
   const newField: FarmField = {
-    id: crypto.randomUUID(),
+    id: createId(),
     userId: DEMO_USER_ID,
     fieldName: params.fieldName.trim() || "My Farm Plot",
     province: params.province,

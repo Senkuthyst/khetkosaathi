@@ -2,10 +2,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { isFarmFeature, type FarmFeature } from "./farm-plot";
 
+import { createId } from "./id";
+
 function deviceToken() {
   let token = localStorage.getItem("naip.device");
   if (!token) {
-    token = crypto.randomUUID();
+    token = createId();
     localStorage.setItem("naip.device", token);
   }
   return token;

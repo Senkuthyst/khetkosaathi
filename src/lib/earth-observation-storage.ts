@@ -10,12 +10,13 @@ import type {
   NasaPowerDailySet,
   NasaPowerObservationResult,
 } from "./data/earth-observation-contract";
+import { createId } from "./id";
 
 function deviceToken(): string {
   if (typeof window === "undefined") return "00000000-0000-0000-0000-000000000000";
   let token = localStorage.getItem("naip.device");
   if (!token) {
-    token = crypto.randomUUID();
+    token = createId();
     localStorage.setItem("naip.device", token);
   }
   return token;
